@@ -169,6 +169,16 @@
                     <include>application.properties</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/**.*</include>
+                </includes>
+                <excludes>
+                    <exclude>application.properties</exclude>
+                </excludes>
+            </resource>
         </resources>
 
         <finalName>${artifactId}</finalName>
