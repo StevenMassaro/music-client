@@ -1,9 +1,14 @@
 package musicclient.endpoint;
 
 import music.model.Track;
+import musicclient.model.impl.PrivateSettings;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,19 +19,16 @@ import java.util.List;
 @RequestMapping("/sync")
 public class SyncEndpoint {
 
-    @Value("${zuul.routes.music-api.url}")
-    private String zuulRoute;
-
-    @Value("${local.music.file.location}")
-    private String localMusicFileLocation;
+    @Autowired
+    private PrivateSettings settings;
 
     @PostMapping
     public void sample(@RequestBody List<Track> tracksToSync) throws IOException {
         if (tracksToSync != null) {
             for (Track track : tracksToSync) {
                 FileUtils.copyURLToFile(
-                        new URL(zuulRoute + "/track/" + track.getId() + "/stream"),
-                        new File(localMusicFileLocation + track.getLocation())//,
+                        new URL(settings.getZuulRoute() + "/track/" + track.getId() + "/stream"),
+                        new File(settings.getLocalMusicFileLocation() + track.getId() + "." + FilenameUtils.getExtension(track.getLocation()))//,
 //                CONNECT_TIMEOUT,
 //                READ_TIMEOUT
                 );

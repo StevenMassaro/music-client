@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import ReactAudioPlayer from 'react-audio-player';
+import {MUSIC_FILE_SOURCE_TYPES} from "./App";
 
 class PlayerComponent extends Component {
     constructor(props) {
@@ -28,10 +29,9 @@ class PlayerComponent extends Component {
                 </span>}
                 {this.props.songs &&
                 <span>
-                    <button onClick={this.props.shuffle}>
-                    Shuffle
-                </button>
-                    <button onClick={this.props.performSync}>Sync</button>
+                    <button onClick={this.props.shuffle}>Shuffle</button>
+                    {this.props.settings && this.props.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local &&
+                    <button onClick={this.props.performSync}>Sync</button>}
                 </span>}
         </div>
         )

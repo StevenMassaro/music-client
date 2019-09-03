@@ -7,6 +7,12 @@ import PlayerComponent from "./PlayerComponent";
 
 export const ZUUL_ROUTE = '/music-api';
 
+export const MUSIC_FILE_SOURCE_TYPES = {
+    local: 'local',
+    remote: 'remote'
+};
+
+
 class App extends Component {
 
     constructor(props) {
@@ -19,6 +25,7 @@ class App extends Component {
 
     componentDidMount() {
         this.listSongs();
+        this.getSettings();
     }
 
     addToPlaylist = (song) => {
@@ -37,7 +44,17 @@ class App extends Component {
     };
 
     getCurrentSongSrc = () => {
-        return this.state.upNext ? "./track/" + this.state.upNext[0].id + "/stream" : undefined;
+        if (this.state.upNext) {
+            if (this.state.settings) {
+                if (this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local) {
+                    return "./track/" + this.state.upNext[0].id + "/stream";
+                } else {
+                    return "." + ZUUL_ROUTE + "/track/" + this.state.upNext[0].id + "/stream";
+                }
+            }
+        } else {
+            return undefined;
+        }
     };
 
     onCurrentSongEnd = (audioElement) => {
@@ -71,6 +88,34 @@ class App extends Component {
                         loadingSongs: false,
                         loadedSongs: true,
                         errorSongs: error
+                    });
+                }
+            );
+    };
+
+    getSettings = () => {
+        this.setState({
+            loadingSettings: true,
+            loadedSettings: false
+        });
+        fetch("./settings/")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        loadingSettings: false,
+                        loadedSettings: true,
+                        settings: result
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        loadingSettings: false,
+                        loadedSettings: true,
+                        errorSettings: error
                     });
                 }
             );
@@ -133,6 +178,7 @@ class App extends Component {
                         shuffle={this.shuffle}
                         songs={this.state.songs}
                         performSync={this.performSync}
+                        settings={this.state.settings}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
