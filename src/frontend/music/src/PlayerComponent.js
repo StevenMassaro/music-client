@@ -26,9 +26,13 @@ class PlayerComponent extends Component {
                         Next
                     </button>
                 </span>}
-                {this.props.songs && <button onClick={this.props.shuffle}>
+                {this.props.songs &&
+                <span>
+                    <button onClick={this.props.shuffle}>
                     Shuffle
-                </button>}
+                </button>
+                    <button onClick={this.props.performSync}>Sync</button>
+                </span>}
         </div>
         )
     }

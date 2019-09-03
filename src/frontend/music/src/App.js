@@ -5,6 +5,8 @@ import SongListComponent from "./SongListComponent";
 import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
 
+export const ZUUL_ROUTE = '/music-api';
+
 class App extends Component {
 
     constructor(props) {
@@ -57,7 +59,7 @@ class App extends Component {
             loadingSongs: true,
             loadedSongs: false
         });
-        fetch("./track/")
+        fetch("." + ZUUL_ROUTE + "/track/")
             .then(res => res.json())
             .then(
                 (result) => {
@@ -75,6 +77,39 @@ class App extends Component {
                         loadingSongs: false,
                         loadedSongs: true,
                         errorSongs: error
+                    });
+                }
+            );
+    };
+
+    performSync = () => {
+        this.setState({
+            syncing: true,
+            synced: false
+        });
+        fetch("./sync/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.state.songs)
+        })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        syncing: false,
+                        synced: true
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        syncing: false,
+                        synced: true,
+                        errorSync: error
                     });
                 }
             );
@@ -103,6 +138,7 @@ class App extends Component {
                         onSongEnd={this.onCurrentSongEnd}
                         shuffle={this.shuffle}
                         songs={this.state.songs}
+                        performSync={this.performSync}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
