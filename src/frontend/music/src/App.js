@@ -24,13 +24,7 @@ class App extends Component {
     addToPlaylist = (song) => {
         if (song) {
             let upNext = Object.assign([], this.state.upNext);
-            // upNext.push({
-            //     name: song.title,
-            //     singer: song.artist,
-            //     musicSrc: window.location.origin + "/media" + song.location
-            // });
             upNext.push(song);
-
             this.setState({
                 upNext: upNext
             });
