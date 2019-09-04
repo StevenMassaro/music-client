@@ -12,6 +12,9 @@ public class PrivateSettings {
     @Value("${local.music.file.location}")
     private String localMusicFileLocation;
 
+    @Value("${zuul.music-api.authorizationHeader}")
+    private String zuulMusicAuthorizationHeader;
+
     public String getZuulRoute() {
         return zuulRoute;
     }
@@ -26,5 +29,13 @@ public class PrivateSettings {
 
     public void setLocalMusicFileLocation(String localMusicFileLocation) {
         this.localMusicFileLocation = localMusicFileLocation;
+    }
+
+    public String getZuulMusicAuthorizationHeader() {
+        return zuulMusicAuthorizationHeader;
+    }
+
+    public void setZuulMusicAuthorizationHeader(String zuulMusicAuthorizationHeader) {
+        this.zuulMusicAuthorizationHeader = zuulMusicAuthorizationHeader;
     }
 }
