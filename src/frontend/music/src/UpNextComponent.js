@@ -5,10 +5,6 @@ import "react-table/react-table.css";
 
 
 class UpNextComponent extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <span>

@@ -4,10 +4,6 @@ import ReactAudioPlayer from 'react-audio-player';
 import {MUSIC_FILE_SOURCE_TYPES} from "./App";
 
 class PlayerComponent extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (<div style={{"width":"100%"}}>
             {this.props.currentSongSrc() &&
