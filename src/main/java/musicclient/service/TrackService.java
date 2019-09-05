@@ -1,0 +1,56 @@
+package musicclient.service;
+
+import musicclient.model.impl.PrivateSettings;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+
+@Service
+public class TrackService {
+
+    @Autowired
+    private PrivateSettings privateSettings;
+
+    /**
+     * Returns the first file found that matches the supplied ID with any extension. Throws exceptions if more than one
+     * file is found or no matching files are found.
+     * @return the matching file if found
+     * @throws IOException when no files are found or too many files are found
+     */
+    public File getFile(long id) throws IOException {
+        Collection<File> possibleFiles = listFiles(id);
+        if(possibleFiles.isEmpty()){
+            throw new IOException(String.format("No files found on disk that match ID %s", id));
+        } else if(possibleFiles.size() > 1){
+            throw new IOException(String.format("Found %s files on disk that match ID %s and expected only 1", possibleFiles.size(), id));
+        } else {
+            for(File file : possibleFiles){
+                return file;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Determine if a file that matches the supplied ID with any extension exists in music directory.
+     * @return true if a matching file is found
+     */
+    public boolean doesFileExist(long id) {
+        return !listFiles(id).isEmpty();
+    }
+
+    /**
+     * List the files found in the music file location that match the supplied ID with any extension.
+     * @return list of files found that match the supplied ID, or an empty collection if no files are found
+     */
+    private Collection<File> listFiles(long id){
+        IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
+        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
+    }
+}
