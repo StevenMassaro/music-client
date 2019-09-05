@@ -10,10 +10,10 @@ public class PublicSettings {
     private String musicFileSource;
 
     public String getMusicFileSource() {
-        return musicFileSource;
+        return musicFileSource.toLowerCase();
     }
 
     public void setMusicFileSource(String musicFileSource) {
-        this.musicFileSource = musicFileSource;
+        this.musicFileSource = musicFileSource.toLowerCase();
     }
 }
