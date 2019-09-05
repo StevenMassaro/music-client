@@ -8,7 +8,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +45,7 @@ public class SyncEndpoint {
                 } else {
                     logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
                     String url = scheme + "://" + serverName + ":" + serverPort +
-                            (StringUtils.isEmpty(contextPath) ? "" : "/") + contextPath + "/music-api/track/" + track.getId() + "/stream";
+                            contextPath + "/music-api/track/" + track.getId() + "/stream";
                     String destinationPath = settings.getLocalMusicFileLocation() + track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
                     logger.debug(String.format("URL: %s", url));
                     logger.debug(String.format("Destination path: %s", destinationPath));
