@@ -42,7 +42,6 @@ public class SyncEndpoint {
             for (int i = 0; i < tracksToSync.size(); i++) {
                 Track track = tracksToSync.get(i);
                 if(trackService.doesFileExist(track.getId())){
-                    //TODO this check needs to be more robust, perhaps checking the file size or a hash of the file to see if it changed.
                     logger.info(String.format("Track %s of %s already exists on disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
                 } else {
                     logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
