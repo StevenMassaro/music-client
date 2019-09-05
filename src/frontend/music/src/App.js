@@ -44,7 +44,7 @@ class App extends Component {
     };
 
     getCurrentSongSrc = () => {
-        if (this.state.upNext) {
+        if (this.state.upNext && this.state.upNext[0]) {
             if (this.state.settings) {
                 if (this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local) {
                     return "./track/" + this.state.upNext[0].id + "/stream";
@@ -168,6 +168,12 @@ class App extends Component {
         });
     };
 
+    modifyUpNext = (newUpNext) => {
+        this.setState({
+            upNext: newUpNext
+        });
+    };
+
     render() {
         return (
             <div>
@@ -196,6 +202,7 @@ class App extends Component {
                                 <div>
                                     <UpNextComponent
                                         upNext={this.state.upNext}
+                                        modifyUpNext={this.modifyUpNext}
                                         defaultFilterMethod={this.defaultFilterMethod}
                                     />
                                 </div>

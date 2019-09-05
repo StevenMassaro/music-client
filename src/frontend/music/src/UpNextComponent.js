@@ -11,7 +11,8 @@ class UpNextComponent extends Component {
 
     render() {
         return (
-            <div>
+            <span>
+                <button onClick={() => this.props.modifyUpNext([])}>Clear up next</button>
                 <ReactTable
                     data={this.props.upNext}
                     pivotBy={[
@@ -68,7 +69,7 @@ class UpNextComponent extends Component {
                     className="-striped -highlight"
                     defaultFilterMethod={this.props.defaultFilterMethod}
                 />
-            </div>
+            </span>
         )
     }
 
