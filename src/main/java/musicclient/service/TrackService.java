@@ -4,6 +4,8 @@ import musicclient.model.impl.PrivateSettings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.Collection;
 
 @Service
 public class TrackService {
+
+    Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     @Autowired
     private PrivateSettings privateSettings;
@@ -50,7 +54,10 @@ public class TrackService {
      * @return list of files found that match the supplied ID, or an empty collection if no files are found
      */
     private Collection<File> listFiles(long id){
+        logger.debug(String.format("Begin listing filtered files (ID: %s)", id));
         IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
-        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
+        Collection<File> files = FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
+        logger.debug(String.format("Finish listing filtered files (ID: %s)", id));
+        return files;
     }
 }
