@@ -18,4 +18,13 @@ node {
       //junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.war'
    }
+   stage('Deploy') {
+		sh label: '', script: '''rm -rf /webapps/${JOB_BASE_NAME}.war
+		while [ -d /webapps/${JOB_BASE_NAME} ]
+		do
+		  sleep 1
+		  echo "${JOB_BASE_NAME} not removed yet, sleeping"
+		done
+		cp ${WORKSPACE}/target/${JOB_BASE_NAME}.war /webapps/${JOB_BASE_NAME}.war'''   
+	}
 }
