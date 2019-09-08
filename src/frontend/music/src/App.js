@@ -93,6 +93,34 @@ class App extends Component {
             );
     };
 
+    deleteSong = id => {
+        this.setState({
+            deletingSong: true,
+            deletedSong: false
+        });
+        fetch("." + ZUUL_ROUTE + "/track/" + id,{
+            method: 'DELETE'
+        })
+            .then(res => res.json())
+            .then((result) => {
+                    let songs = this.state.songs.filter(song => {
+                        return song.id !== result.id
+                    });
+                    this.setState({
+                        deletingSong: false,
+                        deletedSong: true,
+                        songs: songs
+                    });
+                },
+                (error) => {
+                    this.setState({
+                        deletingSong: false,
+                        deletedSong: true,
+                        deletedSongError: error
+                    });
+                });
+    };
+
     getSettings = () => {
         this.setState({
             loadingSettings: true,
@@ -197,6 +225,7 @@ class App extends Component {
                                         error={this.state.errorSongs}
                                         loadedSongs={this.state.loadedSongs}
                                         songs={this.state.songs}
+                                        deleteSong={this.deleteSong}
                                     />
                                 </div>
                                 <div>
