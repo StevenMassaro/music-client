@@ -15,7 +15,6 @@ export const MUSIC_FILE_SOURCE_TYPES = {
     remote: 'remote'
 };
 
-
 class App extends Component {
 
     constructor(props) {
@@ -88,7 +87,7 @@ class App extends Component {
             loadedSongs: false
         });
         fetch("." + ZUUL_ROUTE + "/track/")
-            .then(res => res.json())
+            .then(this._handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
@@ -97,15 +96,13 @@ class App extends Component {
                         songs: result
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
                         loadingSongs: false,
                         loadedSongs: true,
                         errorSongs: error
                     });
+                    error.text().then(errorMessage => toast.error(<div>Failed to list songs:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -124,7 +121,7 @@ class App extends Component {
         fetch("." + ZUUL_ROUTE + "/track/" + id,{
             method: 'DELETE'
         })
-            .then(res => res.json())
+            .then(this._handleRestResponse)
             .then((result) => {
                     let songs = this.state.songs.filter(song => {
                         return song.id !== result.id
@@ -134,6 +131,7 @@ class App extends Component {
                         deletedSong: true,
                         songs: songs
                     });
+                    toast.success("Marked '" + result.title + "' as deleted.");
                 },
                 (error) => {
                     this.setState({
@@ -141,6 +139,7 @@ class App extends Component {
                         deletedSong: true,
                         deletedSongError: error
                     });
+                    error.text().then(errorMessage => toast.error(<div>Failed to delete song:<br/>{errorMessage}</div>));
                 });
     };
 
@@ -150,7 +149,7 @@ class App extends Component {
             loadedSettings: false
         });
         fetch("./settings/")
-            .then(res => res.json())
+            .then(this._handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
@@ -159,15 +158,13 @@ class App extends Component {
                         settings: result
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
                         loadingSettings: false,
                         loadedSettings: true,
                         errorSettings: error
                     });
+                    error.text().then(errorMessage => toast.error(<div>Failed to load settings:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -184,23 +181,22 @@ class App extends Component {
             },
             body: JSON.stringify(this.state.songs)
         })
-            .then(res => res.json())
+            .then(this._handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
                         syncing: false,
                         synced: true
                     });
+                    toast.success("Finished sync successfully.");
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
                         syncing: false,
                         synced: true,
                         errorSync: error
                     });
+                    error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
                 }
             );
     };
