@@ -4,8 +4,11 @@ import SplitPane from "react-split-pane";
 import SongListComponent from "./SongListComponent";
 import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
+import {toast, ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.min.css';
 
 export const ZUUL_ROUTE = '/music-api';
+export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
 export const MUSIC_FILE_SOURCE_TYPES = {
     local: 'local',
@@ -19,7 +22,8 @@ class App extends Component {
         super(props);
         this.state = {
             loadingSongs: false,
-            loadedSongs: false
+            loadedSongs: false,
+            currentSongMarkedListened: false
         };
     }
 
@@ -44,14 +48,26 @@ class App extends Component {
     };
 
     getCurrentSongSrc = () => {
-        if (this.state.upNext && this.state.upNext[0]) {
+        if (this._getCurrentSong()) {
             if (this.state.settings) {
                 if (this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local) {
-                    return "./track/" + this.state.upNext[0].id + "/stream";
+                    return "./track/" + this._getCurrentSong().id + "/stream";
                 } else {
-                    return "." + ZUUL_ROUTE + "/track/" + this.state.upNext[0].id + "/stream";
+                    return "." + ZUUL_ROUTE + "/track/" + this._getCurrentSong().id + "/stream";
                 }
             }
+        } else {
+            return undefined;
+        }
+    };
+
+    /**
+     * Get currently playing song object.
+     * @private
+     */
+    _getCurrentSong = () => {
+        if (this.state.upNext && this.state.upNext[0]) {
+            return this.state.upNext[0];
         } else {
             return undefined;
         }
@@ -61,7 +77,8 @@ class App extends Component {
         let upNext = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
         this.setState({
-            upNext: upNext
+            upNext: upNext,
+            currentSongMarkedListened: false
         }, () => audioElement.play()); // callback to start playing the next song
     };
 
@@ -92,6 +109,12 @@ class App extends Component {
                 }
             );
     };
+
+    /**
+     * Get the relative path of a route which should be routed through Zuul.
+     * @private
+     */
+    _getZuulRoute = (relativePath) => "." + ZUUL_ROUTE + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
 
     deleteSong = id => {
         this.setState({
@@ -197,14 +220,65 @@ class App extends Component {
     };
 
     modifyUpNext = (newUpNext) => {
+        // if clearing the up next list
+        if(newUpNext === []){
+            this.setState({
+                currentSongMarkedListened: false
+            });
+        }
         this.setState({
             upNext: newUpNext
         });
     };
 
+    /**
+     * Determine if the current playing song has exceeded the threshold that determines whether a song is considered
+     * listened to. If exceeded threshold, then tell backend that song was listened to.
+     * @param currentTime current playing time of the song
+     * @param duration full duration of the song
+     */
+    markListenedIfExceedsThreshold = (currentTime, duration) => {
+        const curThresh = currentTime / duration;
+        if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
+            this._markListened(this._getCurrentSong().id);
+            this.setState({
+                currentSongMarkedListened: true
+            })
+        }
+    };
+
+    /**
+     * Send rest request to backend to record that song was played.
+     * @private
+     */
+    _markListened = (id) => {
+        fetch(this._getZuulRoute("track/" + id + "/listened"), {
+            method: 'POST'
+        }).then(this._handleRestResponse)
+            .then(
+                () => {
+                },
+                (error) => {
+                    error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));
+                });
+    };
+
+    /**
+     * Properly parse the rest response. If the response does not come back OK, throw the exception.
+     * @private
+     */
+    _handleRestResponse = (res) => {
+        if (res.ok) {
+            return res.json();
+        } else {
+            throw res;
+        }
+    };
+
     render() {
         return (
             <div>
+                <ToastContainer/>
                 <SplitPane split="horizontal" defaultSize="8%">
                     <PlayerComponent
                         currentSongSrc={this.getCurrentSongSrc}
@@ -213,6 +287,7 @@ class App extends Component {
                         songs={this.state.songs}
                         performSync={this.performSync}
                         settings={this.state.settings}
+                        markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">

@@ -15,6 +15,7 @@ class PlayerComponent extends Component {
                         onEnded={() => this.props.onSongEnd(this.audioPlayer.audioEl)}
                         ref={(element) => { this.audioPlayer = element; }}
                         style={{"width":"70%"}}
+                        onListen={() => this.props.markListenedIfExceedsThreshold(this.audioPlayer.audioEl.currentTime, this.audioPlayer.audioEl.duration)}
                     >
                         Your browser does not support the
                         <code>audio</code> element.
