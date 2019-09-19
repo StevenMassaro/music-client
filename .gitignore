@@ -1,0 +1,6 @@
+*.iml
+.idea/*
+target/
+*.properties
+node/
+src/main/resources/static/
