@@ -12,15 +12,15 @@ class PlayerComponent extends Component {
                         controls
                         src={this.props.currentSongSrc()}
                         autoplay
-                        onEnded={() => this.props.onSongEnd(this.audioPlayer.audioEl)}
-                        ref={(element) => { this.audioPlayer = element; }}
+                        onEnded={this.props.onSongEnd}
+                        ref={(element) => this.props.setAudioElement(element)}
                         style={{"width":"70%"}}
-                        onListen={() => this.props.markListenedIfExceedsThreshold(this.audioPlayer.audioEl.currentTime, this.audioPlayer.audioEl.duration)}
+                        onListen={() => this.props.markListenedIfExceedsThreshold}
                     >
                         Your browser does not support the
                         <code>audio</code> element.
                     </ReactAudioPlayer>
-                    <button onClick={() => this.props.onSongEnd(this.audioPlayer.audioEl)}>
+                    <button onClick={this.props.onSongEnd}>
                         Next
                     </button>
                 </span>}

@@ -72,13 +72,13 @@ class App extends Component {
         }
     };
 
-    onCurrentSongEnd = (audioElement) => {
+    onCurrentSongEnd = () => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
         this.setState({
             upNext: upNext,
             currentSongMarkedListened: false
-        }, () => audioElement.play()); // callback to start playing the next song
+        }, () => this.state.audioEl.play());
     };
 
     listSongs = () => {
@@ -215,6 +215,14 @@ class App extends Component {
         });
     };
 
+    setAudioElement = (element) => {
+        if(element && (!this.state.audioEl || this.state.audioEl !== element.audioEl)){
+            this.setState({
+                audioEl: element.audioEl
+            });
+        }
+    };
+
     modifyUpNext = (newUpNext) => {
         // if clearing the up next list
         if(newUpNext === []){
@@ -230,11 +238,9 @@ class App extends Component {
     /**
      * Determine if the current playing song has exceeded the threshold that determines whether a song is considered
      * listened to. If exceeded threshold, then tell backend that song was listened to.
-     * @param currentTime current playing time of the song
-     * @param duration full duration of the song
      */
-    markListenedIfExceedsThreshold = (currentTime, duration) => {
-        const curThresh = currentTime / duration;
+    markListenedIfExceedsThreshold = () => {
+        const curThresh = this.state.audioEl.currentTime / this.state.audioEl.duration;
         if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
             this._markListened(this._getCurrentSong().id);
             this.setState({
@@ -284,6 +290,7 @@ class App extends Component {
                         performSync={this.performSync}
                         settings={this.state.settings}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
+                        setAudioElement={this.setAudioElement}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
