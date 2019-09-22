@@ -60,4 +60,8 @@ public class TrackService {
         logger.debug(String.format("Finish listing filtered files (ID: %s)", id));
         return files;
     }
+
+    public Collection<File> listFiles(){
+        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), null, true);
+    }
 }
