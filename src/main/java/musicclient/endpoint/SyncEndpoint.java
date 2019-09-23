@@ -60,7 +60,7 @@ public class SyncEndpoint {
             // rename all existing files
             renameExistingFiles(syncResult, tracksToSync, currentTime);
 
-            Map<String, File> existingFilesHash = determineExistingFilesHashes();
+            Map<String, File> existingFilesHash = determineExistingFilesHashes(currentTime);
             Map<String, String> newFilesHashes = new HashMap<>();
             // find existing files which match the hashes of files to sync, otherwise download the file from the server
             for (int i = 0; i < tracksToSync.size(); i++) {
@@ -133,7 +133,7 @@ public class SyncEndpoint {
         }
     }
 
-    private Map<String, File> determineExistingFilesHashes() throws IOException {
+    private Map<String, File> determineExistingFilesHashes(long currentTime) throws IOException {
         Map<String, File> existingFilesHash = new HashMap<>();
         Map<String, String> hashDump = loadExistingHashDump();
         Collection<File> existingFiles = trackService.listFiles();
@@ -144,7 +144,7 @@ public class SyncEndpoint {
             if (existingFileCount % 100 == 0) {
                 logger.info(String.format("Hashed %s of a total of %s files", existingFileCount, existingFiles.size()));
             }
-            String originalFileName = existingFile.getName().split(RENAME_SEPARATOR)[1];
+            String originalFileName = existingFile.getName().replace(currentTime + "_", "");
             String renamedFileHash;
             if (hashDump.containsKey(originalFileName)) {
                 logger.debug(String.format("Hash dump contains hash for existing file %s, loading instead of recalculating", existingFile.getName()));
