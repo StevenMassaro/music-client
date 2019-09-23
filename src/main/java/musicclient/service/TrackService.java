@@ -62,6 +62,6 @@ public class TrackService {
     }
 
     public Collection<File> listFiles(){
-        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), null, true);
+        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), new String[]{"mp3", "MP3", "flac", "FLAC"}, true);
     }
 }

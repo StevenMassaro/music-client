@@ -7,6 +7,7 @@ public class SyncResult {
     private long totalFiles = 0;
     private long existingFiles = 0;
     private long newlyDownloadedFiles = 0;
+    private long failedDownloadedFiles = 0;
     private long unmatchedDeletedFiles = 0;
     private boolean success = false;
 
@@ -36,6 +37,15 @@ public class SyncResult {
         newlyDownloadedFiles = newlyDownloadedFiles + 1;
     }
 
+    public long getFailedDownloadedFiles() {
+        return failedDownloadedFiles;
+    }
+
+    @JsonIgnore
+    public void incrementFailedDownloadedFiles() {
+        failedDownloadedFiles = failedDownloadedFiles + 1;
+    }
+
     public long getUnmatchedDeletedFiles() {
         return unmatchedDeletedFiles;
     }
@@ -45,7 +55,11 @@ public class SyncResult {
     }
 
     public boolean isSuccess() {
-        return success;
+        if (failedDownloadedFiles > 0) {
+            return false;
+        } else {
+            return success;
+        }
     }
 
     public void setSuccess(boolean success) {
@@ -58,6 +72,7 @@ public class SyncResult {
                 "totalFiles=" + totalFiles +
                 ", existingFiles=" + existingFiles +
                 ", newlyDownloadedFiles=" + newlyDownloadedFiles +
+                ", failedDownloadedFiles=" + failedDownloadedFiles +
                 ", unmatchedDeletedFiles=" + unmatchedDeletedFiles +
                 ", success=" + success +
                 '}';

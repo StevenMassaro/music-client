@@ -1,5 +1,6 @@
 package musicclient.endpoint;
 
+import com.google.gson.Gson;
 import music.model.Track;
 import musicclient.model.impl.PrivateSettings;
 import musicclient.model.impl.SyncResult;
@@ -17,12 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @RestController
 @RequestMapping("/sync")
@@ -34,10 +34,17 @@ public class SyncEndpoint {
 
     private final TrackService trackService;
 
+    private final PrivateSettings privateSettings;
+
+    private Gson gson = new Gson();
+
+    private final String RENAME_SEPARATOR = "_";
+
     @Autowired
-    public SyncEndpoint(PrivateSettings settings, TrackService trackService) {
+    public SyncEndpoint(PrivateSettings settings, TrackService trackService, PrivateSettings privateSettings) {
         this.settings = settings;
         this.trackService = trackService;
+        this.privateSettings = privateSettings;
     }
 
     @PostMapping
@@ -48,34 +55,24 @@ public class SyncEndpoint {
             int serverPort = request.getServerPort();
             String scheme = request.getScheme();
             String contextPath = request.getContextPath();
-            Map<String, File> existingFilesHash = new HashMap<>();
+            long currentTime = new Date().getTime();
 
-            // rename all existing files, find their hashes
-            logger.info("Renaming existing files on disk, and calculating hashes");
-            Collection<File> existingFiles = trackService.listFiles();
-            syncResult.setTotalFiles(tracksToSync.size());
-            long existingFileCount = 0;
-            for (File existingFile : existingFiles) {
-                existingFileCount++;
-                logger.debug(String.format("Renaming %s to _%s", existingFile.getName(), existingFile.getName()));
-                if (existingFileCount % 100 == 0) {
-                    logger.info(String.format("Renamed %s of a total of %s files", existingFileCount, existingFiles.size()));
-                }
-                File renamedFile = new File(settings.getLocalMusicFileLocation() + "_" + existingFile.getName());
-                FileUtils.moveFile(existingFile, renamedFile);
-                String renamedFileHash = DigestUtils.sha512Hex(FileUtils.readFileToByteArray(renamedFile));
-                existingFilesHash.put(renamedFileHash, renamedFile);
-            }
+            // rename all existing files
+            renameExistingFiles(syncResult, tracksToSync, currentTime);
 
+            Map<String, File> existingFilesHash = determineExistingFilesHashes();
+            Map<String, String> newFilesHashes = new HashMap<>();
             // find existing files which match the hashes of files to sync, otherwise download the file from the server
             for (int i = 0; i < tracksToSync.size(); i++) {
                 Track track = tracksToSync.get(i);
-                String destinationPath = settings.getLocalMusicFileLocation() + track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
+                String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
+                String destinationPath = settings.getLocalMusicFileLocation() + destinationFilename;
                 File existingFile = existingFilesHash.get(track.getHash());
                 if (existingFile != null) {
                     logger.info(String.format("Track %s of %s already exists on disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
                     FileUtils.moveFile(existingFile, new File(destinationPath));
                     existingFilesHash.remove(track.getHash());
+                    newFilesHashes.put(destinationFilename, track.getHash());
                     syncResult.incrementExistingFiles();
                 } else {
                     logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
@@ -89,9 +86,20 @@ public class SyncEndpoint {
 //                CONNECT_TIMEOUT,
 //                READ_TIMEOUT
                     );
-                    syncResult.incrementNewlyDownloadedFiles();
+                    // ensure downloaded file matches expected
+                    String downloadedFileHash = calculateHash(new File(destinationPath));
+                    if(downloadedFileHash.equals(track.getHash())){
+                        logger.debug(String.format("Successfully downloaded track %s, hashes match", track.getTitle()));
+                        newFilesHashes.put(destinationFilename, track.getHash());
+                        syncResult.incrementNewlyDownloadedFiles();
+                    } else{
+                        logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
+                        FileUtils.forceDelete(new File(destinationPath));
+                        syncResult.incrementFailedDownloadedFiles();
+                    }
                 }
             }
+            dumpHashesToDisk(newFilesHashes);
 
             // delete any leftover files on disk which don't match any hash in the server
             if (!existingFilesHash.isEmpty()) {
@@ -106,5 +114,70 @@ public class SyncEndpoint {
         syncResult.setSuccess(true);
         logger.info(syncResult.toString());
         return syncResult;
+    }
+
+    private void renameExistingFiles(SyncResult syncResult, List<Track> tracksToSync, long currentTime) throws IOException {
+        logger.info("Renaming existing files on disk");
+        Collection<File> existingFiles = trackService.listFiles();
+        syncResult.setTotalFiles(tracksToSync.size());
+        long existingFileCount = 0;
+        for (File existingFile : existingFiles) {
+            existingFileCount++;
+            String newName = currentTime + RENAME_SEPARATOR + existingFile.getName();
+            logger.debug(String.format("Renaming %s to %s", existingFile.getName(), newName));
+            if (existingFileCount % 100 == 0) {
+                logger.info(String.format("Renamed %s of a total of %s files", existingFileCount, existingFiles.size()));
+            }
+            File renamedFile = new File(settings.getLocalMusicFileLocation() + newName);
+            FileUtils.moveFile(existingFile, renamedFile);
+        }
+    }
+
+    private Map<String, File> determineExistingFilesHashes() throws IOException {
+        Map<String, File> existingFilesHash = new HashMap<>();
+        Map<String, String> hashDump = loadExistingHashDump();
+        Collection<File> existingFiles = trackService.listFiles();
+        long existingFileCount = 0;
+        for (File existingFile : existingFiles) {
+            existingFileCount++;
+            logger.debug(String.format("Hashing %s", existingFile.getName()));
+            if (existingFileCount % 100 == 0) {
+                logger.info(String.format("Hashed %s of a total of %s files", existingFileCount, existingFiles.size()));
+            }
+            String originalFileName = existingFile.getName().split(RENAME_SEPARATOR)[1];
+            String renamedFileHash;
+            if (hashDump.containsKey(originalFileName)) {
+                logger.debug(String.format("Hash dump contains hash for existing file %s, loading instead of recalculating", existingFile.getName()));
+                renamedFileHash = hashDump.get(originalFileName);
+            } else {
+                logger.debug(String.format("Hash dump does not contain hash for existing file %s, calculating hash", existingFile.getName()));
+                renamedFileHash = calculateHash(existingFile);
+            }
+            existingFilesHash.put(renamedFileHash, existingFile);
+        }
+        return existingFilesHash;
+    }
+
+    private String calculateHash(File file) throws IOException {
+        return DigestUtils.sha512Hex(FileUtils.readFileToByteArray(file));
+    }
+
+    private Map<String, String> loadExistingHashDump() throws IOException {
+        logger.info("Loading hash dump");
+        try{
+            String hashDump = FileUtils.readFileToString(getHashDumpFile(), StandardCharsets.UTF_8);
+            return (Map<String, String>) gson.fromJson(hashDump, Map.class);
+        } catch (FileNotFoundException e){
+            logger.error("No existing hash dump found", e);
+            return new HashMap<>();
+        }
+    }
+
+    private void dumpHashesToDisk(Map<String, String> newFilesHashes) throws IOException {
+        FileUtils.write(getHashDumpFile(), gson.toJson(newFilesHashes), StandardCharsets.UTF_8);
+    }
+
+    private File getHashDumpFile(){
+        return new File(privateSettings.getLocalMusicFileLocation() + "hashes.txt");
     }
 }
