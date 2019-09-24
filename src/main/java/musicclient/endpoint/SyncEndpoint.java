@@ -95,7 +95,7 @@ public class SyncEndpoint {
                     } else{
                         logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
                         FileUtils.forceDelete(new File(destinationPath));
-                        syncResult.incrementFailedDownloadedFiles();
+                        syncResult.addFailedDownloadedFile(track);
                     }
                 }
             }

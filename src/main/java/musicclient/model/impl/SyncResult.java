@@ -1,13 +1,18 @@
 package musicclient.model.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import music.model.Track;
+
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SyncResult {
 
     private long totalFiles = 0;
     private long existingFiles = 0;
     private long newlyDownloadedFiles = 0;
-    private long failedDownloadedFiles = 0;
+    private List<Track> failedDownloadedFiles = new ArrayList<>();
     private long unmatchedDeletedFiles = 0;
     private boolean success = false;
 
@@ -37,13 +42,13 @@ public class SyncResult {
         newlyDownloadedFiles = newlyDownloadedFiles + 1;
     }
 
-    public long getFailedDownloadedFiles() {
+    public List<Track> getFailedDownloadedFiles() {
         return failedDownloadedFiles;
     }
 
     @JsonIgnore
-    public void incrementFailedDownloadedFiles() {
-        failedDownloadedFiles = failedDownloadedFiles + 1;
+    public void addFailedDownloadedFile(Track track) {
+        failedDownloadedFiles.add(track);
     }
 
     public long getUnmatchedDeletedFiles() {
@@ -55,7 +60,7 @@ public class SyncResult {
     }
 
     public boolean isSuccess() {
-        if (failedDownloadedFiles > 0) {
+        if (failedDownloadedFiles.size() > 0) {
             return false;
         } else {
             return success;
