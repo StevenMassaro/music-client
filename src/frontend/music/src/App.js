@@ -259,6 +259,12 @@ class App extends Component {
         }).then(this._handleRestResponse)
             .then(
                 () => {
+                    let songs = Object.assign([], this.state.songs);
+                    // find the matching song, and increment the play counter in the state
+                    songs.find(song => song.id === id).plays++;
+                    this.setState({
+                        songs
+                    });
                 },
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));

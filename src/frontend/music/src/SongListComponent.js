@@ -80,7 +80,7 @@ class SongListComponent extends Component {
                             },
                             {
                                 Header: "Plays",
-                                accessor: "playCounter",
+                                accessor: "plays",
                                 maxWidth: 50
                             },
                             {
