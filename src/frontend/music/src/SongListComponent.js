@@ -98,19 +98,15 @@ class SongListComponent extends Component {
 
                     />
                 </ContextMenuTrigger>
-                {
-                    this.state.showContextMenu ?
-                        <ContextMenu id='menu_id'>
-                            <MenuItem
-                                data={this.state.clickedData || null}
-                                onClick={(e,props) => this.props.deleteSong(props.id)}
-                            ><div className="green">
-                                Delete '{this.state.clickedData.title || null}'
-                            </div>
-                            </MenuItem>
-                        </ContextMenu>
-                        :null
-                }
+                <ContextMenu id='menu_id'>
+                    <MenuItem
+                        data={this.state.clickedData}
+                        onClick={(e,props) => this.props.deleteSong(props.id)}
+                    ><div className="green">
+                        Delete '{this.state.clickedData ? this.state.clickedData.title : null}'
+                    </div>
+                    </MenuItem>
+                </ContextMenu>
             </div>
         );
     }
