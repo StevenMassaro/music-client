@@ -156,7 +156,7 @@ class App extends Component {
                         loadingSettings: false,
                         loadedSettings: true,
                         settings: result
-                    });
+                    }, this.getDeviceId);
                 },
                 (error) => {
                     this.setState({
@@ -165,6 +165,32 @@ class App extends Component {
                         errorSettings: error
                     });
                     error.text().then(errorMessage => toast.error(<div>Failed to load settings:<br/>{errorMessage}</div>));
+                }
+            );
+    };
+
+    getDeviceId = () => {
+        this.setState({
+            loadingDevice: true,
+            loadedDevice: false
+        });
+        fetch(this._getZuulRoute("/device/name/" + this.state.settings.deviceName))
+            .then(this._handleRestResponse)
+            .then(
+                (result) => {
+                    this.setState({
+                        loadingDevice: false,
+                        loadedDevice: true,
+                        device: result
+                    });
+                },
+                (error) => {
+                    this.setState({
+                        loadingDevice: false,
+                        loadedDevice: true,
+                        errorDevice: error
+                    });
+                    error.text().then(errorMessage => toast.error(<div>Failed to load device:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -254,7 +280,7 @@ class App extends Component {
      * @private
      */
     _markListened = (id) => {
-        fetch(this._getZuulRoute("track/" + id + "/listened"), {
+        fetch(this._getZuulRoute("track/" + id + "/listened?deviceId=" + this.state.device.id), {
             method: 'POST'
         }).then(this._handleRestResponse)
             .then(
