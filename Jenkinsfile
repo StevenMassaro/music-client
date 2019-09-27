@@ -9,23 +9,18 @@ node {
       // Run the maven build
       withEnv(["MVN_HOME=$mvnHome"]) {
          if (isUnix()) {
-            sh '"$MVN_HOME/bin/mvn" -Dmaven.test.failure.ignore clean package -P ui'
+            sh '"$MVN_HOME/bin/mvn" -Dmaven.test.failure.ignore clean package -P ui dockerfile:build'
          } else {
-            bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore clean package -P ui/)
+            bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore clean package -P ui dockerfile:build/)
          }
       }
    }
    stage('Results') {
       //junit '**/target/surefire-reports/TEST-*.xml'
-      archiveArtifacts 'target/*.war'
+      archiveArtifacts 'target/*.jar'
    }
-   stage('Deploy') {
-		sh label: '', script: '''rm -rf /webapps/${JOB_BASE_NAME}.war
-		while [ -d /webapps/${JOB_BASE_NAME} ]
-		do
-		  sleep 1
-		  echo "${JOB_BASE_NAME} not removed yet, sleeping"
-		done
-		cp ${WORKSPACE}/target/${JOB_BASE_NAME}.war /webapps/${JOB_BASE_NAME}.war'''   
-	}
+   stage('Publish docker image') {
+       sh label: '', script: 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+       sh label: '', script: 'docker push stevenmassaro/music-client:latest'
+   }
 }
