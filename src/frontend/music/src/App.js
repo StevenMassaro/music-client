@@ -200,7 +200,7 @@ class App extends Component {
             syncing: true,
             synced: false
         });
-        fetch("./sync/", {
+        fetch(this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ? "./sync/" : this._getZuulRoute("/admin/dbSync"), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
