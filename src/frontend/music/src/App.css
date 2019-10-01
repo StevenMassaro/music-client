@@ -36,6 +36,14 @@
   height: 95vh;
 }
 
+.ReactTable .rt-td {
+  padding: 2px !important;
+}
+
+.ReactTable .rt-tbody {
+  font-size: 12px
+}
+
 .rt-tr-group {
   flex: 0 0 auto !important;
 }
