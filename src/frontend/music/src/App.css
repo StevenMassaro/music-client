@@ -33,7 +33,17 @@
 }
 
 .ReactTable {
-  height: 95vh;
+  height: 100% !important;
+  width: 100% !important;
+  right: 0 !important;
+  top: 0 !important;
+  position: absolute !important;
+  border: 0 !important;
+}
+
+.songListPane {
+  overflow: hidden !important;
+  height: 100% !important;
 }
 
 .ReactTable .rt-td {

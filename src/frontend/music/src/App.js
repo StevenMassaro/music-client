@@ -328,7 +328,7 @@ class App extends Component {
                         <SplitPane split="vertical" defaultSize="15%">
                             <div></div>
                             <SplitPane split="vertical" defaultSize="70%">
-                                <div>
+                                <div className="songListPane">
                                     <SongListComponent
                                         addToPlaylist={this.addToPlaylist}
                                         defaultFilterMethod={this.defaultFilterMethod}
