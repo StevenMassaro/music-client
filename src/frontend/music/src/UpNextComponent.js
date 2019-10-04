@@ -52,7 +52,7 @@ class UpNextComponent extends Component {
                             maxWidth: 175
                         },
                     ]}
-                    defaultPageSize={1000}
+                    defaultPageSize={50}
                     minRows={0}
                     noDataText={"No songs in up next."}
                     filterable={true}
