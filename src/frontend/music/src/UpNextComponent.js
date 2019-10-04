@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
+import {ContextMenu, MenuItem} from "react-contextmenu";
 
 
 class UpNextComponent extends Component {
@@ -11,22 +12,7 @@ class UpNextComponent extends Component {
                 <button onClick={() => this.props.modifyUpNext([])}>Clear up next</button>
                 <ReactTable
                     data={this.props.upNext}
-                    pivotBy={[
-                        // 'artist'
-                        // 'artist', 'album'
-                        // 'album'
-                    ]}
                     columns={[
-                        // {
-                        //     Header: "D",
-                        //     accessor: "discNumber",
-                        //     maxWidth: 25
-                        // },
-                        // {
-                        //     Header: "T",
-                        //     accessor: "trackNumber",
-                        //     maxWidth: 50
-                        // },
                         {
                             Header: "Title",
                             accessor: "title",
@@ -42,21 +28,6 @@ class UpNextComponent extends Component {
                             accessor: "album",
                             maxWidth: 175
                         },
-                        // {
-                        //     Header: "Genre",
-                        //     accessor: "genre",
-                        //     maxWidth: 175
-                        // },
-                        // {
-                        //     Header: "Plays",
-                        //     accessor: "playCounter",
-                        //     maxWidth: 50
-                        // },
-                        // {
-                        //     Header: "Rating",
-                        //     accessor: "rating",
-                        //     maxWidth: 50
-                        // }
                     ]}
                     defaultPageSize={1000}
                     minRows={0}
