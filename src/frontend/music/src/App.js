@@ -288,6 +288,18 @@ class App extends Component {
     };
 
     /**
+     * Put the specified song next in line to be played
+     * @param song
+     */
+    playNext = (song) => {
+        let upNext = Object.assign([], this.state.upNext);
+        upNext.splice(1, 0, song);
+        this.setState({
+            upNext
+        });
+    };
+
+    /**
      * Determine if the current playing song has exceeded the threshold that determines whether a song is considered
      * listened to. If exceeded threshold, then tell backend that song was listened to.
      */
@@ -362,6 +374,7 @@ class App extends Component {
                                         loadedSongs={this.state.loadedSongs}
                                         songs={this.state.songs}
                                         deleteSong={this.deleteSong}
+                                        playNext={this.playNext}
                                     />
                                 </div>
                                 <div>
