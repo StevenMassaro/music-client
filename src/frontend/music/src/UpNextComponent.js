@@ -20,6 +20,8 @@ class UpNextComponent extends Component {
 
     _getIndex = () => this.state.clickedData ? this.state.clickedData.index : null;
 
+    _shouldRenderMoveDown = () => this.props.upNext && this._getIndex() < this.props.upNext.length-1;
+
     render() {
         return (
             <span>
@@ -59,6 +61,18 @@ class UpNextComponent extends Component {
                 />
                 </ContextMenuTrigger>
                 <ContextMenu id='upNextMenu'>
+                    {this._getIndex() > 0 &&
+                        <MenuItem data={this.state.clickedData}
+                                  onClick={() => this.props.moveInUpNext(this._getIndex(), 1)}>
+                            <div className="green">Move '{this._getTitle()}' up</div>
+                        </MenuItem>
+                    }
+                    {this._shouldRenderMoveDown() &&
+                        <MenuItem data={this.state.clickedData}
+                                  onClick={() => this.props.moveInUpNext(this._getIndex(), -1)}>
+                            <div className="green">Move '{this._getTitle()}' down</div>
+                        </MenuItem>
+                    }
                     <MenuItem data={this.state.clickedData}
                               onClick={() => this.props.removeFromUpNext(this._getIndex())}>
                         <div className="green">Remove '{this._getTitle()}'</div>

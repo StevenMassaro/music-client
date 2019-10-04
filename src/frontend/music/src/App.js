@@ -270,6 +270,24 @@ class App extends Component {
     };
 
     /**
+     * Move a song in the up next list by the amount specified in the offset.
+     * @param indexA index of song to move
+     * @param offset the distance to move the song, -1 moves it one spot down, 1 moves it one spot up
+     */
+    moveInUpNext = (indexA, offset) => {
+        let upNext = Object.assign([], this.state.upNext);
+        let indexB = indexA - offset;
+
+        let tmp = upNext[indexA];
+        upNext[indexA] = upNext[indexB];
+        upNext[indexB] = tmp;
+
+        this.setState({
+            upNext
+        });
+    };
+
+    /**
      * Determine if the current playing song has exceeded the threshold that determines whether a song is considered
      * listened to. If exceeded threshold, then tell backend that song was listened to.
      */
@@ -352,6 +370,7 @@ class App extends Component {
                                         modifyUpNext={this.modifyUpNext}
                                         defaultFilterMethod={this.defaultFilterMethod}
                                         removeFromUpNext={this.removeFromUpNext}
+                                        moveInUpNext={this.moveInUpNext}
                                     />
                                 </div>
                             </SplitPane>
