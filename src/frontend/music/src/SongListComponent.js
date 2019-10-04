@@ -24,20 +24,10 @@ class SongListComponent extends Component {
                 <ContextMenuTrigger id="menu_id">
                     <ReactTable
                         data={songs}
-                        pivotBy={[
-                            // 'artist'
-                            // 'artist', 'album'
-                            // 'album'
-                        ]}
-                        getTdProps={(state, rowInfo, column, instance) => {
+                        getTdProps={(state, rowInfo) => {
                             return {
                                 onClick: (e, handleOriginal) => {
                                     this.props.addToPlaylist(rowInfo.original);
-                                    // IMPORTANT! React-Table uses onClick internally to trigger
-                                    // events like expanding SubComponents and pivots.
-                                    // By default a custom 'onClick' handler will override this functionality.
-                                    // If you want to fire the original onClick handler, call the
-                                    // 'handleOriginal' function.
                                     if (handleOriginal) {
                                         handleOriginal();
                                     }
