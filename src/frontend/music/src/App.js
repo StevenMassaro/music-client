@@ -227,8 +227,11 @@ class App extends Component {
             );
     };
 
-    shuffle = () => {
-        let a = Object.assign([], this.state.songs);
+    /**
+     * Shuffle the provided songs
+     */
+    shuffleSongs = (songs) => {
+        let a = Object.assign([], songs);
         var j, x, i;
         for (i = a.length - 1; i > 0; i--) {
             j = Math.floor(Math.random() * (i + 1));
@@ -355,7 +358,6 @@ class App extends Component {
                     <PlayerComponent
                         currentSongSrc={this.getCurrentSongSrc}
                         onSongEnd={this.onCurrentSongEnd}
-                        shuffle={this.shuffle}
                         songs={this.state.songs}
                         performSync={this.performSync}
                         settings={this.state.settings}
@@ -375,6 +377,7 @@ class App extends Component {
                                         songs={this.state.songs}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
+                                        shuffleSongs={this.shuffleSongs}
                                     />
                                 </div>
                                 <div>

@@ -25,7 +25,6 @@ class PlayerComponent extends Component {
                 </span>}
                 {this.props.songs &&
                 <span>
-                    <button onClick={this.props.shuffle}>Shuffle</button>
                     {this.props.settings &&
                     <button onClick={this.props.performSync}>Sync</button>}
                 </span>}

@@ -15,6 +15,8 @@ class SongListComponent extends Component {
         };
     }
 
+    _getFilteredSongList = () => this.state.tableRef.getResolvedState().sortedData;
+
     render() {
 
         const {error, loadedSongs, songs} = this.props;
@@ -24,6 +26,12 @@ class SongListComponent extends Component {
                 <ContextMenuTrigger id="menu_id">
                     <ReactTable
                         data={songs}
+                        ref={(tableRef) => {
+                            !this.state.tableRef &&
+                            this.setState({
+                                tableRef
+                            });
+                        }}
                         getTdProps={(state, rowInfo) => {
                             return {
                                 onClick: (e, handleOriginal) => {
@@ -89,6 +97,10 @@ class SongListComponent extends Component {
                     />
                 </ContextMenuTrigger>
                 <ContextMenu id='menu_id'>
+                    <MenuItem data={this.state.clickedData}
+                              onClick={() => this.props.shuffleSongs(this._getFilteredSongList())}>
+                        <div className="green">Shuffle visible</div>
+                    </MenuItem>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.playNext(props)}>
                         <div className="green">Play '{this.state.clickedData ? this.state.clickedData.title : null}' next</div>
