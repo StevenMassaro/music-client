@@ -261,6 +261,14 @@ class App extends Component {
         });
     };
 
+    removeFromUpNext = (index) => {
+        let upNext = Object.assign([], this.state.upNext);
+        upNext.splice(index, 1);
+        this.setState({
+            upNext
+        });
+    };
+
     /**
      * Determine if the current playing song has exceeded the threshold that determines whether a song is considered
      * listened to. If exceeded threshold, then tell backend that song was listened to.
@@ -343,6 +351,7 @@ class App extends Component {
                                         upNext={this.state.upNext}
                                         modifyUpNext={this.modifyUpNext}
                                         defaultFilterMethod={this.defaultFilterMethod}
+                                        removeFromUpNext={this.removeFromUpNext}
                                     />
                                 </div>
                             </SplitPane>
