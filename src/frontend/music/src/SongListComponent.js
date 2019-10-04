@@ -89,7 +89,7 @@ class SongListComponent extends Component {
                                 maxWidth: 50
                             }
                         ]}
-                        defaultPageSize={1000}
+                        defaultPageSize={10000}
                         minRows={0}
                         noDataText={loadedSongs ? (error ? error : "No songs in database.") : "Loading songs..."}
                         filterable={true}
