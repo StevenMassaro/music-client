@@ -66,7 +66,7 @@ class App extends Component {
      */
     _getCurrentSong = () => {
         if (this.state.upNext && this.state.upNext[0]) {
-            return this.state.upNext[0];
+            return this.state.upNext[0]._original;
         } else {
             return undefined;
         }
