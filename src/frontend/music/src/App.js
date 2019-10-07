@@ -66,7 +66,7 @@ class App extends Component {
      */
     _getCurrentSong = () => {
         if (this.state.upNext && this.state.upNext[0]) {
-            return this.state.upNext[0]._original;
+            return this.state.upNext[0];
         } else {
             return undefined;
         }
@@ -229,8 +229,9 @@ class App extends Component {
 
     /**
      * Shuffle the provided songs
+     * @param selector a function callback that is called on every song provided in songs before setting the state
      */
-    shuffleSongs = (songs) => {
+    shuffleSongs = (songs, selector = s => s) => {
         let a = Object.assign([], songs);
         var j, x, i;
         for (i = a.length - 1; i > 0; i--) {
@@ -240,7 +241,7 @@ class App extends Component {
             a[j] = x;
         }
         this.setState({
-            upNext: a
+            upNext: a.map(selector)
         });
     };
 

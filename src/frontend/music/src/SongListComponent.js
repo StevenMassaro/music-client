@@ -17,6 +17,8 @@ class SongListComponent extends Component {
 
     _getFilteredSongList = () => this.state.tableRef.getResolvedState().sortedData;
 
+    _filteredSongListSelector = (s) => s._original;
+
     render() {
 
         const {error, loadedSongs, songs} = this.props;
@@ -98,7 +100,7 @@ class SongListComponent extends Component {
                 </ContextMenuTrigger>
                 <ContextMenu id='menu_id'>
                     <MenuItem data={this.state.clickedData}
-                              onClick={() => this.props.shuffleSongs(this._getFilteredSongList())}>
+                              onClick={() => this.props.shuffleSongs(this._getFilteredSongList(), this._filteredSongListSelector)}>
                         <div className="green">Shuffle visible</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
