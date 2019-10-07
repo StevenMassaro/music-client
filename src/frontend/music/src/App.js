@@ -31,7 +31,7 @@ class App extends Component {
         this.getSettings();
     }
 
-    addToPlaylist = (song) => {
+    addToEndOfUpNext = (song) => {
         if (song) {
             let upNext = Object.assign([], this.state.upNext);
             upNext.push(song);
@@ -371,7 +371,7 @@ class App extends Component {
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
                                     <SongListComponent
-                                        addToPlaylist={this.addToPlaylist}
+                                        addToEndOfUpNext={this.addToEndOfUpNext}
                                         defaultFilterMethod={this.defaultFilterMethod}
                                         error={this.state.errorSongs}
                                         loadedSongs={this.state.loadedSongs}

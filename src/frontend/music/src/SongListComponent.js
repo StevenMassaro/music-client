@@ -37,7 +37,7 @@ class SongListComponent extends Component {
                         getTdProps={(state, rowInfo) => {
                             return {
                                 onClick: (e, handleOriginal) => {
-                                    this.props.addToPlaylist(rowInfo);
+                                    this.props.addToEndOfUpNext(rowInfo.original);
                                     if (handleOriginal) {
                                         handleOriginal();
                                     }
