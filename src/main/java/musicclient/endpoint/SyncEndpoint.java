@@ -80,20 +80,26 @@ public class SyncEndpoint {
                             contextPath + "/music-api/track/" + track.getId() + "/stream";
                     logger.debug(String.format("URL: %s", url));
                     logger.debug(String.format("Destination path: %s", destinationPath));
-                    FileUtils.copyURLToFile(
-                            new URL(url),
-                            new File(destinationPath)//,
+                    try {
+                        FileUtils.copyURLToFile(
+                                new URL(url),
+                                new File(destinationPath)//,
 //                CONNECT_TIMEOUT,
 //                READ_TIMEOUT
-                    );
-                    // ensure downloaded file matches expected
-                    String downloadedFileHash = calculateHash(new File(destinationPath));
-                    if(downloadedFileHash.equals(track.getHash())){
-                        logger.debug(String.format("Successfully downloaded track %s, hashes match", track.getTitle()));
-                        newFilesHashes.put(destinationFilename, track.getHash());
-                        syncResult.incrementNewlyDownloadedFiles();
-                    } else{
-                        logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
+                        );
+                        // ensure downloaded file matches expected
+                        String downloadedFileHash = calculateHash(new File(destinationPath));
+                        if (downloadedFileHash.equals(track.getHash())) {
+                            logger.debug(String.format("Successfully downloaded track %s, hashes match", track.getTitle()));
+                            newFilesHashes.put(destinationFilename, track.getHash());
+                            syncResult.incrementNewlyDownloadedFiles();
+                        } else {
+                            logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
+                            FileUtils.forceDelete(new File(destinationPath));
+                            syncResult.addFailedDownloadedFile(track);
+                        }
+                    } catch (Exception e) {
+                        logger.error(String.format("Failed to download track %s, deleting downloaded file", track.getTitle()));
                         FileUtils.forceDelete(new File(destinationPath));
                         syncResult.addFailedDownloadedFile(track);
                     }
