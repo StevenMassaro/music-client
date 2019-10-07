@@ -43,7 +43,7 @@ class SongListComponent extends Component {
                                     }
                                 },
                                 onContextMenu:()=>{
-                                    this.setState({showContextMenu:true, clickedData: rowInfo});
+                                    this.setState({showContextMenu:true, clickedData: rowInfo.original});
                                 }
                             };
                         }}
