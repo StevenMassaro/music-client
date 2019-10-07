@@ -35,13 +35,13 @@ class SongListComponent extends Component {
                         getTdProps={(state, rowInfo) => {
                             return {
                                 onClick: (e, handleOriginal) => {
-                                    this.props.addToPlaylist(rowInfo.original);
+                                    this.props.addToPlaylist(rowInfo);
                                     if (handleOriginal) {
                                         handleOriginal();
                                     }
                                 },
                                 onContextMenu:()=>{
-                                    this.setState({showContextMenu:true, clickedData: rowInfo.original});
+                                    this.setState({showContextMenu:true, clickedData: rowInfo});
                                 }
                             };
                         }}
