@@ -139,7 +139,7 @@ public class SyncEndpoint {
         for (File existingFile : existingFiles) {
             existingFileCount++;
             String newName = currentTime + RENAME_SEPARATOR + existingFile.getName();
-            logger.debug(String.format("Renaming %s to %s", existingFile.getName(), newName));
+            logger.debug(String.format("Renaming track %s of %s from %s to %s", existingFileCount, existingFiles.size(), existingFile.getName(), newName));
             if (existingFileCount % 100 == 0) {
                 logger.info(String.format("Renamed %s of a total of %s files", existingFileCount, existingFiles.size()));
             }
@@ -155,7 +155,7 @@ public class SyncEndpoint {
         long existingFileCount = 0;
         for (File existingFile : existingFiles) {
             existingFileCount++;
-            logger.debug(String.format("Hashing %s", existingFile.getName()));
+            logger.debug(String.format("Hashing %s of %s: %s", existingFileCount, existingFiles.size(), existingFile.getName()));
             if (existingFileCount % 100 == 0) {
                 logger.info(String.format("Hashed %s of a total of %s files", existingFileCount, existingFiles.size()));
             }
