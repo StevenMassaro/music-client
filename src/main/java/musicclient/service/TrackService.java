@@ -2,8 +2,7 @@ package musicclient.service;
 
 import musicclient.model.impl.PrivateSettings;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.io.filefilter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,12 @@ public class TrackService {
         return files;
     }
 
+    /**
+     * List all files in the local music file location, except the hash dump file.
+     */
     public Collection<File> listFiles(){
-        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), new String[]{"mp3", "MP3", "flac", "FLAC"}, true);
+        IOFileFilter hashDumpFileFilter = new NameFileFilter(privateSettings.getHASH_DUMP_FILENAME());
+        IOFileFilter excludeHashesFile = new NotFileFilter(hashDumpFileFilter);
+        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), excludeHashesFile, TrueFileFilter.INSTANCE);
     }
 }

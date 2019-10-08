@@ -193,6 +193,6 @@ public class SyncEndpoint {
     }
 
     private File getHashDumpFile(){
-        return new File(privateSettings.getLocalMusicFileLocation() + "hashes.txt");
+        return new File(privateSettings.getLocalMusicFileLocation() + privateSettings.getHASH_DUMP_FILENAME());
     }
 }
