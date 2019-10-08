@@ -174,7 +174,7 @@ public class SyncEndpoint {
     }
 
     private String calculateHash(File file) throws IOException {
-        return DigestUtils.sha512Hex(FileUtils.readFileToByteArray(file));
+        return DigestUtils.sha512Hex(FileUtils.openInputStream(file));
     }
 
     private Map<String, String> loadExistingHashDump() throws IOException {
