@@ -95,12 +95,18 @@ public class SyncEndpoint {
                             syncResult.incrementNewlyDownloadedFiles();
                         } else {
                             logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
-                            FileUtils.forceDelete(new File(destinationPath));
+                            boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
+							if(!deletedSuccessfully) {
+								logger.error(String.format("Failed to delete track %s", track.getId()));
+							}
                             syncResult.addFailedDownloadedFile(track);
                         }
                     } catch (Exception e) {
-                        logger.error(String.format("Failed to download track %s, deleting downloaded file", track.getTitle()));
-                        FileUtils.forceDelete(new File(destinationPath));
+                        logger.error(String.format("Failed to download track %s, deleting downloaded file", track.getTitle()), e);
+                        boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
+						if(!deletedSuccessfully) {
+							logger.error(String.format("Failed to delete track %s", destinationPath));
+						}
                         syncResult.addFailedDownloadedFile(track);
                     }
                 }
@@ -113,7 +119,10 @@ public class SyncEndpoint {
                 syncResult.setUnmatchedDeletedFiles(existingFilesHash.size());
                 for (Map.Entry<String, File> existingFile : existingFilesHash.entrySet()) {
                     logger.debug(String.format("Deleting %s", existingFile.getValue().getName()));
-                    FileUtils.forceDelete(existingFile.getValue());
+                    boolean deletedSuccessfully = FileUtils.deleteQuietly(existingFile.getValue());
+					if(!deletedSuccessfully) {
+						logger.error(String.format("Failed to delete track %s", existingFile.getValue()));
+					}
                 }
             }
         }
