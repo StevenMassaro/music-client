@@ -50,12 +50,12 @@ class SongListComponent extends Component {
                         columns={[
                             {
                                 Header: "D",
-                                accessor: "discNumber",
+                                accessor: "disc_no",
                                 maxWidth: 25
                             },
                             {
                                 Header: "T",
-                                accessor: "trackNumber",
+                                accessor: "track",
                                 maxWidth: 50
                             },
                             {
