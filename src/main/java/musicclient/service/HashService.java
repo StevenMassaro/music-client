@@ -1,6 +1,6 @@
 package musicclient.service;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import musicclient.model.impl.PrivateSettings;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -20,8 +20,7 @@ public class HashService {
     Logger logger = LoggerFactory.getLogger(HashService.class);
 
     private final PrivateSettings privateSettings;
-    private Gson gson = new Gson();
-
+    ObjectMapper objectMapper = new ObjectMapper();
     public HashService(PrivateSettings privateSettings) {
         this.privateSettings = privateSettings;
     }
@@ -35,7 +34,7 @@ public class HashService {
         logger.info("Loading hash dump");
         try{
             String hashDump = FileUtils.readFileToString(getHashDumpFile(), StandardCharsets.UTF_8);
-            return (Map<String, String>) gson.fromJson(hashDump, Map.class);
+            return (Map<String, String>) objectMapper.readValue(hashDump, Map.class);
         } catch (FileNotFoundException e){
             logger.error("No existing hash dump found", e);
             return new HashMap<>();
@@ -43,7 +42,7 @@ public class HashService {
     }
 
     public void dumpHashesToDisk(Map<String, String> newFilesHashes) throws IOException {
-        FileUtils.write(getHashDumpFile(), gson.toJson(newFilesHashes), StandardCharsets.UTF_8);
+        FileUtils.write(getHashDumpFile(), objectMapper.writeValueAsString(newFilesHashes), StandardCharsets.UTF_8);
     }
 
     private File getHashDumpFile(){

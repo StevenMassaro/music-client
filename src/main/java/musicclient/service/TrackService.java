@@ -86,10 +86,11 @@ public class TrackService {
     }
 
     private File getFileFromHashDump(long id) throws IOException {
-        logger.debug(String.format("Begin listing filtered files from hash dump (ID: %s)", id));
+        logger.debug(String.format("Begin finding file from hash dump (ID: %s)", id));
         Map<String, String> files = hashService.loadExistingHashDump();
         for (Map.Entry<String, String> file : files.entrySet()) {
             if (FilenameUtils.removeExtension(file.getKey()).equals(Long.toString(id))) {
+                logger.debug(String.format("Finish finding file from hash dump (ID: %s)", id));
                 return new File(privateSettings.getLocalMusicFileLocation() + file.getKey());
             }
         }
