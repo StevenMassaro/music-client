@@ -2,6 +2,7 @@ package musicclient.service;
 
 import musicclient.model.impl.PrivateSettings;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +12,22 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 @Service
 public class TrackService {
 
     Logger logger = LoggerFactory.getLogger(TrackService.class);
 
+    private final PrivateSettings privateSettings;
+
+    private HashService hashService;
+
     @Autowired
-    private PrivateSettings privateSettings;
+    public TrackService(PrivateSettings privateSettings, HashService hashService) {
+        this.privateSettings = privateSettings;
+        this.hashService = hashService;
+    }
 
     /**
      * Returns the first file found that matches the supplied ID with any extension. Throws exceptions if more than one
@@ -27,16 +36,32 @@ public class TrackService {
      * @throws IOException when no files are found or too many files are found
      */
     public File getFile(long id) throws IOException {
-        Collection<File> possibleFiles = listFiles(id);
-        if(possibleFiles.isEmpty()){
-            throw new IOException(String.format("No files found on disk that match ID %s", id));
-        } else if(possibleFiles.size() > 1){
-            throw new IOException(String.format("Found %s files on disk that match ID %s and expected only 1", possibleFiles.size(), id));
+        return getFile(id, false);
+    }
+
+    /**
+     * Returns the first file found that matches the supplied ID with any extension. Throws exceptions if more than one
+     * file is found or no matching files are found.
+     * @param useHashDump if true, the filename is determined by looking at the hash dump created by the sync
+     *                    process. if false, the first file whose name matches the id is returned
+     * @return the matching file if found
+     * @throws IOException when no files are found or too many files are found
+     */
+    public File getFile(long id, boolean useHashDump) throws IOException {
+        if (useHashDump) {
+            return getFileFromHashDump(id);
         } else {
-            for(File file : possibleFiles){
-                return file;
+            Collection<File> possibleFiles = listFiles(id);
+            if (possibleFiles.isEmpty()) {
+                throw new IOException(String.format("No files found on disk that match ID %s", id));
+            } else if (possibleFiles.size() > 1) {
+                throw new IOException(String.format("Found %s files on disk that match ID %s and expected only 1", possibleFiles.size(), id));
+            } else {
+                for (File file : possibleFiles) {
+                    return file;
+                }
+                return null;
             }
-            return null;
         }
     }
 
@@ -58,6 +83,17 @@ public class TrackService {
         Collection<File> files = FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
         logger.debug(String.format("Finish listing filtered files (ID: %s)", id));
         return files;
+    }
+
+    private File getFileFromHashDump(long id) throws IOException {
+        logger.debug(String.format("Begin listing filtered files from hash dump (ID: %s)", id));
+        Map<String, String> files = hashService.loadExistingHashDump();
+        for (Map.Entry<String, String> file : files.entrySet()) {
+            if (FilenameUtils.removeExtension(file.getKey()).equals(Long.toString(id))) {
+                return new File(privateSettings.getLocalMusicFileLocation() + file.getKey());
+            }
+        }
+        return null;
     }
 
     /**
