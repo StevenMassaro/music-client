@@ -94,6 +94,9 @@ public class SyncService {
                 }
             }
             hashService.dumpHashesToDisk(newFilesHashes);
+            // after generating the new hash dump, reload the cache
+            trackService.clearCacheFromHashDump();
+            trackService.buildCacheFromHashDump();
 
             // delete any leftover files on disk which don't match any hash in the server
             if (!existingFilesHash.isEmpty()) {
