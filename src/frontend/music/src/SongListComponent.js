@@ -105,7 +105,7 @@ class SongListComponent extends Component {
                             },
                             {
                                 Header: "Length",
-                                accessor: "length",
+                                accessor: "duration",
                                 maxWidth: 50,
                                 Cell: row => this._toTime(row.value)
                             }
@@ -127,6 +127,10 @@ class SongListComponent extends Component {
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.playNext(props)}>
                         <div className="green">Play '{this.state.clickedData ? this.state.clickedData.title : null}' next</div>
+                    </MenuItem>
+                    <MenuItem data={this.state.clickedData}
+                                onClick={(e,props) => this.props.showInfo(props)}>
+                        <div className="green">Show '{this.state.clickedData ? this.state.clickedData.title : null}' info</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.deleteSong(props.id)}>

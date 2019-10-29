@@ -6,6 +6,8 @@ import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
+import Modal from 'react-modal';
+import ReactJson from 'react-json-view'
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -22,7 +24,8 @@ class App extends Component {
         this.state = {
             loadingSongs: false,
             loadedSongs: false,
-            currentSongMarkedListened: false
+            currentSongMarkedListened: false,
+            modalContent: undefined
         };
     }
 
@@ -351,10 +354,23 @@ class App extends Component {
         }
     };
 
+    showInfo = (song) => {
+        let copy = Object.assign([], song);
+        delete copy.target;
+        this.setState({modalContent: copy});
+    };
+
     render() {
         return (
             <div>
                 <ToastContainer/>
+                <Modal isOpen={this.state.modalContent !== undefined}
+                       contentLabel="Song info">
+                    <button onClick={() => this.setState({modalContent: undefined})}>Close</button>
+                    <ReactJson src={this.state.modalContent}
+                               displayDataTypes={false}
+                    />
+                </Modal>
                 <SplitPane split="horizontal" defaultSize="8%">
                     <PlayerComponent
                         currentSongSrc={this.getCurrentSongSrc}
@@ -379,6 +395,7 @@ class App extends Component {
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}
+                                        showInfo={this.showInfo}
                                     />
                                 </div>
                                 <div>
