@@ -198,12 +198,14 @@ class App extends Component {
             );
     };
 
-    performSync = () => {
+    performSync = (forceUpdates = false) => {
         this.setState({
             syncing: true,
             synced: false
         });
-        fetch(this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ? "./sync/" : this._getZuulRoute("/admin/dbSync"), {
+        fetch(this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
+          "./sync?forceUpdates=" + forceUpdates :
+          this._getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -375,15 +377,19 @@ class App extends Component {
                     <PlayerComponent
                         currentSongSrc={this.getCurrentSongSrc}
                         onSongEnd={this.onCurrentSongEnd}
-                        songs={this.state.songs}
-                        performSync={this.performSync}
-                        settings={this.state.settings}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
                         setAudioElement={this.setAudioElement}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
-                            <div></div>
+                            <div>
+                                {this.state.songs && this.state.settings &&
+                                <span>
+                                    {<button onClick={this.performSync}>Sync</button>}
+                                    {<button onClick={() => this.performSync(true)}>Sync, forcing updates</button>}
+                                  </span>
+                                }
+                            </div>
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
                                     <SongListComponent
