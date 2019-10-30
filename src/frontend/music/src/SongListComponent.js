@@ -4,6 +4,7 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
 import './react-contextmenu.css';
+import * as moment from 'moment';
 
 class SongListComponent extends Component {
 
@@ -108,6 +109,12 @@ class SongListComponent extends Component {
                                 accessor: "duration",
                                 maxWidth: 50,
                                 Cell: row => this._toTime(row.value)
+                            },
+                            {
+                                Header: "Added",
+                                accessor: "dateCreated",
+                                maxWidth: 100,
+                                Cell: row => moment(row.value).format("YYYY-MM-DD HH:mm")
                             }
                         ]}
                         defaultPageSize={100}
