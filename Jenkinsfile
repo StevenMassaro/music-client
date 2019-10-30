@@ -9,18 +9,14 @@ node {
       // Run the maven build
       withEnv(["MVN_HOME=$mvnHome"]) {
          if (isUnix()) {
-            sh '"$MVN_HOME/bin/mvn" clean package -P ui dockerfile:build'
+            sh '"$MVN_HOME/bin/mvn" clean deploy -P ui'
          } else {
-            bat(/"%MVN_HOME%\bin\mvn" clean package -P ui dockerfile:build/)
+            bat(/"%MVN_HOME%\bin\mvn" clean deploy -P ui/)
          }
       }
    }
    stage('Results') {
       //junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
-   }
-   stage('Publish docker image') {
-       sh label: '', script: 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-       sh label: '', script: 'docker push stevenmassaro/music-client:latest'
    }
 }
