@@ -195,11 +195,28 @@
                 <version>1.4.9</version>
                 <executions>
                     <execution>
-                        <id>default</id>
+                        <id>tag-latest</id>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>build</goal>
+                            <goal>tag</goal>
                             <goal>push</goal>
                         </goals>
+                        <configuration>
+                            <tag>latest</tag>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>tag-version</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>tag</goal>
+                            <goal>push</goal>
+                        </goals>
+                        <configuration>
+                            <tag>${project.version}</tag>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
