@@ -8,6 +8,7 @@ import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
+import * as lodash from "lodash";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -383,7 +384,7 @@ class App extends Component {
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
                             <div>
-                                {this.state.songs && this.state.settings &&
+                                {this.state.songs && this.state.settings && lodash.isEmpty(this.state.upNext) &&
                                 <span>
                                     {<button onClick={this.performSync}>Sync</button>}
                                     {<button onClick={() => this.performSync(true)}>Sync, forcing updates</button>}
