@@ -1,7 +1,7 @@
 package musicclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import musicclient.model.impl.PrivateSettings;
+import music.settings.PrivateSettings;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

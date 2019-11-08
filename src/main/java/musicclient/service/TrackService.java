@@ -1,6 +1,6 @@
 package musicclient.service;
 
-import musicclient.model.impl.PrivateSettings;
+import music.settings.PrivateSettings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
@@ -146,8 +146,8 @@ public class TrackService {
                 buildCacheFromHashDump();
                 return getFileFromHashDumpCache(id, false);
             } else {
-                logger.error("Not reloading cached hash dump for file {}", id);
-                return null;
+                logger.error("Not reloading cached hash dump for file {}, attempting to load without using hash dump", id);
+                return getFile(id, false);
             }
         }
     }

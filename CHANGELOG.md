@@ -1,5 +1,9 @@
 # changelog
 
+## 1.2-2019.11.08
+* feature: display album art
+* use shared MetadataService 
+
 ## 1.1-2019.10.30-SNAPSHOT
 * fix: increase socket timeout to 10 minutes
 * fix: allow sync forcing updates using UI

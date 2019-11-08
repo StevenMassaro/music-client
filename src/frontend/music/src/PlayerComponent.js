@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import ReactAudioPlayer from 'react-audio-player';
+import AlbumArtComponent from "./AlbumArtComponent";
 
 class PlayerComponent extends Component {
     render() {
@@ -22,6 +23,8 @@ class PlayerComponent extends Component {
                     <button onClick={this.props.onSongEnd}>
                         Next
                     </button>
+                    <AlbumArtComponent id={this.props.currentSong().id}
+                                       settings={this.props.settings}/>
                 </span>}
         </div>
         )

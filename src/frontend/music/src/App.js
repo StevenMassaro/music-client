@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
+import {generateUrl} from "./Utils";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -53,11 +54,7 @@ class App extends Component {
     getCurrentSongSrc = () => {
         if (this._getCurrentSong()) {
             if (this.state.settings) {
-                if (this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local) {
-                    return "./track/" + this._getCurrentSong().id + "/stream";
-                } else {
-                    return "." + ZUUL_ROUTE + "/track/" + this._getCurrentSong().id + "/stream";
-                }
+                return generateUrl(this.state.settings, "/track/" + this._getCurrentSong().id + "/stream");
             }
         } else {
             return undefined;
@@ -376,6 +373,8 @@ class App extends Component {
                 </Modal>
                 <SplitPane split="horizontal" defaultSize="8%">
                     <PlayerComponent
+                        currentSong={this._getCurrentSong}
+                        settings={this.state.settings}
                         currentSongSrc={this.getCurrentSongSrc}
                         onSongEnd={this.onCurrentSongEnd}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}

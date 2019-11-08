@@ -2,7 +2,7 @@ package musicclient.filters;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import musicclient.model.impl.PrivateSettings;
+import music.settings.PrivateSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class BasicAuthorizationHeaderFilter extends ZuulFilter {

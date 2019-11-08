@@ -1,7 +1,7 @@
 package musicclient.service;
 
 import music.model.Track;
-import musicclient.model.impl.PrivateSettings;
+import music.settings.PrivateSettings;
 import musicclient.model.impl.SyncResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

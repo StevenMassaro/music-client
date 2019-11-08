@@ -1,0 +1,10 @@
+.albumArt {
+    height: 100%;
+    position: relative;
+}
+
+.modal {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
