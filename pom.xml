@@ -79,7 +79,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <docker.image.prefix>stevenmassaro</docker.image.prefix>
-        <myversion>1.2-2019.11.08</myversion>
+        <myversion>1.2-2019.11.12</myversion>
     </properties>
 
     <profiles>

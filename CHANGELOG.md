@@ -3,6 +3,7 @@
 ## 1.2-2019.11.12
 * fix: reload song list after performing sync
 * fix: missing dependencies
+* fix: prevent sync from beginning if sync is already occurring
 
 ## 1.2-2019.11.08
 * feature: display album art

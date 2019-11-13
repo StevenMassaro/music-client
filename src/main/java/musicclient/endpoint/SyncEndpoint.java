@@ -1,5 +1,6 @@
 package musicclient.endpoint;
 
+import music.exception.TaskInProgressException;
 import music.model.Track;
 import musicclient.model.impl.SyncResult;
 import musicclient.service.SyncService;
@@ -25,7 +26,7 @@ public class SyncEndpoint {
     }
 
     @PostMapping
-    public SyncResult sample(@RequestBody List<Track> tracksToSync, HttpServletRequest request) throws IOException {
+    public SyncResult sample(@RequestBody List<Track> tracksToSync, HttpServletRequest request) throws IOException, TaskInProgressException {
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
         String scheme = request.getScheme();
