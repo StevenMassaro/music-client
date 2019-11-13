@@ -218,6 +218,7 @@ class App extends Component {
                         synced: true
                     });
                     toast.success("Finished sync successfully.");
+                    this.listSongs();
                 },
                 (error) => {
                     this.setState({
