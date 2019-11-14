@@ -1,5 +1,8 @@
 # changelog
 
+## 1.2-2019.11.14
+* feature: show historical plays (songs played on a particular date)
+
 ## 1.2-2019.11.12
 * fix: reload song list after performing sync
 * fix: missing dependencies

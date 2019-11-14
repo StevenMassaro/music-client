@@ -9,7 +9,8 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
-import {generateUrl} from "./Utils";
+import {generateUrl, handleRestResponse} from "./Utils";
+import NavigatorComponent from "./NavigatorComponent";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -27,12 +28,14 @@ class App extends Component {
             loadingSongs: false,
             loadedSongs: false,
             currentSongMarkedListened: false,
-            modalContent: undefined
+            modalContent: undefined,
+            activeSongList: undefined
         };
     }
 
     componentDidMount() {
         this.listSongs();
+        this.listHistoricalDates();
         this.getSettings();
     }
 
@@ -88,14 +91,14 @@ class App extends Component {
             loadedSongs: false
         });
         fetch("." + ZUUL_ROUTE + "/track/")
-            .then(this._handleRestResponse)
+            .then(handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
                         loadingSongs: false,
                         loadedSongs: true,
                         songs: result
-                    });
+                    }, () => this.setActiveSongList(this.state.songs));
                 },
                 (error) => {
                     this.setState({
@@ -104,6 +107,33 @@ class App extends Component {
                         errorSongs: error
                     });
                     error.text().then(errorMessage => toast.error(<div>Failed to list songs:<br/>{errorMessage}</div>));
+                }
+            );
+    };
+
+    listHistoricalDates = () => {
+        this.setState({
+            loadingHistoricalDates: true,
+            loadedHistoricalDates: false
+        });
+        fetch("." + ZUUL_ROUTE + "/track/historical/dates")
+            .then(handleRestResponse)
+            .then(
+                (result) => {
+                    this.setState({
+                        loadingHistoricalDates: false,
+                        loadedHistoricalDates: true,
+                        historicalDates: result
+                    });
+                },
+                (error) => {
+                    this.setState({
+                        loadingHistoricalDates: false,
+                        loadedHistoricalDates: true,
+                        errorHistoricalDates: error
+                    });
+                    error.text().then(errorMessage => toast.error(<div>Failed to list historical
+                        dates:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -122,7 +152,7 @@ class App extends Component {
         fetch("." + ZUUL_ROUTE + "/track/" + id,{
             method: 'DELETE'
         })
-            .then(this._handleRestResponse)
+            .then(handleRestResponse)
             .then((result) => {
                     let songs = this.state.songs.filter(song => {
                         return song.id !== result.id
@@ -150,7 +180,7 @@ class App extends Component {
             loadedSettings: false
         });
         fetch("./settings/")
-            .then(this._handleRestResponse)
+            .then(handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
@@ -176,7 +206,7 @@ class App extends Component {
             loadedDevice: false
         });
         fetch(this._getZuulRoute("/device/name/" + this.state.settings.deviceName))
-            .then(this._handleRestResponse)
+            .then(handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
@@ -201,6 +231,10 @@ class App extends Component {
             syncing: true,
             synced: false
         });
+        let syncingMessage = toast.info("Syncing", {
+            autoClose: false,
+            hideProgressBar: true
+        });
         fetch(this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
           "./sync?forceUpdates=" + forceUpdates :
           this._getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
@@ -210,13 +244,14 @@ class App extends Component {
             },
             body: JSON.stringify(this.state.songs)
         })
-            .then(this._handleRestResponse)
+            .then(handleRestResponse)
             .then(
                 (result) => {
                     this.setState({
                         syncing: false,
                         synced: true
                     });
+                    toast.dismiss(syncingMessage);
                     toast.success("Finished sync successfully.");
                     this.listSongs();
                 },
@@ -226,6 +261,7 @@ class App extends Component {
                         synced: true,
                         errorSync: error
                     });
+                    toast.dismiss(syncingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
                 }
             );
@@ -328,7 +364,7 @@ class App extends Component {
     _markListened = (id) => {
         fetch(this._getZuulRoute("track/" + id + "/listened?deviceId=" + this.state.device.id), {
             method: 'POST'
-        }).then(this._handleRestResponse)
+        }).then(handleRestResponse)
             .then(
                 () => {
                     let songs = Object.assign([], this.state.songs);
@@ -343,22 +379,16 @@ class App extends Component {
                 });
     };
 
-    /**
-     * Properly parse the rest response. If the response does not come back OK, throw the exception.
-     * @private
-     */
-    _handleRestResponse = (res) => {
-        if (res.ok) {
-            return res.json();
-        } else {
-            throw res;
-        }
-    };
-
     showInfo = (song) => {
         let copy = Object.assign([], song);
         delete copy.target;
         this.setState({modalContent: copy});
+    };
+
+    setActiveSongList = (songs) => {
+        this.setState({
+            activeSongList: songs
+        });
     };
 
     render() {
@@ -384,12 +414,13 @@ class App extends Component {
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
                             <div>
-                                {this.state.songs && this.state.settings && lodash.isEmpty(this.state.upNext) &&
-                                <span>
-                                    {<button onClick={this.performSync}>Sync</button>}
-                                    {<button onClick={() => this.performSync(true)}>Sync, forcing updates</button>}
-                                  </span>
-                                }
+                                <NavigatorComponent
+                                    historicalDates={this.state.historicalDates}
+                                    songs={this.state.songs}
+                                    setActiveSongList={this.setActiveSongList}
+                                    performSync={this.performSync}
+                                    shouldShowSyncButtons={() => lodash.isEmpty(this.state.upNext)}
+                                />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
@@ -398,7 +429,7 @@ class App extends Component {
                                         defaultFilterMethod={this.defaultFilterMethod}
                                         error={this.state.errorSongs}
                                         loadedSongs={this.state.loadedSongs}
-                                        songs={this.state.songs}
+                                        songs={this.state.activeSongList}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}
