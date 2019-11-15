@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.2-2019.11.14</version>
+    <version>1.3-2019.11.15</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -91,7 +91,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <docker.image.prefix>stevenmassaro</docker.image.prefix>
-        <myversion>1.2-2019.11.14</myversion>
+        <myversion>1.3-2019.11.15</myversion>
     </properties>
 
     <profiles>

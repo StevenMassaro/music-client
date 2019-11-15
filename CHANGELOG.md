@@ -1,5 +1,8 @@
 # changelog
 
+## 1.3-2019.11.15
+* feature: allow deletion of purgeable tracks (tracks marked deleted in database)
+
 ## 1.2-2019.11.14
 * feature: show historical plays (songs played on a particular date)
 

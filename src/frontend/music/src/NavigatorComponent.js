@@ -14,8 +14,13 @@ class NavigatorComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeItem: 'Songs'
+            activeItem: 'Songs',
+            purgableTracksCount: "?"
         }
+    }
+
+    componentDidMount() {
+        this.countPurgableTracks();
     }
 
     performSync = (forceUpdates = false) => {
@@ -80,6 +85,54 @@ class NavigatorComponent extends Component {
             );
     };
 
+    countPurgableTracks = () => {
+        this.setState({
+            loadingPurgableTracksCount: true,
+            loadedPurgableTracksCount: false
+        });
+        fetch("." + ZUUL_ROUTE + "/admin/purge/count/")
+            .then(handleRestResponse)
+            .then(
+                (result) => {
+                    this.setState({
+                        loadingPurgableTracksCount: false,
+                        loadedPurgableTracksCount: true,
+                        purgableTracksCount: result
+                    });
+                },
+                (error) => {
+                    error.text().then(errorMessage => toast.error(<div>Failed to load purgable song count:<br/>{errorMessage}</div>));
+                    this.setState({
+                        loadingPurgableTracksCount: false,
+                        loadedPurgableTracksCount: true,
+                        errorPurgableTracksCount: error
+                    });
+                }
+            );
+    };
+
+    purgeTracks = () => {
+        let purgingMessage = toast.info("Purging deleted tracks", {
+            autoClose: false,
+            hideProgressBar: true
+        });
+        fetch("." + ZUUL_ROUTE + "/admin/purge", {
+            method: 'DELETE'
+        })
+            .then(handleRestResponse)
+            .then(
+                (result) => {
+                    toast.dismiss(purgingMessage);
+                    toast.success("Successfully purged deleted tracks.");
+                    this.props.listSongs();
+                },
+                (error) => {
+                    toast.dismiss(purgingMessage);
+                    error.text().then(errorMessage => toast.error(<div>Failed to perform purge:<br/>{errorMessage}</div>));
+                }
+            );
+    };
+
     _isActive = (item) => this.state.activeItem === item;
 
     render() {
@@ -122,6 +175,12 @@ class NavigatorComponent extends Component {
                                 onClick={() => this.performSync(true)}
                             >
                                 Sync, forcing updates
+                            </Menu.Item>
+                            <Menu.Item
+                                name={"Purge deleted tracks"}
+                                onClick={() => this.purgeTracks()}
+                            >
+                                Purge deleted tracks ({this.state.purgableTracksCount})
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu.Item>
