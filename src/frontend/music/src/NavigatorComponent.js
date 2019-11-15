@@ -55,21 +55,17 @@ class NavigatorComponent extends Component {
                 >
                     Music
                 </Menu.Item>
-                <Menu.Item>
-                    Historical plays
-                    <Menu.Menu>
+                <Dropdown item text='Historical plays'>
+                    <Dropdown.Menu>
                         {this.props.historicalDates && this.props.historicalDates.map(hd =>
-                            <Menu.Item
-                                name={hd}
-                                key={hd}
-                                active={this._isActive(hd)}
-                                onClick={() => this.listHistoricalDates(hd)}
-                            >
-                                {hd}
-                            </Menu.Item>)
+                            <Dropdown.Item text={hd}
+                                           onClick={() => this.listHistoricalDates(hd)}
+                                           key={hd}
+                                           active={this._isActive(hd)}
+                            />)
                         }
-                    </Menu.Menu>
-                </Menu.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
                 {this.props.shouldShowSyncButtons() &&
                     <Menu.Item>
                         Administrative
