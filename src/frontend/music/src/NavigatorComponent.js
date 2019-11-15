@@ -55,7 +55,7 @@ class NavigatorComponent extends Component {
                 >
                     Music
                 </Menu.Item>
-                <Dropdown item text='Historical plays'>
+                <Dropdown item scrolling text='Historical plays'>
                     <Dropdown.Menu>
                         {this.props.historicalDates && this.props.historicalDates.map(hd =>
                             <Dropdown.Item text={hd}
