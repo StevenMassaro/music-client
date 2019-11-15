@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import './App.css';
 import './NavigatorComponent.css';
-import {Dropdown, Icon, Input, Menu} from 'semantic-ui-react'
+import {Dropdown, Menu} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import {ZUUL_ROUTE} from "./App";
-import {handleRestResponse} from "./Utils";
+import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
+import {getZuulRoute, handleRestResponse} from "./Utils";
 
 export const SONGS = 'Songs';
 
@@ -17,6 +17,47 @@ class NavigatorComponent extends Component {
             activeItem: 'Songs'
         }
     }
+
+    performSync = (forceUpdates = false) => {
+        this.setState({
+            syncing: true,
+            synced: false
+        });
+        let syncingMessage = toast.info("Syncing", {
+            autoClose: false,
+            hideProgressBar: true
+        });
+        fetch(this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
+            "./sync?forceUpdates=" + forceUpdates :
+            getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.props.songs)
+        })
+            .then(handleRestResponse)
+            .then(
+                (result) => {
+                    this.setState({
+                        syncing: false,
+                        synced: true
+                    });
+                    toast.dismiss(syncingMessage);
+                    toast.success("Finished sync successfully.");
+                    this.props.listSongs();
+                },
+                (error) => {
+                    this.setState({
+                        syncing: false,
+                        synced: true,
+                        errorSync: error
+                    });
+                    toast.dismiss(syncingMessage);
+                    error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
+                }
+            );
+    };
 
     listHistoricalDates = (date) => {
         this.setState({
@@ -72,13 +113,13 @@ class NavigatorComponent extends Component {
                         <Menu.Menu>
                             <Menu.Item
                                 name={"Sync"}
-                                onClick={() => this.props.performSync()}
+                                onClick={() => this.performSync()}
                             >
                                 Sync
                             </Menu.Item>
                             <Menu.Item
                                 name={"Sync, forcing updates"}
-                                onClick={() => this.props.performSync(true)}
+                                onClick={() => this.performSync(true)}
                             >
                                 Sync, forcing updates
                             </Menu.Item>

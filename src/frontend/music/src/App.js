@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
-import {generateUrl, handleRestResponse} from "./Utils";
+import {generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 
 export const ZUUL_ROUTE = '/music-api';
@@ -138,12 +138,6 @@ class App extends Component {
             );
     };
 
-    /**
-     * Get the relative path of a route which should be routed through Zuul.
-     * @private
-     */
-    _getZuulRoute = (relativePath) => "." + ZUUL_ROUTE + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
-
     deleteSong = id => {
         this.setState({
             deletingSong: true,
@@ -205,7 +199,7 @@ class App extends Component {
             loadingDevice: true,
             loadedDevice: false
         });
-        fetch(this._getZuulRoute("/device/name/" + this.state.settings.deviceName))
+        fetch(getZuulRoute("/device/name/" + this.state.settings.deviceName))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -222,47 +216,6 @@ class App extends Component {
                         errorDevice: error
                     });
                     error.text().then(errorMessage => toast.error(<div>Failed to load device:<br/>{errorMessage}</div>));
-                }
-            );
-    };
-
-    performSync = (forceUpdates = false) => {
-        this.setState({
-            syncing: true,
-            synced: false
-        });
-        let syncingMessage = toast.info("Syncing", {
-            autoClose: false,
-            hideProgressBar: true
-        });
-        fetch(this.state.settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
-          "./sync?forceUpdates=" + forceUpdates :
-          this._getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(this.state.songs)
-        })
-            .then(handleRestResponse)
-            .then(
-                (result) => {
-                    this.setState({
-                        syncing: false,
-                        synced: true
-                    });
-                    toast.dismiss(syncingMessage);
-                    toast.success("Finished sync successfully.");
-                    this.listSongs();
-                },
-                (error) => {
-                    this.setState({
-                        syncing: false,
-                        synced: true,
-                        errorSync: error
-                    });
-                    toast.dismiss(syncingMessage);
-                    error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -362,7 +315,7 @@ class App extends Component {
      * @private
      */
     _markListened = (id) => {
-        fetch(this._getZuulRoute("track/" + id + "/listened?deviceId=" + this.state.device.id), {
+        fetch(getZuulRoute("track/" + id + "/listened?deviceId=" + this.state.device.id), {
             method: 'POST'
         }).then(handleRestResponse)
             .then(
@@ -418,8 +371,9 @@ class App extends Component {
                                     historicalDates={this.state.historicalDates}
                                     songs={this.state.songs}
                                     setActiveSongList={this.setActiveSongList}
-                                    performSync={this.performSync}
                                     shouldShowSyncButtons={() => lodash.isEmpty(this.state.upNext)}
+                                    musicFileSource={this.state.settings && this.state.settings.musicFileSource}
+                                    listSongs={this.listSongs}
                                 />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">

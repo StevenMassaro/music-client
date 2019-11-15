@@ -27,3 +27,9 @@ export function handleRestResponse(res) {
         throw res;
     }
 }
+
+/**
+ * Get the relative path of a route which should be routed through Zuul.
+ * @private
+ */
+export function getZuulRoute(relativePath){return "." + ZUUL_ROUTE + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);}
