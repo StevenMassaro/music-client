@@ -140,6 +140,10 @@ class SongListComponent extends Component {
                         <div className="green">Show '{this.state.clickedData ? this.state.clickedData.title : null}' info</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
+                              onClick={(e,props) => this.props.showEditMetadata(props)}>
+                        <div className="green">Edit '{this.state.clickedData ? this.state.clickedData.title : null}'</div>
+                    </MenuItem>
+                    <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.deleteSong(props.id)}>
                         <div className="green">Delete '{this.state.clickedData ? this.state.clickedData.title : null}'</div>
                     </MenuItem>

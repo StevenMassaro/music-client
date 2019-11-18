@@ -1,5 +1,8 @@
 # changelog
 
+## 1.4-2019.11.18
+* feature: edit metadata for a track
+
 ## 1.3-2019.11.15
 * feature: allow deletion of purgeable tracks (tracks marked deleted in database)
 

@@ -11,6 +11,7 @@ import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
 import {generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
+import EditMetadataComponent from "./EditMetadataComponent";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -335,7 +336,17 @@ class App extends Component {
     showInfo = (song) => {
         let copy = Object.assign([], song);
         delete copy.target;
-        this.setState({modalContent: copy});
+        this.setState({modalContent: <ReactJson src={copy}
+                                                displayDataTypes={false}
+            />});
+    };
+
+    showEditMetadata = (song) => {
+        this.setState({
+            modalContent: <EditMetadataComponent song={song}
+                                                 listSongs={this.listSongs}
+            />
+        })
     };
 
     setActiveSongList = (songs) => {
@@ -351,9 +362,7 @@ class App extends Component {
                 <Modal isOpen={this.state.modalContent !== undefined}
                        contentLabel="Song info">
                     <button onClick={() => this.setState({modalContent: undefined})}>Close</button>
-                    <ReactJson src={this.state.modalContent}
-                               displayDataTypes={false}
-                    />
+                    {this.state.modalContent}
                 </Modal>
                 <SplitPane split="horizontal" defaultSize="8%">
                     <PlayerComponent
@@ -388,6 +397,7 @@ class App extends Component {
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}
                                         showInfo={this.showInfo}
+                                        showEditMetadata={this.showEditMetadata}
                                     />
                                 </div>
                                 <div>
