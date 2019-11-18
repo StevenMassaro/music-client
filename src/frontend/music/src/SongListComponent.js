@@ -131,21 +131,23 @@ class SongListComponent extends Component {
                               onClick={() => this.props.shuffleSongs(this._getFilteredSongList(), this._filteredSongListSelector)}>
                         <div className="green">Shuffle visible</div>
                     </MenuItem>
+                    <MenuItem divider />
+                    <div><b>{this.state.clickedData ? this.state.clickedData.title : null}</b></div>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.playNext(props)}>
-                        <div className="green">Play '{this.state.clickedData ? this.state.clickedData.title : null}' next</div>
+                        <div className="green">Play next</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
                                 onClick={(e,props) => this.props.showInfo(props)}>
-                        <div className="green">Show '{this.state.clickedData ? this.state.clickedData.title : null}' info</div>
+                        <div className="green">Show info</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.showEditMetadata(props)}>
-                        <div className="green">Edit '{this.state.clickedData ? this.state.clickedData.title : null}'</div>
+                        <div className="green">Edit</div>
                     </MenuItem>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.deleteSong(props.id)}>
-                        <div className="green">Delete '{this.state.clickedData ? this.state.clickedData.title : null}'</div>
+                        <div className="green">Delete</div>
                     </MenuItem>
                 </ContextMenu>
             </div>
