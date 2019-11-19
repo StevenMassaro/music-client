@@ -15,12 +15,14 @@ class NavigatorComponent extends Component {
         super(props);
         this.state = {
             activeItem: 'Songs',
-            purgableTracksCount: "?"
+            purgableTracksCount: "?",
+            updatessCount: "?"
         }
     }
 
     componentDidMount() {
         this.countPurgableTracks();
+        this.countUpdates();
     }
 
     performSync = (forceUpdates = false) => {
@@ -111,6 +113,32 @@ class NavigatorComponent extends Component {
             );
     };
 
+    countUpdates = () => {
+        this.setState({
+            loadingUpdatesCount: true,
+            loadedUpdatesCount: false
+        });
+        fetch("." + ZUUL_ROUTE + "/admin/update/count/")
+            .then(handleRestResponse)
+            .then(
+                (result) => {
+                    this.setState({
+                        loadingUpdatesCount: false,
+                        loadedUpdatesCount: true,
+                        updatesCount: result
+                    });
+                },
+                (error) => {
+                    error.text().then(errorMessage => toast.error(<div>Failed to load song update count:<br/>{errorMessage}</div>));
+                    this.setState({
+                        loadingUpdatesCount: false,
+                        loadedUpdatesCount: true,
+                        errorUpdatesCount: error
+                    });
+                }
+            );
+    };
+
     purgeTracks = () => {
         let purgingMessage = toast.info("Purging deleted tracks", {
             autoClose: false,
@@ -129,6 +157,27 @@ class NavigatorComponent extends Component {
                 (error) => {
                     toast.dismiss(purgingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to perform purge:<br/>{errorMessage}</div>));
+                }
+            );
+    };
+
+    applyUpdates = () => {
+        let purgingMessage = toast.info("Applying updates to disk", {
+            autoClose: false,
+            hideProgressBar: true
+        });
+        fetch("." + ZUUL_ROUTE + "/admin/update", {
+            method: 'POST'
+        })
+            .then(
+                () => {
+                    toast.dismiss(purgingMessage);
+                    toast.success("Successfully applied updates to disk.");
+                    this.props.listSongs();
+                },
+                (error) => {
+                    toast.dismiss(purgingMessage);
+                    error.text().then(errorMessage => toast.error(<div>Failed to apply updates:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -181,6 +230,12 @@ class NavigatorComponent extends Component {
                                 onClick={() => this.purgeTracks()}
                             >
                                 Purge deleted tracks ({this.state.purgableTracksCount})
+                            </Menu.Item>
+                            <Menu.Item
+                                name={"Apply updates to disk"}
+                                onClick={() => this.applyUpdates()}
+                            >
+                                Apply updates to disk ({this.state.updatesCount})
                             </Menu.Item>
                         </Menu.Menu>
                     </Menu.Item>

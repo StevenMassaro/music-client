@@ -1,5 +1,8 @@
 # changelog
 
+## 1.5-2019.11.19
+* feature: persist metadata changes for a track to disk
+
 ## 1.4-2019.11.18
 * feature: edit metadata for a track
 
