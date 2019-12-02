@@ -35,6 +35,12 @@ class App extends Component {
         };
     }
 
+    componentWillMount() {
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundSize = "auto 100%";
+        document.body.style.backgroundRepeat = "no-repeat";
+    }
+
     componentDidMount() {
         this.listSongs();
         this.getSettings();
@@ -43,6 +49,9 @@ class App extends Component {
     addToEndOfUpNext = (song) => {
         if (song) {
             let upNext = Object.assign([], this.state.upNext);
+            if (lodash.isEmpty(upNext)) {
+                this._setBackgroundImage(song.id);
+            }
             upNext.push(song);
             this.setState({
                 upNext: upNext
@@ -80,10 +89,17 @@ class App extends Component {
     onCurrentSongEnd = () => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
+        if (!lodash.isEmpty(upNext)) {
+            this._setBackgroundImage(upNext[0].id);
+        }
         this.setState({
             upNext: upNext,
             currentSongMarkedListened: false
         }, () => this.state.audioEl.play());
+    };
+
+    _setBackgroundImage = (id) => {
+        document.body.style.backgroundImage = "url(" + generateUrl(this.state.settings, "/track/" + id + "/art") + ")";
     };
 
     listSongs = () => {
@@ -360,7 +376,7 @@ class App extends Component {
                     <button onClick={() => this.setState({modalContent: undefined})}>Close</button>
                     {this.state.modalContent}
                 </Modal>
-                <SplitPane split="horizontal" defaultSize="8%">
+                <SplitPane split="horizontal" defaultSize="8%" style={{background: "rgba(255,255,255,0.85)"}}>
                     <PlayerComponent
                         currentSong={this._getCurrentSong}
                         settings={this.state.settings}
