@@ -125,10 +125,10 @@ class App extends Component {
                     let songs = this.state.songs.filter(song => {
                         return song.id !== result.id
                     });
+                    this.modifySongs(songs);
                     this.setState({
                         deletingSong: false,
-                        deletedSong: true,
-                        songs: songs
+                        deletedSong: true
                     });
                     toast.success("Marked '" + result.title + "' as deleted.");
                 },
@@ -241,6 +241,17 @@ class App extends Component {
     };
 
     /**
+     * Modify the state's songs and automatically set the active song list
+     * @param newSongs
+     */
+    modifySongs = (newSongs) => {
+        let shouldResetActiveSongList = lodash.isEqual(this.state.songs, this.state.activeSongList);
+        this.setState({
+            songs: newSongs
+        }, () => shouldResetActiveSongList && this.setActiveSongList(this.state.songs));
+    };
+
+    /**
      * Move a song in the up next list by the amount specified in the offset.
      * @param indexA index of song to move
      * @param offset the distance to move the song, -1 moves it one spot down, 1 moves it one spot up
@@ -297,9 +308,7 @@ class App extends Component {
                     let songs = Object.assign([], this.state.songs);
                     // find the matching song, and increment the play counter in the state
                     songs.find(song => song.id === id).plays++;
-                    this.setState({
-                        songs
-                    });
+                    this.modifySongs(songs)
                 },
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));
@@ -380,12 +389,14 @@ class App extends Component {
                                         defaultFilterMethod={this.defaultFilterMethod}
                                         error={this.state.errorSongs}
                                         loadedSongs={this.state.loadedSongs}
-                                        songs={this.state.activeSongList}
+                                        activeSongList={this.state.activeSongList}
+                                        songs={this.state.songs}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}
                                         showInfo={this.showInfo}
                                         showEditMetadata={this.showEditMetadata}
+                                        modifySongs={this.modifySongs}
                                     />
                                 </div>
                                 <div>

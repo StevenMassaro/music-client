@@ -2,9 +2,13 @@ import React, {Component} from 'react';
 import './App.css';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {ContextMenu, ContextMenuTrigger, MenuItem, SubMenu} from "react-contextmenu";
 import './react-contextmenu.css';
 import * as moment from 'moment';
+import {toast} from "react-toastify";
+import {ZUUL_ROUTE} from "./App";
+
+const axios = require('axios').default;
 
 class SongListComponent extends Component {
 
@@ -34,15 +38,42 @@ class SongListComponent extends Component {
         return minutes+':'+seconds;
     };
 
+    _generateRatingList = () => {
+        let ratingList = [];
+        for (let i = 0; i < 11; i++) {
+            ratingList.push(<MenuItem
+                data={this.state.clickedData}
+                key={i}
+                onClick={(e, props) => this._setRating(props.id, i)}>{i}</MenuItem>);
+        }
+        return ratingList;
+    };
+
+    _setRating = (id, rating) => {
+        axios.patch("." + ZUUL_ROUTE + "/track/" + id + "/rating/" + rating)
+            .then(() => {
+                let songsCopy = Object.assign([], this.props.songs);
+                let songCopy = songsCopy.find(song => song.id === id);
+                songCopy.rating = rating;
+                this.props.modifySongs(songsCopy);
+                toast.success("Successfully set rating of " + rating + " for song.");
+            })
+            .catch((error) => {
+                let err = error.toJSON();
+                console.log(err);
+                toast.error(err.message);
+            })
+    };
+
     render() {
 
-        const {error, loadedSongs, songs} = this.props;
+        const {error, loadedSongs, activeSongList} = this.props;
 
         return (
             <div>
                 <ContextMenuTrigger id="menu_id">
                     <ReactTable
-                        data={songs}
+                        data={activeSongList}
                         ref={(tableRef) => {
                             !this.state.tableRef &&
                             this.setState({
@@ -144,6 +175,9 @@ class SongListComponent extends Component {
                               onClick={(e,props) => this.props.showEditMetadata(props)}>
                         <div className="green">Edit</div>
                     </MenuItem>
+                    <SubMenu title="Rate">
+                        {this._generateRatingList()}
+                    </SubMenu>
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.deleteSong(props.id)}>
                         <div className="green">Delete</div>
