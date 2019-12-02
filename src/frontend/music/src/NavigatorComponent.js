@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import './App.css';
 import './NavigatorComponent.css';
-import {Dropdown, Menu} from 'semantic-ui-react'
+import {Menu} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
 import {getZuulRoute, handleRestResponse} from "./Utils";
+import DropdownListComponent from "./navigation/common/DropdownListComponent";
+import PropTypes from 'prop-types';
 
 export const SONGS = 'Songs';
 
@@ -62,27 +64,6 @@ class NavigatorComponent extends Component {
                     });
                     toast.dismiss(syncingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
-                }
-            );
-    };
-
-    listHistoricalDates = (date) => {
-        this.setState({
-            loadingHistoricalDates: true,
-            loadedHistoricalDates: false
-        });
-        fetch("." + ZUUL_ROUTE + "/track/historical/" + date)
-            .then(handleRestResponse)
-            .then(
-                (result) => {
-                    this.setState({
-                        activeItem: date
-                    });
-                    this.props.setActiveSongList(result);
-                },
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to load historical
-                        songs for {date}:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -184,31 +165,55 @@ class NavigatorComponent extends Component {
 
     _isActive = (item) => this.state.activeItem === item;
 
+    _setActiveMenuItem = (item) => this.setState({activeItem: item});
+
     render() {
         return (<Menu vertical>
                 <Menu.Item
                     name={SONGS}
                     active={this._isActive(SONGS)}
                     onClick={() => {
-                        this.setState({
-                            activeItem: SONGS
-                        });
+                        this._setActiveMenuItem(SONGS);
                         return this.props.setActiveSongList(this.props.songs);
                     }}
                 >
                     Music
                 </Menu.Item>
-                <Dropdown item scrolling text='Historical plays'>
-                    <Dropdown.Menu>
-                        {this.props.historicalDates && this.props.historicalDates.map(hd =>
-                            <Dropdown.Item text={hd}
-                                           onClick={() => this.listHistoricalDates(hd)}
-                                           key={hd}
-                                           active={this._isActive(hd)}
-                            />)
-                        }
-                    </Dropdown.Menu>
-                </Dropdown>
+                <DropdownListComponent
+                    title={"Historical plays"}
+                    valuesUrl={"/track/historical/"}
+                    activeMenuItem={this.state.activeItem}
+                    setActiveMenuItem={this._setActiveMenuItem}
+                    setActiveSongList={this.props.setActiveSongList}/>
+                <Menu.Item>
+                    <DropdownListComponent
+                        title={"Smart playlists"}
+                        valuesUrl={"/playlist/smart"}
+                        tracksUrl={"/track?smartPlaylist="}
+                        valueGetter={(value) => value.id}
+                        textGetter={(value) => value.name}
+                        activeMenuItem={this.state.activeItem}
+                        setActiveMenuItem={this._setActiveMenuItem}
+                        setActiveSongList={this.props.setActiveSongList}/>
+                    <Menu.Menu>
+                        <Menu.Item
+                            name={"Create smart playlist"}
+                            onClick={this.props.showCreateSmartPlaylist}
+                        >
+                            Create smart playlist
+                        </Menu.Item>
+                        <DropdownListComponent
+                            activeMenuItem={this.state.activeItem}
+                            title={"Edit smart playlist"}
+                            setActiveSongList={this.props.setActiveSongList}
+                            valuesUrl={"/playlist/smart"}
+                            setActiveMenuItem={this._setActiveMenuItem}
+                            dropdownOnClickCallback={this.props.showEditSmartPlaylist}
+                            valueGetter={(value) => value.id}
+                            textGetter={(value) => value.name}
+                        />
+                    </Menu.Menu>
+                </Menu.Item>
                 {this.props.shouldShowSyncButtons() &&
                     <Menu.Item>
                         Administrative
@@ -244,5 +249,15 @@ class NavigatorComponent extends Component {
         )
     }
 }
+
+NavigatorComponent.propTypes = {
+    showEditSmartPlaylist: PropTypes.func.isRequired,
+    showCreateSmartPlaylist: PropTypes.func.isRequired,
+    songs: PropTypes.array.isRequired,
+    setActiveSongList: PropTypes.func.isRequired,
+    shouldShowSyncButtons: PropTypes.bool.isRequired,
+    musicFileSource: PropTypes.string,
+    listSongs: PropTypes.func.isRequired
+};
 
 export default NavigatorComponent;

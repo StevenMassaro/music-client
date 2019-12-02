@@ -12,6 +12,7 @@ import * as lodash from "lodash";
 import {generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
+import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -36,7 +37,6 @@ class App extends Component {
 
     componentDidMount() {
         this.listSongs();
-        this.listHistoricalDates();
         this.getSettings();
     }
 
@@ -108,33 +108,6 @@ class App extends Component {
                         errorSongs: error
                     });
                     error.text().then(errorMessage => toast.error(<div>Failed to list songs:<br/>{errorMessage}</div>));
-                }
-            );
-    };
-
-    listHistoricalDates = () => {
-        this.setState({
-            loadingHistoricalDates: true,
-            loadedHistoricalDates: false
-        });
-        fetch("." + ZUUL_ROUTE + "/track/historical/dates")
-            .then(handleRestResponse)
-            .then(
-                (result) => {
-                    this.setState({
-                        loadingHistoricalDates: false,
-                        loadedHistoricalDates: true,
-                        historicalDates: result
-                    });
-                },
-                (error) => {
-                    this.setState({
-                        loadingHistoricalDates: false,
-                        loadedHistoricalDates: true,
-                        errorHistoricalDates: error
-                    });
-                    error.text().then(errorMessage => toast.error(<div>Failed to list historical
-                        dates:<br/>{errorMessage}</div>));
                 }
             );
     };
@@ -349,6 +322,20 @@ class App extends Component {
         })
     };
 
+    showCreateSmartPlaylist = () => {
+        this.setState({
+            modalContent: <CreateSmartPlaylistComponent/>
+        });
+    };
+
+    showEditSmartPlaylist = (toEdit) => {
+        this.setState({
+            modalContent: <CreateSmartPlaylistComponent
+                existingSmartPlaylist={toEdit}
+            />
+        });
+    };
+
     setActiveSongList = (songs) => {
         this.setState({
             activeSongList: songs
@@ -377,12 +364,13 @@ class App extends Component {
                         <SplitPane split="vertical" defaultSize="15%">
                             <div>
                                 <NavigatorComponent
-                                    historicalDates={this.state.historicalDates}
                                     songs={this.state.songs}
                                     setActiveSongList={this.setActiveSongList}
                                     shouldShowSyncButtons={() => lodash.isEmpty(this.state.upNext)}
                                     musicFileSource={this.state.settings && this.state.settings.musicFileSource}
                                     listSongs={this.listSongs}
+                                    showCreateSmartPlaylist={this.showCreateSmartPlaylist}
+                                    showEditSmartPlaylist={this.showEditSmartPlaylist}
                                 />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">

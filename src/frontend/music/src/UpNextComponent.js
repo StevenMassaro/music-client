@@ -9,7 +9,6 @@ class UpNextComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            showContextMenu: false,
             clickedData: undefined
         };
     }
@@ -31,7 +30,7 @@ class UpNextComponent extends Component {
                     getTdProps={(state, rowInfo) => {
                         return {
                             onContextMenu:()=>{
-                                this.setState({showContextMenu:true, clickedData: rowInfo});
+                                this.setState({clickedData: rowInfo});
                             }
                         };
                     }}

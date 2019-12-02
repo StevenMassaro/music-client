@@ -1,5 +1,8 @@
 # changelog
 
+## 1.6-2019.12.02
+* feature: smart playlists
+
 ## 1.5-2019.11.19
 * feature: persist metadata changes for a track to disk
 

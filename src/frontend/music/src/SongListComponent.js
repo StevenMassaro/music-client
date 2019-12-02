@@ -11,7 +11,6 @@ class SongListComponent extends Component {
     constructor(props){
         super(props);
         this.state = {
-            showContextMenu: false,
             clickedData: undefined
         };
     }
@@ -59,7 +58,7 @@ class SongListComponent extends Component {
                                     }
                                 },
                                 onContextMenu:()=>{
-                                    this.setState({showContextMenu:true, clickedData: rowInfo.original});
+                                    this.setState({clickedData: rowInfo.original});
                                 }
                             };
                         }}
