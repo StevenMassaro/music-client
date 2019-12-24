@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>com.massaro</groupId>
-            <artifactId>music-api</artifactId>
+            <artifactId>music-service</artifactId>
             <version>${myversion}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
@@ -91,7 +91,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <docker.image.prefix>stevenmassaro</docker.image.prefix>
-        <myversion>1.8-2019.12.09</myversion>
+        <myversion>1.8-2019.12.24</myversion>
     </properties>
 
     <profiles>
