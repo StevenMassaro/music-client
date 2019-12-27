@@ -55,6 +55,7 @@ class UpNextComponent extends Component {
                     minRows={0}
                     noDataText={"No songs in up next."}
                     filterable={true}
+                    sortable={false}
                     className="-striped -highlight"
                     defaultFilterMethod={this.props.defaultFilterMethod}
                 />
