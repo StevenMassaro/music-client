@@ -349,7 +349,9 @@ class App extends Component {
 
     showCreateSmartPlaylist = () => {
         this.setState({
-            modalContent: <CreateSmartPlaylistComponent/>
+            modalContent: <CreateSmartPlaylistComponent
+                existingSmartPlaylist={null}
+            />
         });
     };
 

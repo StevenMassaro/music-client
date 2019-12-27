@@ -3,6 +3,7 @@
 ## 1.7-2019.12.02
 * feature: edit rating for a song
 * feature: show album art in background
+* fix: clicking create smart playlist opens the update modal, not the create modal
 
 ## 1.6-2019.12.02
 * feature: smart playlists
