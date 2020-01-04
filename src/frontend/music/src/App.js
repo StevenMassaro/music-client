@@ -13,6 +13,7 @@ import {generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
+import EditAlbumArtComponent from "./EditAlbumArtComponent";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -347,6 +348,12 @@ class App extends Component {
         })
     };
 
+    showEditAlbumArt = (song) => {
+        this.setState({
+            modalContent: <EditAlbumArtComponent song={song}/>
+        });
+    };
+
     showCreateSmartPlaylist = () => {
         this.setState({
             modalContent: <CreateSmartPlaylistComponent
@@ -414,6 +421,7 @@ class App extends Component {
                                         shuffleSongs={this.shuffleSongs}
                                         showInfo={this.showInfo}
                                         showEditMetadata={this.showEditMetadata}
+                                        showEditAlbumArt={this.showEditAlbumArt}
                                         modifySongs={this.modifySongs}
                                     />
                                 </div>

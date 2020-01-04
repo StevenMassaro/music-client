@@ -60,7 +60,7 @@ class SongListComponent extends Component {
             })
             .catch((error) => {
                 let err = error.toJSON();
-                console.log(err);
+                console.error(err);
                 toast.error(err.message);
             })
     };
@@ -174,6 +174,10 @@ class SongListComponent extends Component {
                     <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.showEditMetadata(props)}>
                         <div className="green">Edit</div>
+                    </MenuItem>
+                    <MenuItem data={this.state.clickedData}
+                              onClick={(e,props) => this.props.showEditAlbumArt(props)}>
+                        <div className="green">Edit album art</div>
                     </MenuItem>
                     <SubMenu title="Rate">
                         {this._generateRatingList()}

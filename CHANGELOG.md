@@ -1,5 +1,8 @@
 # changelog
 
+## 1.9-2020.01.04
+* feature: update album art
+
 ## 1.7-2019.12.02
 * feature: edit rating for a song
 * feature: show album art in background
