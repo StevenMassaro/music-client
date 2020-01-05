@@ -33,11 +33,9 @@ public class TrackEndpoint {
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> stream(@PathVariable long id) throws IOException {
         File file = trackService.getFile(id, true);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + FilenameUtils.getName(file.getAbsolutePath()) + "\"")
-                .header(HttpHeaders.CONTENT_TYPE, "audio/" + FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase())
-                .body(new InputStreamResource(FileUtils.openInputStream(file)));
-
+        return responseEntity(FilenameUtils.getName(file.getAbsolutePath()),
+            "audio/" + FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase(),
+        FileUtils.readFileToByteArray(file));
     }
 
     @GetMapping("/{id}/art")
