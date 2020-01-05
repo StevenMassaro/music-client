@@ -21,6 +21,16 @@ public class PrivateSettings {
         return zuulRoute;
     }
 
+    public String getZuulRouteWs() {
+        if(zuulRoute.contains("http://")){
+            return "ws://" + zuulRoute.replaceFirst("http://", "");
+        } else if (zuulRoute.contains("https://")){
+            return "wss://" + zuulRoute.replaceFirst("https://", "");
+        } else {
+            return "ws://" + zuulRoute.replaceFirst("http://", "");
+        }
+    }
+
     public void setZuulRoute(String zuulRoute) {
         this.zuulRoute = zuulRoute;
     }

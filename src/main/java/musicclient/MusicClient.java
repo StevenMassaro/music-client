@@ -29,7 +29,22 @@ public class MusicClient {
                     f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
                         .rewritePath("/music-api", "")
                 )
-                .uri(privateSettings.getZuulRoute()))
+                .uri(privateSettings.getZuulRoute())
+            )
+            .route(p -> p
+                .path("/gs-guide-websocket/info/**")
+                .filters(f ->
+                    f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
+                )
+                .uri(privateSettings.getZuulRoute())
+            )
+            .route(p -> p
+                .path("/gs-guide-websocket/**")
+                .filters(f ->
+                    f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
+                )
+                .uri(privateSettings.getZuulRouteWs())
+            )
             .build();
     }
 }
