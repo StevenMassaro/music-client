@@ -33,3 +33,8 @@ export function handleRestResponse(res) {
  * @private
  */
 export function getZuulRoute(relativePath){return "." + ZUUL_ROUTE + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);}
+
+
+export function buildAlbumArtUpdateToastMessage(msg) {
+    return <div>Updating album art for {msg.album}: {msg.position}/{msg.max}</div>
+}

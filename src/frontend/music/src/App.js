@@ -14,9 +14,13 @@ import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
+import SockJsClient from "react-stomp";
 
 export const ZUUL_ROUTE = '/music-api';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
+export const WEBSOCKET_ROUTES = {
+    albumArtUpdates: '/topic/art/updates'
+};
 
 export const MUSIC_FILE_SOURCE_TYPES = {
     local: 'local',
@@ -376,9 +380,37 @@ class App extends Component {
         });
     };
 
+    handleWebsocketMessage = (msg, topic) => {
+        // todo there is probably a better way of doing this, but at the moment this works
+        if (topic === WEBSOCKET_ROUTES.albumArtUpdates) {
+            this.handleAlbumArtUpdateToast(msg);
+        }
+    };
+
+    handleAlbumArtUpdateToast = (msg) => {
+        if (msg.position === 1) {
+            toast.info(this.buildAlbumArtUpdateToastMessage(msg), {
+                toastId: msg.album,
+                autoClose: false,
+                hideProgressBar: true
+            });
+        } else if (msg.position === msg.max) {
+            toast.dismiss(msg.album);
+        } else {
+            toast.update(msg.album, {
+                render: this.buildAlbumArtUpdateToastMessage(msg)
+            });
+        }
+    };
+
     render() {
         return (
             <div>
+                <SockJsClient
+                    url={"/gs-guide-websocket"}
+                    topics={[WEBSOCKET_ROUTES.albumArtUpdates]}
+                    onMessage={this.handleWebsocketMessage}
+                />
                 <ToastContainer/>
                 <Modal isOpen={this.state.modalContent !== undefined}
                        contentLabel="Song info">
