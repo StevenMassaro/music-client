@@ -14,12 +14,16 @@
     "react-audio-player": "0.11.1",
     "react-hot-loader": "4.12.12",
     "react-contextmenu": "2.11.0",
+    "react-stomp": "4.3.0",
     "react-toastify": "5.3.2",
     "react-modal": "3.11.1",
     "react-json-view": "1.19.1",
     "prop-types": "15.7.2",
     "semantic-ui-css": "2.4.1",
     "semantic-ui-react": "0.88.1"
+  },
+  "devDependencies": {
+    "http-proxy-middleware": "0.20.0"
   },
   "scripts": {
     "start": "react-scripts start",
