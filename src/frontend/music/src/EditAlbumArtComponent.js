@@ -28,11 +28,6 @@ class EditMetadataComponent extends Component {
                     const blob = item.getAsFile();
                     const reader = new FileReader();
                     reader.onload = function (event) {
-                        let updatingMessage = toast.info("Updating album art.", {
-                            autoClose: false,
-                            hideProgressBar: true
-                        });
-
                         var formData = new FormData();
                         formData.append('file', blob, "image_file");
 
@@ -42,14 +37,12 @@ class EditMetadataComponent extends Component {
                             data: formData
                         })
                             .then(() => {
-                                toast.dismiss(updatingMessage);
-                                toast.success("Successfully updated album art.")
+                                toast.success(this.state.song.album + ": successfully updated album art.")
                             })
                             .catch((error) => {
-                                toast.dismiss(updatingMessage);
                                 let err = error.toJSON();
                                 console.log(err);
-                                toast.error(err.message);
+                                toast.error(this.state.song.album + ": " + err.message);
                             })
                     }.bind(this);
                     reader.readAsDataURL(blob);
