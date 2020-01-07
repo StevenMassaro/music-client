@@ -1,4 +1,5 @@
 import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
+import React from 'react';
 
 /**
  * Generate a relative url, deciding whether to use Zuul or not.
