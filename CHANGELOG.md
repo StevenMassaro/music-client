@@ -1,5 +1,8 @@
 # changelog
 
+## 1.10-2020.01.07
+* feature: websocket for album art update status
+
 ## 1.9-2020.01.04
 * feature: update album art
 
