@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
-import {generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
+import {buildAlbumArtUpdateToastMessage, generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
@@ -389,7 +389,7 @@ class App extends Component {
 
     handleAlbumArtUpdateToast = (msg) => {
         if (msg.position === 1) {
-            toast.info(this.buildAlbumArtUpdateToastMessage(msg), {
+            toast.info(buildAlbumArtUpdateToastMessage(msg), {
                 toastId: msg.album,
                 autoClose: false,
                 hideProgressBar: true
@@ -398,7 +398,7 @@ class App extends Component {
             toast.dismiss(msg.album);
         } else {
             toast.update(msg.album, {
-                render: this.buildAlbumArtUpdateToastMessage(msg)
+                render: buildAlbumArtUpdateToastMessage(msg)
             });
         }
     };
