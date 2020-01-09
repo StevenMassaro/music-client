@@ -16,7 +16,7 @@ import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponen
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
 
-export const ZUUL_ROUTE = '/music-api';
+export const ZUUL_ROUTE = '/Music';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
     albumArtUpdates: '/topic/art/updates'
@@ -407,7 +407,7 @@ class App extends Component {
         return (
             <div>
                 <SockJsClient
-                    url={"/gs-guide-websocket"}
+                    url={getZuulRoute("/gs-guide-websocket")}
                     topics={[WEBSOCKET_ROUTES.albumArtUpdates]}
                     onMessage={this.handleWebsocketMessage}
                 />

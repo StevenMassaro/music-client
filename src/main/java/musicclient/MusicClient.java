@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,6 +17,8 @@ public class MusicClient {
     @Autowired
     private PrivateSettings privateSettings;
 
+    private final String AUTH_HEADER_NAME = "Authorization";
+
     public static void main(String[] args) {
         SpringApplication.run(MusicClient.class, args);
     }
@@ -24,27 +27,19 @@ public class MusicClient {
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
             .route(p -> p
-                .path("/music-api/**")
-                .filters(f ->
-                    f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
-                        .rewritePath("/music-api", "")
-                )
+                .path("/Music/**")
+                .filters(this::authHeader)
                 .uri(privateSettings.getZuulRoute())
             )
             .route(p -> p
-                .path("/gs-guide-websocket/info/**")
-                .filters(f ->
-                    f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
-                )
-                .uri(privateSettings.getZuulRoute())
-            )
-            .route(p -> p
-                .path("/gs-guide-websocket/**")
-                .filters(f ->
-                    f.addRequestHeader("Authorization", privateSettings.getZuulMusicAuthorizationHeader())
-                )
+                .path("/Music/gs-guide-websocket/**")
+                .filters(this::authHeader)
                 .uri(privateSettings.getZuulRouteWs())
             )
             .build();
+    }
+
+    private GatewayFilterSpec authHeader(GatewayFilterSpec f) {
+        return f.setRequestHeader(AUTH_HEADER_NAME, privateSettings.getZuulMusicAuthorizationHeader());
     }
 }
