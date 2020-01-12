@@ -242,6 +242,12 @@ class NavigatorComponent extends Component {
                             >
                                 Apply updates to disk ({this.state.updatesCount})
                             </Menu.Item>
+                            <Menu.Item
+                                name={"Upload songs"}
+                                onClick={this.props.showUploadSongs}
+                            >
+                                Upload songs
+                            </Menu.Item>
                         </Menu.Menu>
                     </Menu.Item>
                 }
@@ -253,6 +259,7 @@ class NavigatorComponent extends Component {
 NavigatorComponent.propTypes = {
     showEditSmartPlaylist: PropTypes.func.isRequired,
     showCreateSmartPlaylist: PropTypes.func.isRequired,
+    showUploadSongs: PropTypes.func.isRequired,
     songs: PropTypes.array.isRequired,
     setActiveSongList: PropTypes.func.isRequired,
     shouldShowSyncButtons: PropTypes.bool.isRequired,

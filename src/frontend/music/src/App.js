@@ -15,6 +15,7 @@ import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
+import UploadSongsComponent from "./UploadSongsComponent";
 
 export const ZUUL_ROUTE = '/Music';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -374,6 +375,12 @@ class App extends Component {
         });
     };
 
+    showUploadSongs = () => {
+        this.setState({
+            modalContent: <UploadSongsComponent/>
+        });
+    };
+
     setActiveSongList = (songs) => {
         this.setState({
             activeSongList: songs
@@ -437,6 +444,7 @@ class App extends Component {
                                     listSongs={this.listSongs}
                                     showCreateSmartPlaylist={this.showCreateSmartPlaylist}
                                     showEditSmartPlaylist={this.showEditSmartPlaylist}
+                                    showUploadSongs={this.showUploadSongs}
                                 />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
