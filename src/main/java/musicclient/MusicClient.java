@@ -19,6 +19,8 @@ public class MusicClient {
 
     private final String AUTH_HEADER_NAME = "Authorization";
 
+    public final static String MUSIC_API_GATEWAY_ROUTE = "/Music";
+
     public static void main(String[] args) {
         SpringApplication.run(MusicClient.class, args);
     }
@@ -27,12 +29,12 @@ public class MusicClient {
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
             .route(p -> p
-                .path("/Music/**")
+                .path(MUSIC_API_GATEWAY_ROUTE + "/**")
                 .filters(this::authHeader)
                 .uri(privateSettings.getZuulRoute())
             )
             .route(p -> p
-                .path("/Music/gs-guide-websocket/**")
+                .path(MUSIC_API_GATEWAY_ROUTE + "/gs-guide-websocket/**")
                 .filters(this::authHeader)
                 .uri(privateSettings.getZuulRouteWs())
             )

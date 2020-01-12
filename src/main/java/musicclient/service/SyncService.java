@@ -16,6 +16,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static musicclient.MusicClient.MUSIC_API_GATEWAY_ROUTE;
+
 @Service
 public class SyncService {
     Logger logger = LoggerFactory.getLogger(SyncService.class);
@@ -35,7 +37,7 @@ public class SyncService {
         this.hashService = hashService;
     }
 
-    public SyncResult performSync(List<Track> tracksToSync, String serverName, int serverPort, String scheme, String contextPath) throws IOException, TaskInProgressException {
+    public SyncResult performSync(List<Track> tracksToSync, String serverPort) throws IOException, TaskInProgressException {
 		checkNotSyncing();
 		try {
 			currentlySyncing.set(true);
@@ -62,8 +64,7 @@ public class SyncService {
 						syncResult.incrementExistingFiles();
 					} else {
 						logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
-						String url = scheme + "://" + serverName + ":" + serverPort +
-							contextPath + "/music-api/track/" + track.getId() + "/stream";
+                        String url = "http://localhost:" + serverPort + MUSIC_API_GATEWAY_ROUTE + "/track/" + track.getId() + "/stream";
 						logger.debug(String.format("URL: %s", url));
 						logger.debug(String.format("Destination path: %s", destinationPath));
 						try {

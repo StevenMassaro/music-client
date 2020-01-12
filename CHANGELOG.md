@@ -2,6 +2,7 @@
 
 ## 1.10-2020.01.07
 * feature: websocket for album art update status
+* fix: sync, by refactoring to avoid using the HttpServletRequest
 
 ## 1.9-2020.01.04
 * feature: update album art
