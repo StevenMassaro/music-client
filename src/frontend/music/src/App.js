@@ -377,7 +377,10 @@ class App extends Component {
 
     showUploadSongs = () => {
         this.setState({
-            modalContent: <UploadSongsComponent/>
+            modalContent: <UploadSongsComponent
+                songs={this.state.songs}
+                modifySongs={this.modifySongs}
+            />
         });
     };
 
