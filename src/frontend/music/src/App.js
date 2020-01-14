@@ -55,14 +55,22 @@ class App extends Component {
     addToEndOfUpNext = (song) => {
         if (song) {
             let upNext = Object.assign([], this.state.upNext);
-            if (lodash.isEmpty(upNext)) {
-                this._setBackgroundImage(song.id);
-            }
             upNext.push(song);
-            this.setState({
-                upNext: upNext
-            });
+            this.setUpNext(upNext)
         }
+    };
+
+    /**
+     * Set the upNext list in the state to the newUpNext, and automatically change the background album art as needed.
+     * @param newUpNext
+     */
+    setUpNext = (newUpNext) => {
+        if(!lodash.isEmpty(newUpNext)){
+            this._setBackgroundImage(newUpNext[0].id);
+        }
+        this.setState({
+            upNext: newUpNext
+        });
     };
 
     defaultFilterMethod = (filter, row, column) => {
@@ -229,9 +237,7 @@ class App extends Component {
             a[i] = a[j];
             a[j] = x;
         }
-        this.setState({
-            upNext: a.map(selector)
-        });
+        this.setUpNext(a.map(selector));
     };
 
     setAudioElement = (element) => {
@@ -249,17 +255,13 @@ class App extends Component {
                 currentSongMarkedListened: false
             });
         }
-        this.setState({
-            upNext: newUpNext
-        });
+        this.setUpNext(newUpNext);
     };
 
     removeFromUpNext = (index) => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.splice(index, 1);
-        this.setState({
-            upNext
-        });
+        this.setUpNext(upNext);
     };
 
     /**
@@ -286,9 +288,7 @@ class App extends Component {
         upNext[indexA] = upNext[indexB];
         upNext[indexB] = tmp;
 
-        this.setState({
-            upNext
-        });
+        this.setUpNext(upNext);
     };
 
     /**
@@ -298,9 +298,7 @@ class App extends Component {
     playNext = (song) => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.splice(1, 0, song);
-        this.setState({
-            upNext
-        });
+        this.setUpNext(upNext);
     };
 
     /**
