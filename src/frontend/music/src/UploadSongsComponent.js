@@ -9,11 +9,12 @@ class UploadSongsComponent extends Component {
 
     render() {
         return <Dropzone
-            onChangeStatus={({ meta, file, xhr }, status) => {
+            onChangeStatus={({ meta, file, xhr, remove }, status) => {
                 if(status === 'done'){
                     let songs = Object.assign([], this.props.songs);
                     songs.push(JSON.parse(xhr.response));
                     this.props.modifySongs(songs);
+                    remove();
                 }
             }}
             getUploadParams={() => ({ url: getZuulRoute("/track/upload") })}
