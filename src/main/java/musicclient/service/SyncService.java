@@ -70,9 +70,9 @@ public class SyncService {
 						try {
 							FileUtils.copyURLToFile(
 								new URL(url),
-								new File(destinationPath)//,
-//                CONNECT_TIMEOUT,
-//                READ_TIMEOUT
+                                new File(destinationPath),
+                                settings.getConnectTimeout(),
+                                settings.getReadTimeout()
 							);
 							// ensure downloaded file matches expected
 							String downloadedFileHash = hashService.calculateHash(new File(destinationPath));

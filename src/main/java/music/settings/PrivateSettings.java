@@ -15,6 +15,12 @@ public class PrivateSettings {
     @Value("${zuul.music-api.authorizationHeader}")
     private String zuulMusicAuthorizationHeader;
 
+    @Value("${sync.connect_timeout}")
+    private String connectTimeout;
+
+    @Value("${sync.read_timeout}")
+    private String readTimeout;
+
     private final String HASH_DUMP_FILENAME = "hashes.txt";
 
     public String getZuulRoute() {
@@ -53,5 +59,22 @@ public class PrivateSettings {
 
     public String getHASH_DUMP_FILENAME() {
         return HASH_DUMP_FILENAME;
+    }
+
+    public int getConnectTimeout() {
+        return tryParseInt(connectTimeout, 15, 1000);
+    }
+
+    public int getReadTimeout() {
+        return tryParseInt(readTimeout, 60, 1000);
+    }
+
+    private int tryParseInt(String val, int defaultValue, int multiplier) {
+        try {
+            return Integer.parseInt(val) * multiplier;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return defaultValue * multiplier;
+        }
     }
 }
