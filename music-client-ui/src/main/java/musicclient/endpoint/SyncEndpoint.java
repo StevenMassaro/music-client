@@ -30,8 +30,6 @@ public class SyncEndpoint {
 
     @PostMapping
     public SyncResult sample(@RequestBody List<Track> tracksToSync) throws IOException, TaskInProgressException {
-        String serverPort = environment.getProperty("local.server.port");
-
-        return syncService.performSync(tracksToSync, serverPort);
+        return syncService.performSync(tracksToSync);
     }
 }

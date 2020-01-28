@@ -1,5 +1,11 @@
 # changelog
 
+## 1.11-2020.01.27
+* major refactor to separate the UI from the router
+  * deployment now has two separately running modules
+    * the UI: UI and local backend services
+    * the router: publicly exposed, routes requests to local server and to remote server
+
 ## 1.11-2020.01.12
 * feature: support uploading new tracks
 

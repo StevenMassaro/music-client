@@ -15,6 +15,9 @@ public class PrivateSettings {
     @Value("${zuul.music-api.authorizationHeader}")
     private String zuulMusicAuthorizationHeader;
 
+    @Value("${music.client.router.server.port}")
+    private String routerServerPort;
+
     @Value("${sync.connect_timeout}")
     private String connectTimeout;
 
@@ -59,6 +62,14 @@ public class PrivateSettings {
 
     public String getHASH_DUMP_FILENAME() {
         return HASH_DUMP_FILENAME;
+    }
+
+    public String getMUSIC_API_GATEWAY_ROUTE(){
+        return "/Music";
+    }
+
+    public Long getRouterServerPort() {
+        return Long.parseLong(routerServerPort);
     }
 
     public int getConnectTimeout() {
