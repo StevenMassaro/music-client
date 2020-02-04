@@ -396,7 +396,7 @@ class App extends Component {
     };
 
     handleAlbumArtUpdateToast = (msg) => {
-        if (msg.position === 1) {
+        if (msg.position === 0) {
             toast.info(buildAlbumArtUpdateToastMessage(msg), {
                 toastId: msg.album,
                 autoClose: false,
