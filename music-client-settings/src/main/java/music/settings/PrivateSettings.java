@@ -9,19 +9,19 @@ public class PrivateSettings {
     @Value("${zuul.routes.music-api.url}")
     private String zuulRoute;
 
-    @Value("${local.music.file.location}")
+    @Value("${local.music.file.location:#{null}")
     private String localMusicFileLocation;
 
     @Value("${zuul.music-api.authorizationHeader}")
     private String zuulMusicAuthorizationHeader;
 
-    @Value("${music.client.router.server.port}")
+    @Value("${music.client.router.server.port:#{8080}")
     private String routerServerPort;
 
-    @Value("${sync.connect_timeout}")
+    @Value("${sync.connect_timeout:15}")
     private String connectTimeout;
 
-    @Value("${sync.read_timeout}")
+    @Value("${sync.read_timeout:60}")
     private String readTimeout;
 
     private final String HASH_DUMP_FILENAME = "hashes.txt";
