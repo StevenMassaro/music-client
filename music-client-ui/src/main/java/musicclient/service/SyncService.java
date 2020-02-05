@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -70,16 +71,16 @@ public class SyncService {
 						syncResult.incrementExistingFiles();
 					} else {
 						logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
-                        String url = "http://localhost:" + settings.getRouterServerPort() + settings.getMUSIC_API_GATEWAY_ROUTE() + "/track/" + track.getId() + "/stream";
-						logger.debug(String.format("URL: %s", url));
+						URL url = new URL(settings.getZuulRoute() + "/track/" + track.getId() + "/stream");
+                        logger.debug(String.format("URL: %s", url));
 						logger.debug(String.format("Destination path: %s", destinationPath));
 						try {
-							FileUtils.copyURLToFile(
-								new URL(url),
-                                new File(destinationPath),
-                                settings.getConnectTimeout(),
-                                settings.getReadTimeout()
-							);
+                            URLConnection connection = url.openConnection();
+                            connection.setRequestProperty("Authorization", settings.getZuulMusicAuthorizationHeader());
+                            connection.setReadTimeout(settings.getReadTimeout());
+                            connection.setConnectTimeout(settings.getConnectTimeout());
+
+                            FileUtils.copyInputStreamToFile(connection.getInputStream(), new File(destinationPath));
 							// ensure downloaded file matches expected
 							String downloadedFileHash = hashService.calculateHash(new File(destinationPath));
 							if (downloadedFileHash.equals(track.getHash())) {

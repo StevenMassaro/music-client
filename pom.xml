@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.11-2020.01.27</version>
+    <version>1.11-2020.02.04</version>
     <modules>
         <module>music-client-router</module>
         <module>music-client-ui</module>

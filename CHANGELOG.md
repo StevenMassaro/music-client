@@ -1,5 +1,8 @@
 # changelog
 
+## 1.11-2020-02.04
+* bypass router when syncing and directly call API
+
 ## 1.11-2020.01.27
 * major refactor to separate the UI from the router
   * deployment now has two separately running modules

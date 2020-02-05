@@ -5,7 +5,7 @@
     <parent>
         <artifactId>music-client</artifactId>
         <groupId>com.massaro</groupId>
-        <version>1.11-2020.01.27</version>
+        <version>1.11-2020.02.04</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,12 +15,12 @@
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-client-router</artifactId>
-            <version>1.11-2020.01.27</version>
+            <version>1.11-2020.02.04</version>
         </dependency>
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-client-ui</artifactId>
-            <version>1.11-2020.01.27</version>
+            <version>1.11-2020.02.04</version>
         </dependency>
     </dependencies>
 
