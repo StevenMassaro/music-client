@@ -3,7 +3,9 @@ package musicclient.service;
 import music.exception.TaskInProgressException;
 import music.model.Track;
 import music.settings.PrivateSettings;
+import musicclient.SyncWebsocket;
 import musicclient.model.impl.SyncResult;
+import musicclient.model.impl.SyncStep;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -27,12 +29,15 @@ public class SyncService {
 
     private final HashService hashService;
 
+    private final SyncWebsocket syncWebsocket;
+
     private final String RENAME_SEPARATOR = "_";
 
-    public SyncService(PrivateSettings settings, TrackService trackService, HashService hashService) {
+    public SyncService(PrivateSettings settings, TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket) {
         this.settings = settings;
         this.trackService = trackService;
         this.hashService = hashService;
+        this.syncWebsocket = syncWebsocket;
     }
 
     public SyncResult performSync(List<Track> tracksToSync) throws IOException, TaskInProgressException {
@@ -47,9 +52,12 @@ public class SyncService {
 				renameExistingFiles(syncResult, tracksToSync, currentTime);
 
 				Map<String, File> existingFilesHash = determineExistingFilesHashes(currentTime);
+
+                syncWebsocket.sendSyncUpdateMessage(-1, tracksToSync.size(), SyncStep.SYNCING);
 				Map<String, String> newFilesHashes = new HashMap<>();
 				// find existing files which match the hashes of files to sync, otherwise download the file from the server
 				for (int i = 0; i < tracksToSync.size(); i++) {
+                    syncWebsocket.sendSyncUpdateMessage(i, tracksToSync.size(), SyncStep.SYNCING);
 					Track track = tracksToSync.get(i);
 					String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
 					String destinationPath = settings.getLocalMusicFileLocation() + destinationFilename;
@@ -129,7 +137,9 @@ public class SyncService {
         Collection<File> existingFiles = trackService.listFiles();
         syncResult.setTotalFiles(tracksToSync.size());
         long existingFileCount = 0;
+        syncWebsocket.sendSyncUpdateMessage(-1, tracksToSync.size(), SyncStep.RENAMING_EXISTING);
         for (File existingFile : existingFiles) {
+            syncWebsocket.sendSyncUpdateMessage((int) existingFileCount, tracksToSync.size(), SyncStep.RENAMING_EXISTING);
             existingFileCount++;
             String newName = currentTime + RENAME_SEPARATOR + existingFile.getName();
             logger.debug(String.format("Renaming track %s of %s from %s to %s", existingFileCount, existingFiles.size(), existingFile.getName(), newName));
@@ -146,7 +156,9 @@ public class SyncService {
         Map<String, String> hashDump = hashService.loadExistingHashDump();
         Collection<File> existingFiles = trackService.listFiles();
         long existingFileCount = 0;
+        syncWebsocket.sendSyncUpdateMessage(-1, existingFiles.size(), SyncStep.HASHING_EXISTING);
         for (File existingFile : existingFiles) {
+            syncWebsocket.sendSyncUpdateMessage((int) existingFileCount, existingFiles.size(), SyncStep.HASHING_EXISTING);
             existingFileCount++;
             logger.debug(String.format("Hashing %s of %s: %s", existingFileCount, existingFiles.size(), existingFile.getName()));
             if (existingFileCount % 100 == 0) {

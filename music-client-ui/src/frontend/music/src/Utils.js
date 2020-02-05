@@ -1,5 +1,6 @@
 import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
 import React from 'react';
+import * as lodash from "lodash";
 
 /**
  * Generate a relative url, deciding whether to use Zuul or not.
@@ -38,4 +39,8 @@ export function getZuulRoute(relativePath){return "." + ZUUL_ROUTE + (relativePa
 
 export function buildAlbumArtUpdateToastMessage(msg) {
     return <div>Updating album art for {msg.album}: {msg.position}/{msg.max}</div>
+}
+
+export function buildSyncUpdateToastMessage(msg) {
+    return <div>{lodash.startCase(lodash.lowerCase(msg.syncStep))}: {msg.position}/{msg.max}</div>
 }

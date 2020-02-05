@@ -32,10 +32,6 @@ class NavigatorComponent extends Component {
             syncing: true,
             synced: false
         });
-        let syncingMessage = toast.info("Syncing", {
-            autoClose: false,
-            hideProgressBar: true
-        });
         fetch(this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
             "./sync?forceUpdates=" + forceUpdates :
             getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
@@ -52,7 +48,6 @@ class NavigatorComponent extends Component {
                         syncing: false,
                         synced: true
                     });
-                    toast.dismiss(syncingMessage);
                     toast.success("Finished sync successfully.");
                     this.props.listSongs();
                 },
@@ -62,7 +57,6 @@ class NavigatorComponent extends Component {
                         synced: true,
                         errorSync: error
                     });
-                    toast.dismiss(syncingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to perform sync:<br/>{errorMessage}</div>));
                 }
             );

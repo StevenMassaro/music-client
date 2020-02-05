@@ -9,7 +9,13 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
-import {buildAlbumArtUpdateToastMessage, generateUrl, getZuulRoute, handleRestResponse} from "./Utils";
+import {
+    buildAlbumArtUpdateToastMessage,
+    buildSyncUpdateToastMessage,
+    generateUrl,
+    getZuulRoute,
+    handleRestResponse
+} from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
@@ -20,7 +26,8 @@ import UploadSongsComponent from "./UploadSongsComponent";
 export const ZUUL_ROUTE = '/Music';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
-    albumArtUpdates: '/topic/art/updates'
+    albumArtUpdates: '/topic/art/updates',
+    syncUpdates: '/topic/sync/updates'
 };
 
 export const MUSIC_FILE_SOURCE_TYPES = {
@@ -391,22 +398,28 @@ class App extends Component {
     handleWebsocketMessage = (msg, topic) => {
         // todo there is probably a better way of doing this, but at the moment this works
         if (topic === WEBSOCKET_ROUTES.albumArtUpdates) {
-            this.handleAlbumArtUpdateToast(msg);
+            this.handleAlbumArtUpdateToast(msg,
+                msg => buildAlbumArtUpdateToastMessage(msg),
+                msg => msg.album);
+        } else if (topic === WEBSOCKET_ROUTES.syncUpdates) {
+            this.handleAlbumArtUpdateToast(msg,
+                msg => buildSyncUpdateToastMessage(msg),
+                () => "sync_updates_toast")
         }
     };
 
-    handleAlbumArtUpdateToast = (msg) => {
+    handleAlbumArtUpdateToast = (msg, toastMessageCallback, toastIdCallback) => {
         if (msg.position === 0) {
-            toast.info(buildAlbumArtUpdateToastMessage(msg), {
-                toastId: msg.album,
+            toast.info(toastMessageCallback(msg), {
+                toastId: toastIdCallback(msg),
                 autoClose: false,
                 hideProgressBar: true
             });
         } else if (msg.position === msg.max) {
-            toast.dismiss(msg.album);
+            toast.dismiss(toastIdCallback(msg));
         } else {
-            toast.update(msg.album, {
-                render: buildAlbumArtUpdateToastMessage(msg)
+            toast.update(toastIdCallback(msg), {
+                render: toastMessageCallback(msg)
             });
         }
     };
@@ -417,6 +430,11 @@ class App extends Component {
                 <SockJsClient
                     url={getZuulRoute("/gs-guide-websocket")}
                     topics={[WEBSOCKET_ROUTES.albumArtUpdates]}
+                    onMessage={this.handleWebsocketMessage}
+                />
+                <SockJsClient
+                    url={"./gs-guide-websocket"}
+                    topics={[WEBSOCKET_ROUTES.syncUpdates]}
                     onMessage={this.handleWebsocketMessage}
                 />
                 <ToastContainer/>
