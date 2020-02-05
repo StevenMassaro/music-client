@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-client-settings</artifactId>
-                <version>${music-api-dependency-version}</version>
+                <version>1.11-2020.02.04</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
