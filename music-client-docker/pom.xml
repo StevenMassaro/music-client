@@ -80,7 +80,7 @@
                 </executions>
                 <configuration>
                     <tag>${project.version}</tag>
-                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
+                    <repository>${docker.image.prefix}/music-client</repository>
                 </configuration>
             </plugin>
         </plugins>
