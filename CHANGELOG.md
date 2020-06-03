@@ -1,5 +1,8 @@
 # changelog
 
+## 1.12-2020.06.02
+* show iframe of album art exchange when editing album art
+
 ## 1.11-2020-02.04
 * bypass router when syncing and directly call API
 

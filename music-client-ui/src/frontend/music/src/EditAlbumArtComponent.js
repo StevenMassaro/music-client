@@ -53,6 +53,8 @@ class EditMetadataComponent extends Component {
 
     toggleUpdateAll = () => this.setState({updateAll: !this.state.updateAll});
 
+    getAlbumArtUrl = () => `https://albumartexchange.com/covers?q=${this.state.song.artist.replaceAll(' ', '+')}+${this.state.song.album.replaceAll(' ', '+')}&fltr=ALL&sort=RATING&status=&size=any&apply-filter=`
+
     render() {
         return <div>
             <div>Paste an image to set the artwork for '{this.state.song.title}' by '{this.state.song.artist}' on album '{this.state.song.album}'. This change will be persisted to disk immediately.
@@ -62,6 +64,12 @@ class EditMetadataComponent extends Component {
                     label='Update all tracks in this album'
                     onChange={this.toggleUpdateAll}
                     checked={this.state.updateAll}
+                />
+            </div>
+            <div>
+                <iframe src={this.getAlbumArtUrl()}
+                        style={{'height': '70vh'}}
+                        width={'100%'}
                 />
             </div>
         </div>;
