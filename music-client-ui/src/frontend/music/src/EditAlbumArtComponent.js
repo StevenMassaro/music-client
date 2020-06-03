@@ -55,7 +55,7 @@ class EditMetadataComponent extends Component {
 
     render() {
         return <div>
-            <div>Paste an image to set the artwork for this song. This change will be persisted to disk immediately.
+            <div>Paste an image to set the artwork for '{this.state.song.title}' by '{this.state.song.artist}' on album '{this.state.song.album}'. This change will be persisted to disk immediately.
             </div>
             <div>
                 <Checkbox
