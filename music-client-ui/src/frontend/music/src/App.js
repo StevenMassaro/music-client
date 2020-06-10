@@ -380,11 +380,17 @@ class App extends Component {
         });
     };
 
-    showUploadSongs = () => {
+    /**
+     * Show the modal to upload songs.
+     * @param existingId if not null or undefined, this should be the ID of the song that is being replaced. If null or
+     * undefined, it is assumed that new tracks are being uploaded and no tracks are being replaced.
+     */
+    showUploadSongs = (existingId = undefined) => {
         this.setState({
             modalContent: <UploadSongsComponent
                 songs={this.state.songs}
                 modifySongs={this.modifySongs}
+                existingId={existingId}
             />
         });
     };
@@ -482,6 +488,7 @@ class App extends Component {
                                         showEditMetadata={this.showEditMetadata}
                                         showEditAlbumArt={this.showEditAlbumArt}
                                         modifySongs={this.modifySongs}
+                                        showUploadSongs={this.showUploadSongs}
                                     />
                                 </div>
                                 <div>

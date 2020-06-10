@@ -4,10 +4,22 @@ import {getZuulRoute} from "./Utils";
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader';
 import PropTypes from 'prop-types';
+import {isNumber} from "lodash";
 
 class UploadSongsComponent extends Component {
 
+    _getUrl = () => {
+        let base = "/track/upload";
+        const {existingId} = this.props;
+        if (existingId && isNumber(existingId)) {
+            base += "?existingId=" + existingId;
+        }
+        return base;
+    };
+
     render() {
+        const {existingId} = this.props;
+
         return <Dropzone
             onChangeStatus={({ meta, file, xhr, remove }, status) => {
                 if(status === 'done'){
@@ -17,16 +29,18 @@ class UploadSongsComponent extends Component {
                     remove();
                 }
             }}
-            getUploadParams={() => ({ url: getZuulRoute("/track/upload") })}
+            getUploadParams={() => ({ url: getZuulRoute(this._getUrl()) })}
             accept="audio/*"
-            inputContent="Drag (or click to browse) audio files to upload"
+            inputContent={existingId ? "Drag (or click to browse) an audio file to replace the selected track" : "Drag (or click to browse) audio files to upload"}
+            maxFiles={existingId ? 1 : 250}
         />
     }
 }
 
 UploadSongsComponent.propTypes = {
     songs: PropTypes.array.isRequired,
-    modifySongs: PropTypes.func.isRequired
+    modifySongs: PropTypes.func.isRequired,
+    existingId: PropTypes.number
 };
 
 export default UploadSongsComponent;

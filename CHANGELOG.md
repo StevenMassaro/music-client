@@ -1,5 +1,8 @@
 # changelog
 
+## 1.12-2020.06.09
+* allow song upload to replace existing song and take over its play history
+
 ## 1.12-2020.06.02
 * show iframe of album art exchange when editing album art
 

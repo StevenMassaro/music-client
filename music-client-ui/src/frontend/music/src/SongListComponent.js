@@ -183,6 +183,10 @@ class SongListComponent extends Component {
                         {this._generateRatingList()}
                     </SubMenu>
                     <MenuItem data={this.state.clickedData}
+                              onClick={(e,props) => this.props.showUploadSongs(props.id)}>
+                        <div className="green">Replace track</div>
+                    </MenuItem>
+                    <MenuItem data={this.state.clickedData}
                               onClick={(e,props) => this.props.deleteSong(props.id)}>
                         <div className="green">Delete</div>
                     </MenuItem>
