@@ -107,7 +107,16 @@ class App extends Component {
         }
     };
 
-    onCurrentSongEnd = () => {
+    /**
+     * Perform end of song actions, like loading the next song in the queue.
+     * @param skipped if true, mark the song as skipped in the database and record the number of seconds played before skipping
+     */
+    onCurrentSongEnd = (skipped = false) => {
+        if (skipped) {
+            const durationBeforeSkipped = this.state.audioEl.currentTime;
+            console.log(`song played ${durationBeforeSkipped} seconds before being skipped`);
+            this._markSkipped(this._getCurrentSong().id, durationBeforeSkipped);
+        }
         let upNext = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
         if (!lodash.isEmpty(upNext)) {
@@ -339,6 +348,29 @@ class App extends Component {
                 },
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));
+                });
+    };
+
+
+    /**
+     * Send rest request to backend to record that song was skipped.
+     * @param id track id
+     * @param secondsPlayedBeforeSkip nullable parameter indicating the number of seconds that the song was played before it was skipped
+     * @private
+     */
+    _markSkipped = (id, secondsPlayedBeforeSkip) => {
+        fetch(getZuulRoute("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")), {
+            method: 'POST'
+        }).then(handleRestResponse)
+            .then(
+                () => {
+                    let songs = Object.assign([], this.state.songs);
+                    // find the matching song, and increment the play counter in the state
+                    songs.find(song => song.id === id).skips++;
+                    this.modifySongs(songs)
+                },
+                (error) => {
+                    error.text().then(errorMessage => toast.error(<div>Failed to mark song as skipped:<br/>{errorMessage}</div>));
                 });
     };
 

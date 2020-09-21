@@ -20,7 +20,7 @@ class PlayerComponent extends Component {
                         Your browser does not support the
                         <code>audio</code> element.
                     </ReactAudioPlayer>
-                    <button onClick={this.props.onSongEnd}>
+                    <button onClick={() => this.props.onSongEnd(true)}>
                         Next
                     </button>
                     <AlbumArtComponent id={this.props.currentSong().id}

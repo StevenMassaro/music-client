@@ -1,5 +1,8 @@
 # changelog
 
+## 1.13-SKIP-COUNT
+* record each time a song is skipped
+
 ## 1.12-2020.06.09
 * allow song upload to replace existing song and take over its play history
 
