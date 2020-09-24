@@ -1,5 +1,9 @@
 # changelog
 
+## 1.13.01-SKIP-COUNT
+* remove router and make calls directly to server
+* reduce memory usage when streaming files from client server
+
 ## 1.13-SKIP-COUNT
 * record each time a song is skipped
 
