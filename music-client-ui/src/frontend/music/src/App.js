@@ -13,7 +13,6 @@ import {
     buildAlbumArtUpdateToastMessage,
     buildSyncUpdateToastMessage,
     generateUrl,
-    getZuulRoute,
     handleRestResponse
 } from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
@@ -23,7 +22,6 @@ import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
 
-export const ZUUL_ROUTE = '/Music';
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
     albumArtUpdates: '/topic/art/updates',
@@ -42,6 +40,7 @@ class App extends Component {
         this.state = {
             loadingSongs: false,
             loadedSongs: false,
+            loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
             activeSongList: undefined
@@ -55,8 +54,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.listSongs();
-        this.getSettings();
+        this.getSettings(this.listSongs);
     }
 
     addToEndOfUpNext = (song) => {
@@ -88,7 +86,7 @@ class App extends Component {
     getCurrentSongSrc = () => {
         if (this._getCurrentSong()) {
             if (this.state.settings) {
-                return generateUrl(this.state.settings, "/track/" + this._getCurrentSong().id + "/stream");
+                return generateUrl(this.state.settings, "/track/" + this._getCurrentSong().id + "/stream", this.buildServerUrl);
             }
         } else {
             return undefined;
@@ -129,7 +127,7 @@ class App extends Component {
     };
 
     _setBackgroundImage = (id) => {
-        document.body.style.backgroundImage = "url(" + generateUrl(this.state.settings, "/track/" + id + "/art") + ")";
+        document.body.style.backgroundImage = "url(" + generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl) + ")";
     };
 
     listSongs = () => {
@@ -137,7 +135,7 @@ class App extends Component {
             loadingSongs: true,
             loadedSongs: false
         });
-        fetch("." + ZUUL_ROUTE + "/track/")
+        fetch(this.buildServerUrl("/track/"))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -163,7 +161,7 @@ class App extends Component {
             deletingSong: true,
             deletedSong: false
         });
-        fetch("." + ZUUL_ROUTE + "/track/" + id,{
+        fetch(this.buildServerUrl("/track/" + id),{
             method: 'DELETE'
         })
             .then(handleRestResponse)
@@ -188,7 +186,10 @@ class App extends Component {
                 });
     };
 
-    getSettings = () => {
+    /**
+     * @param settingsFetchedCallback This function is called after the settings are successfully loaded.
+     */
+    getSettings = (settingsFetchedCallback) => {
         this.setState({
             loadingSettings: true,
             loadedSettings: false
@@ -201,7 +202,10 @@ class App extends Component {
                         loadingSettings: false,
                         loadedSettings: true,
                         settings: result
-                    }, this.getDeviceId);
+                    }, () => {
+                        this.getDeviceId();
+                        settingsFetchedCallback();
+                    });
                 },
                 (error) => {
                     this.setState({
@@ -219,7 +223,7 @@ class App extends Component {
             loadingDevice: true,
             loadedDevice: false
         });
-        fetch(getZuulRoute("/device/name/" + this.state.settings.deviceName))
+        fetch(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -336,7 +340,7 @@ class App extends Component {
      * @private
      */
     _markListened = (id) => {
-        fetch(getZuulRoute("track/" + id + "/listened?deviceId=" + this.state.device.id), {
+        fetch(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id), {
             method: 'POST'
         }).then(handleRestResponse)
             .then(
@@ -359,7 +363,7 @@ class App extends Component {
      * @private
      */
     _markSkipped = (id, secondsPlayedBeforeSkip) => {
-        fetch(getZuulRoute("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")), {
+        fetch(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")), {
             method: 'POST'
         }).then(handleRestResponse)
             .then(
@@ -386,13 +390,16 @@ class App extends Component {
         this.setState({
             modalContent: <EditMetadataComponent song={song}
                                                  listSongs={this.listSongs}
+                                                 buildServerUrl={this.buildServerUrl}
             />
         })
     };
 
     showEditAlbumArt = (song) => {
         this.setState({
-            modalContent: <EditAlbumArtComponent song={song}/>
+            modalContent: <EditAlbumArtComponent song={song}
+                                                 buildServerUrl={this.buildServerUrl}
+            />
         });
     };
 
@@ -400,6 +407,7 @@ class App extends Component {
         this.setState({
             modalContent: <CreateSmartPlaylistComponent
                 existingSmartPlaylist={null}
+                buildServerUrl={this.buildServerUrl}
             />
         });
     };
@@ -408,6 +416,7 @@ class App extends Component {
         this.setState({
             modalContent: <CreateSmartPlaylistComponent
                 existingSmartPlaylist={toEdit}
+                buildServerUrl={this.buildServerUrl}
             />
         });
     };
@@ -423,6 +432,7 @@ class App extends Component {
                 songs={this.state.songs}
                 modifySongs={this.modifySongs}
                 existingId={existingId}
+                buildServerUrl={this.buildServerUrl}
             />
         });
     };
@@ -462,11 +472,20 @@ class App extends Component {
         }
     };
 
+    /**
+     * Given a relative path, build the full path to this resource using the server's API URL as defined in the client
+     * servers settings.
+     */
+    buildServerUrl = (relativePath) => {
+        return this.state.settings.serverApiUrl + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
+    };
+
     render() {
         return (
+            this.state.loadedSettings ?
             <div>
                 <SockJsClient
-                    url={getZuulRoute("/gs-guide-websocket")}
+                    url={this.buildServerUrl("/gs-guide-websocket")}
                     topics={[WEBSOCKET_ROUTES.albumArtUpdates]}
                     onMessage={this.handleWebsocketMessage}
                 />
@@ -489,6 +508,7 @@ class App extends Component {
                         onSongEnd={this.onCurrentSongEnd}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
                         setAudioElement={this.setAudioElement}
+                        buildServerUrl={this.buildServerUrl}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
@@ -502,6 +522,7 @@ class App extends Component {
                                     showCreateSmartPlaylist={this.showCreateSmartPlaylist}
                                     showEditSmartPlaylist={this.showEditSmartPlaylist}
                                     showUploadSongs={this.showUploadSongs}
+                                    buildServerUrl={this.buildServerUrl}
                                 />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
@@ -521,6 +542,7 @@ class App extends Component {
                                         showEditAlbumArt={this.showEditAlbumArt}
                                         modifySongs={this.modifySongs}
                                         showUploadSongs={this.showUploadSongs}
+                                        buildServerUrl={this.buildServerUrl}
                                     />
                                 </div>
                                 <div>
@@ -536,7 +558,7 @@ class App extends Component {
                         </SplitPane>
                     </div>
                 </SplitPane>
-            </div>
+            </div> : <div>Loading settings...</div>
         );
     }
 }

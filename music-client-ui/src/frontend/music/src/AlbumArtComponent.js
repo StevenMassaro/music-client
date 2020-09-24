@@ -14,7 +14,7 @@ class AlbumArtComponent extends Component {
 
   showModal = () => {
     this.setState({
-      modalContent: <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art")}
+      modalContent: <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
                          alt={"No album artwork"}
                          className={"albumArt modal"}
                          onClick={() => this.setState({modalContent: undefined})}
@@ -28,7 +28,7 @@ class AlbumArtComponent extends Component {
              contentLabel="Album art">
         {this.state.modalContent}
       </Modal>
-      <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art")}
+      <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
            alt={"No album artwork"}
            className={"albumArt"}
            onClick={this.showModal}

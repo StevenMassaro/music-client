@@ -8,7 +8,6 @@
     <artifactId>music-client</artifactId>
     <version>1.13-SKIP-COUNT</version>
     <modules>
-        <module>music-client-router</module>
         <module>music-client-ui</module>
         <module>music-client-docker</module>
         <module>music-client-settings</module>

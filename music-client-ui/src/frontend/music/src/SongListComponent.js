@@ -6,7 +6,6 @@ import {ContextMenu, ContextMenuTrigger, MenuItem, SubMenu} from "react-contextm
 import './react-contextmenu.css';
 import * as moment from 'moment';
 import {toast} from "react-toastify";
-import {ZUUL_ROUTE} from "./App";
 
 const axios = require('axios').default;
 
@@ -50,7 +49,7 @@ class SongListComponent extends Component {
     };
 
     _setRating = (id, rating) => {
-        axios.patch("." + ZUUL_ROUTE + "/track/" + id + "/rating/" + rating)
+        axios.patch(this.props.buildServerUrl("/track/" + id + "/rating/" + rating))
             .then(() => {
                 let songsCopy = Object.assign([], this.props.songs);
                 let songCopy = songsCopy.find(song => song.id === id);

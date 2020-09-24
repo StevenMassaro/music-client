@@ -1,11 +1,12 @@
-import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
+import {MUSIC_FILE_SOURCE_TYPES} from "./App";
 import React from 'react';
 import * as lodash from "lodash";
 
 /**
- * Generate a relative url, deciding whether to use Zuul or not.
+ * Generate a relative url, deciding whether to call the client-server (in local mode) or to call the server.
+ * @param generateServerUrlCallback A function that is called to generate the URL for a server API call.
  */
-export function generateUrl(settings, url) {
+export function generateUrl(settings, url, generateServerUrlCallback) {
   if (settings) {
     if (settings.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local) {
       if(!url.startsWith(".")){
@@ -13,7 +14,7 @@ export function generateUrl(settings, url) {
       }
       return url;
     } else {
-      return "." + ZUUL_ROUTE + url;
+      return generateServerUrlCallback(url);
     }
   }
 }
@@ -29,13 +30,6 @@ export function handleRestResponse(res) {
         throw res;
     }
 }
-
-/**
- * Get the relative path of a route which should be routed through Zuul.
- * @private
- */
-export function getZuulRoute(relativePath){return "." + ZUUL_ROUTE + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);}
-
 
 export function buildAlbumArtUpdateToastMessage(msg) {
     return <div>Updating album art for {msg.album}: {msg.position}/{msg.max}</div>

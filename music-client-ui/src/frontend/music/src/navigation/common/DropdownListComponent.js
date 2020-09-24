@@ -3,7 +3,6 @@ import {Dropdown} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import {handleRestResponse} from "../../Utils";
-import {ZUUL_ROUTE} from "../../App";
 import PropTypes from 'prop-types';
 import * as lodash from "lodash";
 
@@ -21,7 +20,7 @@ class DropdownListComponent extends Component {
             loadingValues: true,
             loadedValues: false
         });
-        fetch("." + ZUUL_ROUTE + this.props.valuesUrl)
+        fetch(this.props.buildServerUrl(this.props.valuesUrl))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -51,7 +50,7 @@ class DropdownListComponent extends Component {
             loadingTracks: true,
             loadedTracks: false
         });
-        fetch("." + ZUUL_ROUTE + (this.props.tracksUrl || this.props.valuesUrl) + selectedValue)
+        fetch(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -110,7 +109,8 @@ DropdownListComponent.propTypes = {
     activeMenuItem: PropTypes.string.isRequired,
     setActiveMenuItem: PropTypes.func.isRequired,
     setActiveSongList: PropTypes.func.isRequired,
-    dropdownOnClickCallback: PropTypes.func
+    dropdownOnClickCallback: PropTypes.func,
+    buildServerUrl: PropTypes.func.isRequired
 };
 
 DropdownListComponent.defaultProps = {

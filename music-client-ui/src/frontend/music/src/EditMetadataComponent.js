@@ -3,7 +3,6 @@ import './App.css';
 import './NavigatorComponent.css';
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import {ZUUL_ROUTE} from "./App";
 import {handleRestResponse} from "./Utils";
 import * as lodash from "lodash";
 
@@ -27,7 +26,7 @@ class EditMetadataComponent extends Component {
             loadingModifyableTags: true,
             loadedModifyableTags: false
         });
-        fetch("." + ZUUL_ROUTE + "/track/modifyabletags")
+        fetch(this.props.buildServerUrl("/track/modifyabletags"))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -52,7 +51,7 @@ class EditMetadataComponent extends Component {
     handleSubmit = (event, song) => {
         let songCopy = Object.assign({}, song);
         delete songCopy.target;
-        fetch("." + ZUUL_ROUTE + "/track", {
+        fetch(this.props.buildServerUrl("/track"), {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',

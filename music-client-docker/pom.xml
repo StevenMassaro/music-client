@@ -14,11 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>com.massaro</groupId>
-            <artifactId>music-client-router</artifactId>
-            <version>1.13-SKIP-COUNT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.massaro</groupId>
             <artifactId>music-client-ui</artifactId>
             <version>1.13-SKIP-COUNT</version>
         </dependency>
@@ -40,7 +35,6 @@
                         <configuration>
                             <target name="copy-build-jars">
                                 <copy todir="${project.build.directory}">
-                                    <fileset dir="../music-client-router/target/" includes="music-client-router.jar"/>
                                     <fileset dir="../music-client-ui/target/" includes="music-client-ui.jar"/>
                                 </copy>
                             </target>

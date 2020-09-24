@@ -3,6 +3,7 @@ package musicclient.service;
 import music.exception.TaskInProgressException;
 import music.model.Track;
 import music.settings.PrivateSettings;
+import music.settings.PublicSettings;
 import musicclient.SyncWebsocket;
 import musicclient.model.impl.SyncResult;
 import musicclient.model.impl.SyncStep;
@@ -24,7 +25,7 @@ public class SyncService {
     Logger logger = LoggerFactory.getLogger(SyncService.class);
 	private AtomicBoolean currentlySyncing = new AtomicBoolean(false);
 
-    private final PrivateSettings settings;
+    private final PrivateSettings privateSettings;
 
     private final TrackService trackService;
 
@@ -32,13 +33,16 @@ public class SyncService {
 
     private final SyncWebsocket syncWebsocket;
 
+    private final PublicSettings publicSettings;
+
     private final String RENAME_SEPARATOR = "_";
 
-    public SyncService(PrivateSettings settings, TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket) {
-        this.settings = settings;
+    public SyncService(PrivateSettings privateSettings, TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket, PublicSettings publicSettings) {
+        this.privateSettings = privateSettings;
         this.trackService = trackService;
         this.hashService = hashService;
         this.syncWebsocket = syncWebsocket;
+        this.publicSettings = publicSettings;
     }
 
     public SyncResult performSync(List<Track> tracksToSync) throws IOException, TaskInProgressException {
@@ -61,7 +65,7 @@ public class SyncService {
                     syncWebsocket.sendSyncUpdateMessage(i, tracksToSync.size(), SyncStep.SYNCING);
 					Track track = tracksToSync.get(i);
 					String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
-					String destinationPath = settings.getLocalMusicFileLocation() + destinationFilename;
+					String destinationPath = privateSettings.getLocalMusicFileLocation() + destinationFilename;
 					File existingFile = existingFilesHash.get(track.getHash());
 					if (existingFile != null) {
 						logger.info(String.format("Track %s of %s already exists on disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
@@ -71,14 +75,14 @@ public class SyncService {
 						syncResult.incrementExistingFiles();
 					} else {
 						logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
-						URL url = new URL(settings.getZuulRoute() + "/track/" + track.getId() + "/stream");
+						URL url = new URL(publicSettings.getServerApiUrl() + "/track/" + track.getId() + "/stream");
                         logger.debug(String.format("URL: %s", url));
 						logger.debug(String.format("Destination path: %s", destinationPath));
 						try {
                             URLConnection connection = url.openConnection();
-                            connection.setRequestProperty("Authorization", settings.getZuulMusicAuthorizationHeader());
-                            connection.setReadTimeout(settings.getReadTimeout());
-                            connection.setConnectTimeout(settings.getConnectTimeout());
+                            connection.setRequestProperty("Authorization", privateSettings.getZuulMusicAuthorizationHeader());
+                            connection.setReadTimeout(privateSettings.getReadTimeout());
+                            connection.setConnectTimeout(privateSettings.getConnectTimeout());
 
                             FileUtils.copyInputStreamToFile(connection.getInputStream(), new File(destinationPath));
 							// ensure downloaded file matches expected
@@ -147,7 +151,7 @@ public class SyncService {
             if (existingFileCount % 100 == 0) {
                 logger.info(String.format("Renamed %s of a total of %s files", existingFileCount, existingFiles.size()));
             }
-            File renamedFile = new File(settings.getLocalMusicFileLocation() + newName);
+            File renamedFile = new File(privateSettings.getLocalMusicFileLocation() + newName);
             FileUtils.moveFile(existingFile, renamedFile);
         }
     }

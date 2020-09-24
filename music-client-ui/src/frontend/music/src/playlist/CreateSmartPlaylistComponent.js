@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
-import {ZUUL_ROUTE} from "../App";
 import PropTypes from 'prop-types';
 
 const axios = require('axios').default;
@@ -20,7 +19,7 @@ class CreateSmartPlaylistComponent extends Component {
 
     handleSubmit = (event, song) => {
         axios({
-            url: "." + ZUUL_ROUTE + "/playlist/smart",
+            url: this.props.buildServerUrl("/playlist/smart"),
             method: this.props.existingSmartPlaylist ? "PATCH" : "POST",
             data: song
         })
@@ -43,7 +42,7 @@ class CreateSmartPlaylistComponent extends Component {
     };
 
     deleteEntry = () => {
-        axios.delete("." + ZUUL_ROUTE + "/playlist/smart/" + this.props.existingSmartPlaylist.id)
+        axios.delete(this.props.buildServerUrl("/playlist/smart/" + this.props.existingSmartPlaylist.id))
             .then(toast.success("Successfully deleted smart playlist."))
             .catch((error) => {
                 error.text().then(errorMessage => toast.error(<div>Failed to update

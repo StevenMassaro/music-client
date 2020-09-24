@@ -24,7 +24,9 @@ class PlayerComponent extends Component {
                         Next
                     </button>
                     <AlbumArtComponent id={this.props.currentSong().id}
-                                       settings={this.props.settings}/>
+                                       settings={this.props.settings}
+                                       buildServerUrl={this.props.buildServerUrl}
+                    />
                 </span>}
         </div>
         )

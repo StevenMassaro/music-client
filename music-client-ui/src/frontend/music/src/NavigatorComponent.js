@@ -4,8 +4,8 @@ import './NavigatorComponent.css';
 import {Menu} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import {MUSIC_FILE_SOURCE_TYPES, ZUUL_ROUTE} from "./App";
-import {getZuulRoute, handleRestResponse} from "./Utils";
+import {MUSIC_FILE_SOURCE_TYPES} from "./App";
+import {handleRestResponse} from "./Utils";
 import DropdownListComponent from "./navigation/common/DropdownListComponent";
 import PropTypes from 'prop-types';
 
@@ -34,7 +34,7 @@ class NavigatorComponent extends Component {
         });
         fetch(this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
             "./sync?forceUpdates=" + forceUpdates :
-            getZuulRoute("/admin/dbSync?forceUpdates=" + forceUpdates), {
+            this.props.buildServerUrl("/admin/dbSync?forceUpdates=" + forceUpdates), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ class NavigatorComponent extends Component {
             loadingPurgableTracksCount: true,
             loadedPurgableTracksCount: false
         });
-        fetch("." + ZUUL_ROUTE + "/admin/purge/count/")
+        fetch(this.props.buildServerUrl("/admin/purge/count/"))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -93,7 +93,7 @@ class NavigatorComponent extends Component {
             loadingUpdatesCount: true,
             loadedUpdatesCount: false
         });
-        fetch("." + ZUUL_ROUTE + "/admin/update/count/")
+        fetch(this.props.buildServerUrl("/admin/update/count/"))
             .then(handleRestResponse)
             .then(
                 (result) => {
@@ -119,7 +119,7 @@ class NavigatorComponent extends Component {
             autoClose: false,
             hideProgressBar: true
         });
-        fetch("." + ZUUL_ROUTE + "/admin/purge", {
+        fetch(this.props.buildServerUrl("/admin/purge"), {
             method: 'DELETE'
         })
             .then(handleRestResponse)
@@ -141,7 +141,7 @@ class NavigatorComponent extends Component {
             autoClose: false,
             hideProgressBar: true
         });
-        fetch("." + ZUUL_ROUTE + "/admin/update", {
+        fetch(this.props.buildServerUrl("/admin/update"), {
             method: 'POST'
         })
             .then(
@@ -178,7 +178,8 @@ class NavigatorComponent extends Component {
                     valuesUrl={"/track/historical/"}
                     activeMenuItem={this.state.activeItem}
                     setActiveMenuItem={this._setActiveMenuItem}
-                    setActiveSongList={this.props.setActiveSongList}/>
+                    setActiveSongList={this.props.setActiveSongList}
+                    buildServerUrl={this.props.buildServerUrl}/>
                 <Menu.Item>
                     <DropdownListComponent
                         title={"Smart playlists"}
@@ -188,7 +189,8 @@ class NavigatorComponent extends Component {
                         textGetter={(value) => value.name}
                         activeMenuItem={this.state.activeItem}
                         setActiveMenuItem={this._setActiveMenuItem}
-                        setActiveSongList={this.props.setActiveSongList}/>
+                        setActiveSongList={this.props.setActiveSongList}
+                        buildServerUrl={this.props.buildServerUrl}/>
                     <Menu.Menu>
                         <Menu.Item
                             name={"Create smart playlist"}
@@ -205,6 +207,7 @@ class NavigatorComponent extends Component {
                             dropdownOnClickCallback={this.props.showEditSmartPlaylist}
                             valueGetter={(value) => value.id}
                             textGetter={(value) => value.name}
+                            buildServerUrl={this.props.buildServerUrl}
                         />
                     </Menu.Menu>
                 </Menu.Item>

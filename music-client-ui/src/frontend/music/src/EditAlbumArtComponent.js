@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import './App.css';
 import './NavigatorComponent.css';
 import 'semantic-ui-css/semantic.min.css';
-import {ZUUL_ROUTE} from "./App";
 import {Checkbox} from "semantic-ui-react";
 import {toast} from "react-toastify";
 
@@ -32,7 +31,7 @@ class EditMetadataComponent extends Component {
                         formData.append('file', blob, "image_file");
 
                         axios({
-                            url: "." + ZUUL_ROUTE + "/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll,
+                            url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll),
                             method: 'post',
                             data: formData
                         })

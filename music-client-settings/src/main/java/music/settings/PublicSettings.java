@@ -12,19 +12,21 @@ public class PublicSettings {
     @Value("${device.name}")
     private String deviceName;
 
+    @Value("${zuul.routes.music-api.url}")
+    private String serverApiUrl;
+
     public String getMusicFileSource() {
         return musicFileSource.toLowerCase();
-    }
-
-    public void setMusicFileSource(String musicFileSource) {
-        this.musicFileSource = musicFileSource.toLowerCase();
     }
 
     public String getDeviceName() {
         return deviceName;
     }
 
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+    /**
+     * @return The URL of the main server.
+     */
+    public String getServerApiUrl() {
+        return serverApiUrl;
     }
 }

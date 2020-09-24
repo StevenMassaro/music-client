@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import './App.css';
-import {getZuulRoute} from "./Utils";
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader';
 import PropTypes from 'prop-types';
@@ -29,7 +28,7 @@ class UploadSongsComponent extends Component {
                     remove();
                 }
             }}
-            getUploadParams={() => ({ url: getZuulRoute(this._getUrl()) })}
+            getUploadParams={() => ({ url: this.props.buildServerUrl(this._getUrl()) })}
             accept="audio/*"
             inputContent={existingId ? "Drag (or click to browse) an audio file to replace the selected track" : "Drag (or click to browse) audio files to upload"}
             maxFiles={existingId ? 1 : 250}
