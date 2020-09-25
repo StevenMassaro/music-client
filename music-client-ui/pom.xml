@@ -38,17 +38,14 @@
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-model</artifactId>
-            <version>${music-api-dependency-version}</version>
         </dependency>
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-utils</artifactId>
-            <version>${music-api-dependency-version}</version>
         </dependency>
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-service</artifactId>
-            <version>${music-api-dependency-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.massaro</groupId>

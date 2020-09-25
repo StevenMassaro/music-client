@@ -129,6 +129,11 @@ class SongListComponent extends Component {
                                 maxWidth: 50
                             },
                             {
+                                Header: "Skips",
+                                accessor: "skips",
+                                maxWidth: 50
+                            },
+                            {
                                 Header: "Rating",
                                 accessor: "rating",
                                 maxWidth: 50
