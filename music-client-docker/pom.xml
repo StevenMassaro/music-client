@@ -63,7 +63,6 @@
                         <id>tag-version</id>
                         <phase>deploy</phase>
                         <goals>
-                            <goal>build</goal>
                             <goal>tag</goal>
                             <goal>push</goal>
                         </goals>
