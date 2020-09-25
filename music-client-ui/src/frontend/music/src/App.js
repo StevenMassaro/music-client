@@ -12,8 +12,7 @@ import * as lodash from "lodash";
 import {
     buildAlbumArtUpdateToastMessage,
     buildSyncUpdateToastMessage,
-    generateUrl,
-    handleRestResponse
+    generateUrl
 } from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
@@ -21,6 +20,8 @@ import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponen
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
+
+const axios = require('axios').default;
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
@@ -135,16 +136,16 @@ class App extends Component {
             loadingSongs: true,
             loadedSongs: false
         });
-        fetch(this.buildServerUrl("/track/"))
-            .then(handleRestResponse)
+        axios.get(this.buildServerUrl("/track/"))
             .then(
                 (result) => {
                     this.setState({
                         loadingSongs: false,
                         loadedSongs: true,
-                        songs: result
+                        songs: result.data
                     }, () => this.setActiveSongList(this.state.songs));
-                },
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         loadingSongs: false,
@@ -161,21 +162,20 @@ class App extends Component {
             deletingSong: true,
             deletedSong: false
         });
-        fetch(this.buildServerUrl("/track/" + id),{
-            method: 'DELETE'
-        })
-            .then(handleRestResponse)
+        axios.delete(this.buildServerUrl("/track/" + id))
             .then((result) => {
+                    let {data} = result;
                     let songs = this.state.songs.filter(song => {
-                        return song.id !== result.id
+                        return song.id !== data.id
                     });
                     this.modifySongs(songs);
                     this.setState({
                         deletingSong: false,
                         deletedSong: true
                     });
-                    toast.success("Marked '" + result.title + "' as deleted.");
-                },
+                    toast.success("Marked '" + data.title + "' as deleted.");
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         deletingSong: false,
@@ -194,19 +194,23 @@ class App extends Component {
             loadingSettings: true,
             loadedSettings: false
         });
-        fetch("./settings/")
-            .then(handleRestResponse)
+        axios.get("./settings/")
             .then(
                 (result) => {
+                    let {data} = result;
+                    axios.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
+                    axios.defaults.headers.post['Content-Type'] = 'application/json';
+                    axios.defaults.headers.patch['Content-Type'] = 'application/json';
                     this.setState({
                         loadingSettings: false,
                         loadedSettings: true,
-                        settings: result
+                        settings: data
                     }, () => {
                         this.getDeviceId();
                         settingsFetchedCallback();
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         loadingSettings: false,
@@ -223,16 +227,16 @@ class App extends Component {
             loadingDevice: true,
             loadedDevice: false
         });
-        fetch(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
-            .then(handleRestResponse)
+        axios.get(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
             .then(
                 (result) => {
                     this.setState({
                         loadingDevice: false,
                         loadedDevice: true,
-                        device: result
+                        device: result.data
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         loadingDevice: false,
@@ -340,16 +344,15 @@ class App extends Component {
      * @private
      */
     _markListened = (id) => {
-        fetch(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id), {
-            method: 'POST'
-        }).then(handleRestResponse)
+        axios.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
             .then(
                 () => {
                     let songs = Object.assign([], this.state.songs);
                     // find the matching song, and increment the play counter in the state
                     songs.find(song => song.id === id).plays++;
                     this.modifySongs(songs)
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));
                 });
@@ -363,16 +366,15 @@ class App extends Component {
      * @private
      */
     _markSkipped = (id, secondsPlayedBeforeSkip) => {
-        fetch(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")), {
-            method: 'POST'
-        }).then(handleRestResponse)
+        axios.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
             .then(
                 () => {
                     let songs = Object.assign([], this.state.songs);
                     // find the matching song, and increment the play counter in the state
                     songs.find(song => song.id === id).skips++;
                     this.modifySongs(songs)
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to mark song as skipped:<br/>{errorMessage}</div>));
                 });

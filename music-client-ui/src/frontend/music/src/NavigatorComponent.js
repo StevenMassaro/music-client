@@ -5,9 +5,10 @@ import {Menu} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import {MUSIC_FILE_SOURCE_TYPES} from "./App";
-import {handleRestResponse} from "./Utils";
 import DropdownListComponent from "./navigation/common/DropdownListComponent";
 import PropTypes from 'prop-types';
+
+const axios = require('axios').default;
 
 export const SONGS = 'Songs';
 
@@ -32,25 +33,19 @@ class NavigatorComponent extends Component {
             syncing: true,
             synced: false
         });
-        fetch(this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
+        axios.post(this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ?
             "./sync?forceUpdates=" + forceUpdates :
-            this.props.buildServerUrl("/admin/dbSync?forceUpdates=" + forceUpdates), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(this.props.songs)
-        })
-            .then(handleRestResponse)
+            this.props.buildServerUrl("/admin/dbSync?forceUpdates=" + forceUpdates), this.props.songs)
             .then(
-                (result) => {
+                () => {
                     this.setState({
                         syncing: false,
                         synced: true
                     });
                     toast.success("Finished sync successfully.");
                     this.props.listSongs();
-                },
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         syncing: false,
@@ -67,16 +62,16 @@ class NavigatorComponent extends Component {
             loadingPurgableTracksCount: true,
             loadedPurgableTracksCount: false
         });
-        fetch(this.props.buildServerUrl("/admin/purge/count/"))
-            .then(handleRestResponse)
+        axios.get(this.props.buildServerUrl("/admin/purge/count/"))
             .then(
                 (result) => {
                     this.setState({
                         loadingPurgableTracksCount: false,
                         loadedPurgableTracksCount: true,
-                        purgableTracksCount: result
+                        purgableTracksCount: result.data
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to load purgable song count:<br/>{errorMessage}</div>));
                     this.setState({
@@ -93,16 +88,16 @@ class NavigatorComponent extends Component {
             loadingUpdatesCount: true,
             loadedUpdatesCount: false
         });
-        fetch(this.props.buildServerUrl("/admin/update/count/"))
-            .then(handleRestResponse)
+        axios.get(this.props.buildServerUrl("/admin/update/count/"))
             .then(
                 (result) => {
                     this.setState({
                         loadingUpdatesCount: false,
                         loadedUpdatesCount: true,
-                        updatesCount: result
+                        updatesCount: result.data
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to load song update count:<br/>{errorMessage}</div>));
                     this.setState({
@@ -119,16 +114,14 @@ class NavigatorComponent extends Component {
             autoClose: false,
             hideProgressBar: true
         });
-        fetch(this.props.buildServerUrl("/admin/purge"), {
-            method: 'DELETE'
-        })
-            .then(handleRestResponse)
+        axios.delete(this.props.buildServerUrl("/admin/purge"))
             .then(
-                (result) => {
+                () => {
                     toast.dismiss(purgingMessage);
                     toast.success("Successfully purged deleted tracks.");
                     this.props.listSongs();
-                },
+                })
+            .catch(
                 (error) => {
                     toast.dismiss(purgingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to perform purge:<br/>{errorMessage}</div>));
@@ -141,15 +134,14 @@ class NavigatorComponent extends Component {
             autoClose: false,
             hideProgressBar: true
         });
-        fetch(this.props.buildServerUrl("/admin/update"), {
-            method: 'POST'
-        })
+        axios.post(this.props.buildServerUrl("/admin/update"))
             .then(
                 () => {
                     toast.dismiss(purgingMessage);
                     toast.success("Successfully applied updates to disk.");
                     this.props.listSongs();
-                },
+                })
+            .catch(
                 (error) => {
                     toast.dismiss(purgingMessage);
                     error.text().then(errorMessage => toast.error(<div>Failed to apply updates:<br/>{errorMessage}</div>));

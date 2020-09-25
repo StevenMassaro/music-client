@@ -9,9 +9,6 @@ public class PrivateSettings {
     @Value("${local.music.file.location:#{null}}")
     private String localMusicFileLocation;
 
-    @Value("${zuul.music-api.authorizationHeader}")
-    private String zuulMusicAuthorizationHeader;
-
     @Value("${sync.connect_timeout:#{15}}")
     private String connectTimeout;
 
@@ -22,10 +19,6 @@ public class PrivateSettings {
 
     public String getLocalMusicFileLocation() {
         return localMusicFileLocation;
-    }
-
-    public String getZuulMusicAuthorizationHeader() {
-        return zuulMusicAuthorizationHeader;
     }
 
     public String getHASH_DUMP_FILENAME() {

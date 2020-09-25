@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import {handleRestResponse} from "../../Utils";
 import PropTypes from 'prop-types';
 import * as lodash from "lodash";
+
+const axios = require('axios').default;
 
 class DropdownListComponent extends Component {
 
@@ -20,16 +21,16 @@ class DropdownListComponent extends Component {
             loadingValues: true,
             loadedValues: false
         });
-        fetch(this.props.buildServerUrl(this.props.valuesUrl))
-            .then(handleRestResponse)
+        axios.get(this.props.buildServerUrl(this.props.valuesUrl))
             .then(
                 (result) => {
                     this.setState({
                         loadingValues: false,
                         loadedValues: true,
-                        values: result
+                        values: result.data
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     this.setState({
                         loadingValues: false,
@@ -50,13 +51,13 @@ class DropdownListComponent extends Component {
             loadingTracks: true,
             loadedTracks: false
         });
-        fetch(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
-            .then(handleRestResponse)
+        axios.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
                 (result) => {
                     this.props.setActiveMenuItem(this.props.title + selectedValue);
-                    this.props.setActiveSongList(result);
-                },
+                    this.props.setActiveSongList(result.data);
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to load songs for {selectedValue}:<br/>{errorMessage}</div>));
                 }

@@ -15,6 +15,9 @@ public class PublicSettings {
     @Value("${zuul.routes.music-api.url}")
     private String serverApiUrl;
 
+    @Value("${zuul.music-api.authorizationHeader}")
+    private String serverApiAuthHeader;
+
     public String getMusicFileSource() {
         return musicFileSource.toLowerCase();
     }
@@ -28,5 +31,12 @@ public class PublicSettings {
      */
     public String getServerApiUrl() {
         return serverApiUrl;
+    }
+
+    /**
+     * @return The auth header to be used when making calls to the main server.
+     */
+    public String getServerApiAuthHeader() {
+        return serverApiAuthHeader;
     }
 }

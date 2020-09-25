@@ -3,8 +3,9 @@ import './App.css';
 import './NavigatorComponent.css';
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import {handleRestResponse} from "./Utils";
 import * as lodash from "lodash";
+
+const axios = require('axios').default;
 
 class EditMetadataComponent extends Component {
 
@@ -26,16 +27,16 @@ class EditMetadataComponent extends Component {
             loadingModifyableTags: true,
             loadedModifyableTags: false
         });
-        fetch(this.props.buildServerUrl("/track/modifyabletags"))
-            .then(handleRestResponse)
+        axios.get(this.props.buildServerUrl("/track/modifyabletags"))
             .then(
                 (result) => {
                     this.setState({
                         loadingModifyableTags: false,
                         loadedModifyableTags: true,
-                        modifyableTags: result
+                        modifyableTags: result.data
                     });
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to load modifyable
                         tags:<br/>{errorMessage}</div>));
@@ -51,19 +52,13 @@ class EditMetadataComponent extends Component {
     handleSubmit = (event, song) => {
         let songCopy = Object.assign({}, song);
         delete songCopy.target;
-        fetch(this.props.buildServerUrl("/track"), {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(songCopy)
-        })
-            .then(handleRestResponse)
+        axios.patch(this.props.buildServerUrl("/track"), songCopy)
             .then(
-                (result) => {
+                () => {
                     toast.success("Successfully updated track metadata.");
                     this.props.listSongs();
-                },
+                })
+            .catch(
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to update track metadata:<br/>{errorMessage}
                     </div>));

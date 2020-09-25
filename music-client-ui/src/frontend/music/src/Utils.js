@@ -19,18 +19,6 @@ export function generateUrl(settings, url, generateServerUrlCallback) {
   }
 }
 
-/**
- * Properly parse the rest response. If the response does not come back OK, throw the exception.
- * @private
- */
-export function handleRestResponse(res) {
-    if (res.ok) {
-        return res.json();
-    } else {
-        throw res;
-    }
-}
-
 export function buildAlbumArtUpdateToastMessage(msg) {
     return <div>Updating album art for {msg.album}: {msg.position}/{msg.max}</div>
 }

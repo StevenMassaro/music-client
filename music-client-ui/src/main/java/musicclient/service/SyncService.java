@@ -80,7 +80,7 @@ public class SyncService {
 						logger.debug(String.format("Destination path: %s", destinationPath));
 						try {
                             URLConnection connection = url.openConnection();
-                            connection.setRequestProperty("Authorization", privateSettings.getZuulMusicAuthorizationHeader());
+                            connection.setRequestProperty("Authorization", publicSettings.getServerApiAuthHeader());
                             connection.setReadTimeout(privateSettings.getReadTimeout());
                             connection.setConnectTimeout(privateSettings.getConnectTimeout());
 
