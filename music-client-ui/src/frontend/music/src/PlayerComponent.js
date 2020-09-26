@@ -12,7 +12,7 @@ class PlayerComponent extends Component {
                         controls
                         src={this.props.currentSongSrc()}
                         autoplay
-                        onEnded={this.props.onSongEnd}
+                        onEnded={() => this.props.onSongEnd(false)}
                         ref={(element) => this.props.setAudioElement(element)}
                         style={{"width":"90%"}}
                         onListen={this.props.markListenedIfExceedsThreshold}
