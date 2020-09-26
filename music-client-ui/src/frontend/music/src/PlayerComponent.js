@@ -16,6 +16,7 @@ class PlayerComponent extends Component {
                         ref={(element) => this.props.setAudioElement(element)}
                         style={{"width":"90%"}}
                         onListen={this.props.markListenedIfExceedsThreshold}
+                        preload={"auto"}
                     >
                         Your browser does not support the
                         <code>audio</code> element.
