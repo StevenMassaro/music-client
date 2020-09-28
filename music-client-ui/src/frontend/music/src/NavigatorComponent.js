@@ -233,7 +233,7 @@ class NavigatorComponent extends Component {
                             </Menu.Item>
                             <Menu.Item
                                 name={"Upload songs"}
-                                onClick={this.props.showUploadSongs}
+                                onClick={() => this.props.showUploadSongs()}
                             >
                                 Upload songs
                             </Menu.Item>

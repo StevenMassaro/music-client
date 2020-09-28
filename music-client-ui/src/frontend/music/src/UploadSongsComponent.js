@@ -30,7 +30,7 @@ class UploadSongsComponent extends Component {
             }}
             getUploadParams={() => ({ url: this.props.buildServerUrl(this._getUrl()) })}
             accept="audio/*"
-            inputContent={existingId ? "Drag (or click to browse) an audio file to replace the selected track" : "Drag (or click to browse) audio files to upload"}
+            inputContent={existingId ? `Drag (or click to browse) an audio file to replace the selected track: ${existingId}` : "Drag (or click to browse) audio files to upload"}
             maxFiles={existingId ? 1 : 250}
         />
     }
