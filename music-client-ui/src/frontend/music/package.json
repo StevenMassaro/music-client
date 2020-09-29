@@ -21,7 +21,8 @@
     "react-json-view": "1.19.1",
     "prop-types": "15.7.2",
     "semantic-ui-css": "2.4.1",
-    "semantic-ui-react": "0.88.1"
+    "semantic-ui-react": "0.88.1",
+    "@mebtte/react-media-session": "1.1.1"
   },
   "devDependencies": {
     "http-proxy-middleware": "0.20.0"

@@ -20,6 +20,7 @@ import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponen
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
+import MediaSession from '@mebtte/react-media-session';
 
 const axios = require('axios').default;
 
@@ -128,8 +129,10 @@ class App extends Component {
     };
 
     _setBackgroundImage = (id) => {
-        document.body.style.backgroundImage = "url(" + generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl) + ")";
+        document.body.style.backgroundImage = "url(" + this._generateAlbumArtUrl(id) + ")";
     };
+
+    _generateAlbumArtUrl = (id) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
 
     listSongs = () => {
         this.setState({
@@ -483,6 +486,9 @@ class App extends Component {
     };
 
     render() {
+        const currentSong = this._getCurrentSong();
+        const albumArtUrl = currentSong && this._generateAlbumArtUrl(currentSong.id);
+
         return (
             this.state.loadedSettings ?
             <div>
@@ -497,6 +503,21 @@ class App extends Component {
                     onMessage={this.handleWebsocketMessage}
                 />
                 <ToastContainer/>
+                {this.state.audioEl &&
+                <MediaSession
+                    title={currentSong.title}
+                    artist={currentSong.artist}
+                    album={currentSong.album}
+                    artwork={[
+                        {
+                            src: albumArtUrl,
+                            sizes: '512x512'
+                        }
+                    ]}
+                    onPlay={() => this.state.audioEl.play()}
+                    onNextTrack={() => this.onCurrentSongEnd(false)}
+                />
+                }
                 <Modal isOpen={this.state.modalContent !== undefined}
                        contentLabel="Song info">
                     <button onClick={() => this.setState({modalContent: undefined})}>Close</button>

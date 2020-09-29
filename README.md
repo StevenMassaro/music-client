@@ -3,12 +3,14 @@ Music client is an unoriginally named React app that integrates with [my music A
 
 ![Image of UI landing page](./img/landing_page.png)
 
+## Features (non conclusive list)
+- Integration with [Media Session APIs](https://developer.mozilla.org/en-US/docs/Web/API/MediaSession), which Chrome (first image) integrates with Windows (second image):
+
+![Image of UI landing page](./img/chrome_media_session.png)
+![Image of UI landing page](./img/media_session.png)
+
 
 ## Architecture
-The unique design of allowing both remote and local usage of the client demands a more complicated architecture.
+In previous versions, the unique design of allowing both remote and local usage of the client demanded a complicated architecture, involving an API Gateway (provided via Spring Cloud Gateway).
 
-In both remote and local mode, two Spring Boot backends are running in the docker image to support the application.
-
-The `music-client-ui` projects utilizes Spring Boot (to provide a subset of the endpoints necessary to support local mode), and React (for the frontend). When running in local mode, this server responds to requests for music files, and serves them from a local disk (or docker volume).
-
-The `music-client-router` project utilizes Spring Cloud Gateway to proxy requests and websocket connections to both the local API (explained above) and the [remote API](https://github.com/StevenMassaro/music).
+Current versions of the app circumvent the need for any gateway (which was a performance detriment), by making calls to the backend using CORS.
