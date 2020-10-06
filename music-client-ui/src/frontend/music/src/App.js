@@ -503,7 +503,7 @@ class App extends Component {
                     onMessage={this.handleWebsocketMessage}
                 />
                 <ToastContainer/>
-                {this.state.audioEl &&
+                {(this.state.audioEl && currentSong) &&
                 <MediaSession
                     title={currentSong.title}
                     artist={currentSong.artist}
