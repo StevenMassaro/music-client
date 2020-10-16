@@ -23,4 +23,13 @@ public class SyncUpdate {
     public SyncStep getSyncStep() {
         return syncStep;
     }
+
+    @Override
+    public String toString() {
+        return "SyncUpdate{" +
+            "position=" + position +
+            ", max=" + max +
+            ", syncStep=" + syncStep +
+            '}';
+    }
 }
