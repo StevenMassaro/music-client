@@ -23,16 +23,10 @@ class EditMetadataComponent extends Component {
     }
 
     loadModifyableTags = () => {
-        this.setState({
-            loadingModifyableTags: true,
-            loadedModifyableTags: false
-        });
         axios.get(this.props.buildServerUrl("/track/modifyabletags"))
             .then(
                 (result) => {
                     this.setState({
-                        loadingModifyableTags: false,
-                        loadedModifyableTags: true,
                         modifyableTags: result.data
                     });
                 })
@@ -40,11 +34,6 @@ class EditMetadataComponent extends Component {
                 (error) => {
                     error.text().then(errorMessage => toast.error(<div>Failed to load modifyable
                         tags:<br/>{errorMessage}</div>));
-                    this.setState({
-                        loadingModifyableTags: false,
-                        loadedModifyableTags: true,
-                        errorModifyableTags: error
-                    });
                 }
             );
     };

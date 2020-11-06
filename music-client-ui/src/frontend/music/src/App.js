@@ -40,7 +40,6 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loadingSongs: false,
             loadedSongs: false,
             loadedSettings: false,
             currentSongMarkedListened: false,
@@ -136,14 +135,12 @@ class App extends Component {
 
     listSongs = () => {
         this.setState({
-            loadingSongs: true,
             loadedSongs: false
         });
         axios.get(this.buildServerUrl("/track/"))
             .then(
                 (result) => {
                     this.setState({
-                        loadingSongs: false,
                         loadedSongs: true,
                         songs: result.data
                     }, () => this.setActiveSongList(this.state.songs));
@@ -151,7 +148,6 @@ class App extends Component {
             .catch(
                 (error) => {
                     this.setState({
-                        loadingSongs: false,
                         loadedSongs: true,
                         errorSongs: error
                     });
@@ -161,10 +157,6 @@ class App extends Component {
     };
 
     deleteSong = id => {
-        this.setState({
-            deletingSong: true,
-            deletedSong: false
-        });
         axios.delete(this.buildServerUrl("/track/" + id))
             .then((result) => {
                     let {data} = result;
@@ -172,19 +164,10 @@ class App extends Component {
                         return song.id !== data.id
                     });
                     this.modifySongs(songs);
-                    this.setState({
-                        deletingSong: false,
-                        deletedSong: true
-                    });
                     toast.success("Marked '" + data.title + "' as deleted.");
                 })
             .catch(
                 (error) => {
-                    this.setState({
-                        deletingSong: false,
-                        deletedSong: true,
-                        deletedSongError: error
-                    });
                     error.text().then(errorMessage => toast.error(<div>Failed to delete song:<br/>{errorMessage}</div>));
                 });
     };
@@ -194,7 +177,6 @@ class App extends Component {
      */
     getSettings = (settingsFetchedCallback) => {
         this.setState({
-            loadingSettings: true,
             loadedSettings: false
         });
         axios.get("./settings/")
@@ -205,7 +187,6 @@ class App extends Component {
                     axios.defaults.headers.post['Content-Type'] = 'application/json';
                     axios.defaults.headers.patch['Content-Type'] = 'application/json';
                     this.setState({
-                        loadingSettings: false,
                         loadedSettings: true,
                         settings: data
                     }, () => {
@@ -216,9 +197,7 @@ class App extends Component {
             .catch(
                 (error) => {
                     this.setState({
-                        loadingSettings: false,
                         loadedSettings: true,
-                        errorSettings: error
                     });
                     error.text().then(errorMessage => toast.error(<div>Failed to load settings:<br/>{errorMessage}</div>));
                 }
@@ -226,26 +205,15 @@ class App extends Component {
     };
 
     getDeviceId = () => {
-        this.setState({
-            loadingDevice: true,
-            loadedDevice: false
-        });
         axios.get(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
             .then(
                 (result) => {
                     this.setState({
-                        loadingDevice: false,
-                        loadedDevice: true,
                         device: result.data
                     });
                 })
             .catch(
                 (error) => {
-                    this.setState({
-                        loadingDevice: false,
-                        loadedDevice: true,
-                        errorDevice: error
-                    });
                     error.text().then(errorMessage => toast.error(<div>Failed to load device:<br/>{errorMessage}</div>));
                 }
             );

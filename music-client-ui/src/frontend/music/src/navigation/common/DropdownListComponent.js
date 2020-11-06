@@ -17,26 +17,15 @@ class DropdownListComponent extends Component {
     }
 
     listValues = () => {
-        this.setState({
-            loadingValues: true,
-            loadedValues: false
-        });
         axios.get(this.props.buildServerUrl(this.props.valuesUrl))
             .then(
                 (result) => {
                     this.setState({
-                        loadingValues: false,
-                        loadedValues: true,
                         values: result.data
                     });
                 })
             .catch(
                 (error) => {
-                    this.setState({
-                        loadingValues: false,
-                        loadedValues: true,
-                        errorValues: error
-                    });
                     error.text().then(errorMessage => toast.error(<div>Failed to list {this.props.title}:<br/>{errorMessage}</div>));
                 }
             );
@@ -47,10 +36,6 @@ class DropdownListComponent extends Component {
      * fetch the tracks for that playlist and set the active song list to that playlist's array of songs.
      */
     listTracks = (selectedValue) => {
-        this.setState({
-            loadingTracks: true,
-            loadedTracks: false
-        });
         axios.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
                 (result) => {
