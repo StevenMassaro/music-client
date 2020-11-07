@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/settings")
 public class SettingsEndpoint {
 
-    @Autowired
-    private PublicSettings settings;
+    private final PublicSettings settings;
+
+    public SettingsEndpoint(PublicSettings settings) {
+        this.settings = settings;
+    }
 
     @GetMapping()
     public PublicSettings getMusicFileSource(){
