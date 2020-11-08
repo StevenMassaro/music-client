@@ -4,8 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import PropTypes from 'prop-types';
 import * as lodash from "lodash";
-
-const axios = require('axios').default;
+import {api} from "../../App";
 
 class DropdownListComponent extends Component {
 
@@ -17,7 +16,7 @@ class DropdownListComponent extends Component {
     }
 
     listValues = () => {
-        axios.get(this.props.buildServerUrl(this.props.valuesUrl))
+        api.get(this.props.buildServerUrl(this.props.valuesUrl))
             .then(
                 (result) => {
                     this.setState({
@@ -25,8 +24,8 @@ class DropdownListComponent extends Component {
                     });
                 })
             .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to list {this.props.title}:<br/>{errorMessage}</div>));
+                () => {
+                    toast.error(`Failed to list values for ${this.props.title}`);
                 }
             );
     };
@@ -36,15 +35,15 @@ class DropdownListComponent extends Component {
      * fetch the tracks for that playlist and set the active song list to that playlist's array of songs.
      */
     listTracks = (selectedValue) => {
-        axios.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
+        api.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
                 (result) => {
                     this.props.setActiveMenuItem(this.props.title + selectedValue);
                     this.props.setActiveSongList(result.data);
                 })
             .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to load songs for {selectedValue}:<br/>{errorMessage}</div>));
+                () => {
+                    toast.error(`Failed to load songs for ${selectedValue}`);
                 }
             );
     };

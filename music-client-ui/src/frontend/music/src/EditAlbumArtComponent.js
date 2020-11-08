@@ -4,8 +4,7 @@ import './NavigatorComponent.css';
 import 'semantic-ui-css/semantic.min.css';
 import {Checkbox} from "semantic-ui-react";
 import {toast} from "react-toastify";
-
-const axios = require('axios').default;
+import {api} from "./App";
 
 class EditMetadataComponent extends Component {
 
@@ -30,7 +29,7 @@ class EditMetadataComponent extends Component {
                         var formData = new FormData();
                         formData.append('file', blob, "image_file");
 
-                        axios({
+                        api({
                             url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll),
                             method: 'post',
                             data: formData
@@ -38,10 +37,8 @@ class EditMetadataComponent extends Component {
                             .then(() => {
                                 toast.success(this.state.song.album + ": successfully updated album art.")
                             })
-                            .catch((error) => {
-                                let err = error.toJSON();
-                                console.log(err);
-                                toast.error(this.state.song.album + ": " + err.message);
+                            .catch(() => {
+                                toast.error("Failed to update album art.");
                             })
                     }.bind(this);
                     reader.readAsDataURL(blob);

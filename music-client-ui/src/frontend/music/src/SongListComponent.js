@@ -6,8 +6,7 @@ import {ContextMenu, ContextMenuTrigger, MenuItem, SubMenu} from "react-contextm
 import './react-contextmenu.css';
 import * as moment from 'moment';
 import {toast} from "react-toastify";
-
-const axios = require('axios').default;
+import {api} from "./App";
 
 class SongListComponent extends Component {
 
@@ -49,18 +48,13 @@ class SongListComponent extends Component {
     };
 
     _setRating = (id, rating) => {
-        axios.patch(this.props.buildServerUrl("/track/" + id + "/rating/" + rating))
+        api.patch(this.props.buildServerUrl("/track/" + id + "/rating/" + rating))
             .then(() => {
                 let songsCopy = Object.assign([], this.props.songs);
                 let songCopy = songsCopy.find(song => song.id === id);
                 songCopy.rating = rating;
                 this.props.modifySongs(songsCopy);
-                toast.success("Successfully set rating of " + rating + " for song.");
-            })
-            .catch((error) => {
-                let err = error.toJSON();
-                console.error(err);
-                toast.error(err.message);
+                toast.success(`Successfully set rating of ${rating} for song.`);
             })
     };
 

@@ -22,8 +22,6 @@ import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
 
-const axios = require('axios').default;
-
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
     albumArtUpdates: '/topic/art/updates',
@@ -34,6 +32,8 @@ export const MUSIC_FILE_SOURCE_TYPES = {
     local: 'local',
     remote: 'remote'
 };
+
+export const api = require('axios').default.create();
 
 class App extends Component {
 
@@ -46,6 +46,16 @@ class App extends Component {
             modalContent: undefined,
             activeSongList: undefined
         };
+
+        api.interceptors.response.use((response) => {
+            console.log(response);
+            return response;
+        }, (error) => {
+            console.log(error.toJSON());
+            console.log(error.response);
+            toast.error(`API call to ${error.config.url} failed: ${error.message}`);
+            return Promise.reject(error);
+        });
     }
 
     componentWillMount() {
@@ -137,7 +147,7 @@ class App extends Component {
         this.setState({
             loadedSongs: false
         });
-        axios.get(this.buildServerUrl("/track/"))
+        api.get(this.buildServerUrl("/track/"))
             .then(
                 (result) => {
                     this.setState({
@@ -151,13 +161,12 @@ class App extends Component {
                         loadedSongs: true,
                         errorSongs: error
                     });
-                    error.text().then(errorMessage => toast.error(<div>Failed to list songs:<br/>{errorMessage}</div>));
                 }
             );
     };
 
     deleteSong = id => {
-        axios.delete(this.buildServerUrl("/track/" + id))
+        api.delete(this.buildServerUrl("/track/" + id))
             .then((result) => {
                     let {data} = result;
                     let songs = this.state.songs.filter(song => {
@@ -166,10 +175,6 @@ class App extends Component {
                     this.modifySongs(songs);
                     toast.success("Marked '" + data.title + "' as deleted.");
                 })
-            .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to delete song:<br/>{errorMessage}</div>));
-                });
     };
 
     /**
@@ -179,13 +184,13 @@ class App extends Component {
         this.setState({
             loadedSettings: false
         });
-        axios.get("./settings/")
+        api.get("./settings/")
             .then(
                 (result) => {
                     let {data} = result;
-                    axios.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
-                    axios.defaults.headers.post['Content-Type'] = 'application/json';
-                    axios.defaults.headers.patch['Content-Type'] = 'application/json';
+                    api.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
+                    api.defaults.headers.post['Content-Type'] = 'application/json';
+                    api.defaults.headers.patch['Content-Type'] = 'application/json';
                     this.setState({
                         loadedSettings: true,
                         settings: data
@@ -195,28 +200,23 @@ class App extends Component {
                     });
                 })
             .catch(
-                (error) => {
+                () => {
                     this.setState({
                         loadedSettings: true,
                     });
-                    error.text().then(errorMessage => toast.error(<div>Failed to load settings:<br/>{errorMessage}</div>));
                 }
             );
     };
 
     getDeviceId = () => {
-        axios.get(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
+        api.get(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
             .then(
                 (result) => {
                     this.setState({
                         device: result.data
                     });
                 })
-            .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to load device:<br/>{errorMessage}</div>));
-                }
-            );
+            ;
     };
 
     /**
@@ -315,7 +315,7 @@ class App extends Component {
      * @private
      */
     _markListened = (id) => {
-        axios.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
+        api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
             .then(
                 () => {
                     let songs = Object.assign([], this.state.songs);
@@ -323,10 +323,7 @@ class App extends Component {
                     songs.find(song => song.id === id).plays++;
                     this.modifySongs(songs)
                 })
-            .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to mark song as listened:<br/>{errorMessage}</div>));
-                });
+            ;
     };
 
 
@@ -337,7 +334,7 @@ class App extends Component {
      * @private
      */
     _markSkipped = (id, secondsPlayedBeforeSkip) => {
-        axios.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
+        api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
             .then(
                 () => {
                     let songs = Object.assign([], this.state.songs);
@@ -345,10 +342,7 @@ class App extends Component {
                     songs.find(song => song.id === id).skips++;
                     this.modifySongs(songs)
                 })
-            .catch(
-                (error) => {
-                    error.text().then(errorMessage => toast.error(<div>Failed to mark song as skipped:<br/>{errorMessage}</div>));
-                });
+            ;
     };
 
     showInfo = (song) => {

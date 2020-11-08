@@ -3,8 +3,7 @@ import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import PropTypes from 'prop-types';
-
-const axios = require('axios').default;
+import {api} from "../App";
 
 class CreateSmartPlaylistComponent extends Component {
 
@@ -18,17 +17,13 @@ class CreateSmartPlaylistComponent extends Component {
     }
 
     handleSubmit = (event, song) => {
-        axios({
+        api({
             url: this.props.buildServerUrl("/playlist/smart"),
             method: this.props.existingSmartPlaylist ? "PATCH" : "POST",
             data: song
         })
             .then(() => {
                 toast.success("Successfully " + this.state.action + "d smart playlist.");
-            })
-            .catch((error) => {
-                error.text().then(errorMessage => toast.error(<div>Failed to {this.state.action} smart playlist:<br/>{errorMessage}
-                </div>));
             });
         event.preventDefault();
     };
@@ -42,12 +37,10 @@ class CreateSmartPlaylistComponent extends Component {
     };
 
     deleteEntry = () => {
-        axios.delete(this.props.buildServerUrl("/playlist/smart/" + this.props.existingSmartPlaylist.id))
-            .then(toast.success("Successfully deleted smart playlist."))
-            .catch((error) => {
-                error.text().then(errorMessage => toast.error(<div>Failed to update
-                    delete smart playlist:<br/>{errorMessage}
-                </div>));
+        api.delete(this.props.buildServerUrl("/playlist/smart/" + this.props.existingSmartPlaylist.id))
+            .then(() => toast.success("Successfully deleted smart playlist."))
+            .catch(() => {
+                toast.error("Failed to delete smart playlist");
             });
     };
 
