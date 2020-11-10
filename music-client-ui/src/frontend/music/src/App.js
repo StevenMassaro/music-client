@@ -40,7 +40,6 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loadedSongs: false,
             loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
@@ -53,7 +52,9 @@ class App extends Component {
         }, (error) => {
             console.log(error.toJSON());
             console.log(error.response);
-            toast.error(`API call to ${error.config.url} failed: ${error.message}`);
+            toast.error(`API call to ${error.config.url} failed: ${error.message}`, {
+                autoClose: false
+            });
             return Promise.reject(error);
         });
     }
@@ -65,7 +66,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.getSettings(this.listSongs);
+        this.getSettings();
     }
 
     addToEndOfUpNext = (song) => {
@@ -143,47 +144,24 @@ class App extends Component {
 
     _generateAlbumArtUrl = (id) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
 
-    listSongs = () => {
-        this.setState({
-            loadedSongs: false
-        });
-        api.get(this.buildServerUrl("/track/"))
-            .then(
-                (result) => {
-                    this.setState({
-                        loadedSongs: true,
-                        songs: result.data
-                    }, () => this.setActiveSongList(this.state.songs));
-                })
-            .catch(
-                (error) => {
-                    this.setState({
-                        loadedSongs: true,
-                        errorSongs: error
-                    });
-                }
-            );
+    listSongs = (libraryId) => {
+        api.get(this.buildServerUrl(`/track?libraryId=${libraryId}`))
+            .then((result) => this.setActiveSongList(result.data));
     };
 
     deleteSong = id => {
         api.delete(this.buildServerUrl("/track/" + id))
             .then((result) => {
                     let {data} = result;
-                    let songs = this.state.songs.filter(song => {
+                    let songs = this.state.activeSongList.filter(song => {
                         return song.id !== data.id
                     });
-                    this.modifySongs(songs);
+                    this.setActiveSongList(songs);
                     toast.success("Marked '" + data.title + "' as deleted.");
                 })
     };
 
-    /**
-     * @param settingsFetchedCallback This function is called after the settings are successfully loaded.
-     */
-    getSettings = (settingsFetchedCallback) => {
-        this.setState({
-            loadedSettings: false
-        });
+    getSettings = () => {
         api.get("./settings/")
             .then(
                 (result) => {
@@ -194,18 +172,8 @@ class App extends Component {
                     this.setState({
                         loadedSettings: true,
                         settings: data
-                    }, () => {
-                        this.getDeviceId();
-                        settingsFetchedCallback();
-                    });
-                })
-            .catch(
-                () => {
-                    this.setState({
-                        loadedSettings: true,
-                    });
-                }
-            );
+                    }, () => this.getDeviceId());
+                });
     };
 
     getDeviceId = () => {
@@ -260,17 +228,6 @@ class App extends Component {
     };
 
     /**
-     * Modify the state's songs and automatically set the active song list
-     * @param newSongs
-     */
-    modifySongs = (newSongs) => {
-        let shouldResetActiveSongList = lodash.isEqual(this.state.songs, this.state.activeSongList);
-        this.setState({
-            songs: newSongs
-        }, () => shouldResetActiveSongList && this.setActiveSongList(this.state.songs));
-    };
-
-    /**
      * Move a song in the up next list by the amount specified in the offset.
      * @param indexA index of song to move
      * @param offset the distance to move the song, -1 moves it one spot down, 1 moves it one spot up
@@ -316,16 +273,21 @@ class App extends Component {
      */
     _markListened = (id) => {
         api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
-            .then(
-                () => {
-                    let songs = Object.assign([], this.state.songs);
-                    // find the matching song, and increment the play counter in the state
-                    songs.find(song => song.id === id).plays++;
-                    this.modifySongs(songs)
-                })
-            ;
+            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.plays++));
     };
 
+    /**
+     * Safely perform some action on a particular song in the state, then modify the state.
+     * @param id song ID to look for
+     * @param actionCallback function callback that will be called on that song
+     * @private
+     */
+    _performActionOnSingleSongInActiveSongsList = (id, actionCallback) => {
+        let songs = Object.assign([], this.state.activeSongList);
+        // find the matching song, and increment the play counter in the state
+        actionCallback(songs.find(song => song.id === id));
+        this.setActiveSongList(songs)
+    };
 
     /**
      * Send rest request to backend to record that song was skipped.
@@ -335,14 +297,7 @@ class App extends Component {
      */
     _markSkipped = (id, secondsPlayedBeforeSkip) => {
         api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
-            .then(
-                () => {
-                    let songs = Object.assign([], this.state.songs);
-                    // find the matching song, and increment the play counter in the state
-                    songs.find(song => song.id === id).skips++;
-                    this.modifySongs(songs)
-                })
-            ;
+            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.skips++));
     };
 
     showInfo = (song) => {
@@ -396,8 +351,8 @@ class App extends Component {
     showUploadSongs = (existingId = undefined) => {
         this.setState({
             modalContent: <UploadSongsComponent
-                songs={this.state.songs}
-                modifySongs={this.modifySongs}
+                activeSongList={this.state.activeSongList}
+                setActiveSongList={this.setActiveSongList}
                 existingId={existingId}
                 buildServerUrl={this.buildServerUrl}
             />
@@ -499,7 +454,6 @@ class App extends Component {
                         <SplitPane split="vertical" defaultSize="15%">
                             <div>
                                 <NavigatorComponent
-                                    songs={this.state.songs}
                                     setActiveSongList={this.setActiveSongList}
                                     shouldShowSyncButtons={() => lodash.isEmpty(this.state.upNext)}
                                     musicFileSource={this.state.settings && this.state.settings.musicFileSource}
@@ -508,26 +462,24 @@ class App extends Component {
                                     showEditSmartPlaylist={this.showEditSmartPlaylist}
                                     showUploadSongs={this.showUploadSongs}
                                     buildServerUrl={this.buildServerUrl}
-                                />
+                                    activeSongList={this.state.activeSongList}/>
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
                                     <SongListComponent
                                         addToEndOfUpNext={this.addToEndOfUpNext}
                                         defaultFilterMethod={this.defaultFilterMethod}
-                                        error={this.state.errorSongs}
-                                        loadedSongs={this.state.loadedSongs}
                                         activeSongList={this.state.activeSongList}
-                                        songs={this.state.songs}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}
                                         showInfo={this.showInfo}
                                         showEditMetadata={this.showEditMetadata}
                                         showEditAlbumArt={this.showEditAlbumArt}
-                                        modifySongs={this.modifySongs}
+                                        setActiveSongList={this.setActiveSongList}
                                         showUploadSongs={this.showUploadSongs}
                                         buildServerUrl={this.buildServerUrl}
+                                        performActionOnSingleSongInActiveSongsList={this._performActionOnSingleSongInActiveSongsList}
                                     />
                                 </div>
                                 <div>

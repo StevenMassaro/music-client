@@ -4,3 +4,4 @@ target/
 *.properties
 node/
 src/main/resources/static/
+music-client-ui/src/frontend/music/src/react-app-env.d.ts

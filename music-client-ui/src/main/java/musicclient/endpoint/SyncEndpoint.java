@@ -5,7 +5,6 @@ import music.model.Track;
 import musicclient.model.impl.SyncResult;
 import musicclient.service.SyncService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +18,6 @@ import java.util.List;
 public class SyncEndpoint {
 
     private final SyncService syncService;
-
-    @Autowired
-    Environment environment;
 
     @Autowired
     public SyncEndpoint(SyncService syncService) {

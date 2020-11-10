@@ -1,5 +1,9 @@
 # changelog
 
+## 1.14
+* support additional libraries
+* begin migration to typescript
+
 ## 1.13.01-SKIP-COUNT
 * remove router and make calls directly to server
 * reduce memory usage when streaming files from client server

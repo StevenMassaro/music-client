@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.13.01-SKIP-COUNT</version>
+    <version>1.14</version>
     <modules>
         <module>music-client-ui</module>
         <module>music-client-docker</module>
@@ -31,22 +31,22 @@
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-client-settings</artifactId>
-                <version>1.13.01-SKIP-COUNT</version>
+                <version>1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-model</artifactId>
-                <version>1.13.01-SKIP-COUNT</version>
+                <version>1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-utils</artifactId>
-                <version>1.13.01-SKIP-COUNT</version>
+                <version>1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-service</artifactId>
-                <version>1.13.01-SKIP-COUNT</version>
+                <version>1.14</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.massaro</groupId>

@@ -22,9 +22,9 @@ class UploadSongsComponent extends Component {
         return <Dropzone
             onChangeStatus={({ meta, file, xhr, remove }, status) => {
                 if(status === 'done'){
-                    let songs = Object.assign([], this.props.songs);
+                    let songs = Object.assign([], this.props.activeSongList);
                     songs.push(JSON.parse(xhr.response));
-                    this.props.modifySongs(songs);
+                    this.props.setActiveSongList(songs);
                     remove();
                 }
             }}
@@ -37,8 +37,8 @@ class UploadSongsComponent extends Component {
 }
 
 UploadSongsComponent.propTypes = {
-    songs: PropTypes.array.isRequired,
-    modifySongs: PropTypes.func.isRequired,
+    activeSongList: PropTypes.array.isRequired,
+    setActiveSongList: PropTypes.func.isRequired,
     existingId: PropTypes.number
 };
 

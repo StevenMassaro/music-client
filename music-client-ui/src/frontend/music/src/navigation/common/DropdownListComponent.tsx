@@ -2,13 +2,31 @@ import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
-import PropTypes from 'prop-types';
 import * as lodash from "lodash";
 import {api} from "../../App";
+import {Library} from "../../types/Library";
+import {MenuItem} from "../../types/MenuItem";
 
-class DropdownListComponent extends Component {
+type props<T> = {
+    buildServerUrl: (valuesUrl: string) => string,
+    valuesUrl: string,
+    title: string,
+    tracksUrl?: string,
+    setActiveMenuItem: (name: string, library?:Library, callback?: (() => void) | undefined) => void,
+    setActiveSongList: (songs: object[]) => void, // todo this should be an array of song
+    activeMenuItem: MenuItem,
+    valueGetter?: (value: T) => string | number,
+    textGetter?: (value: T) => string,
+    dropdownOnClickCallback?: (value: object) => void
+}
 
-    constructor(props){
+type state = {
+    values?: any[]
+}
+
+export class DropdownListComponent<T> extends Component<props<T>, state> {
+
+    constructor(props: props<T> | Readonly<props<T>>){
         super(props);
         this.state = {
             values: undefined
@@ -34,7 +52,7 @@ class DropdownListComponent extends Component {
      * List the tracks for the selected value. For example, one might select a particular playlist, and this should
      * fetch the tracks for that playlist and set the active song list to that playlist's array of songs.
      */
-    listTracks = (selectedValue) => {
+    listTracks = (selectedValue: string) => {
         api.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
                 (result) => {
@@ -48,15 +66,7 @@ class DropdownListComponent extends Component {
             );
     };
 
-    _isActive = (item) => this.props.activeMenuItem === this.props.title + item;
-
-    _dropdownOnClick = (val) => {
-        let onc = () => this.listTracks(val);
-        if (this.props.dropdownOnClickCallback) {
-            onc = () => this.props.dropdownOnClickCallback();
-        }
-        return onc;
-    };
+    _isActive = (item: string) => this.props.activeMenuItem.name === this.props.title + item;
 
     render() {
         return (
@@ -65,8 +75,8 @@ class DropdownListComponent extends Component {
             >
                 <Dropdown.Menu>
                     {this.state.values && this.state.values.map(value => {
-                        let val = this.props.valueGetter(value);
-                        let text = this.props.textGetter(value);
+                        let val = this.props.valueGetter ? this.props.valueGetter(value) : value;
+                        let text = this.props.textGetter ? this.props.textGetter(value) : value;
                         return <Dropdown.Item text={text}
                                               onClick={() => {
                                                   if (lodash.isFunction(this.props.dropdownOnClickCallback)) {
@@ -84,23 +94,3 @@ class DropdownListComponent extends Component {
         )
     }
 }
-
-DropdownListComponent.propTypes = {
-    title: PropTypes.string.isRequired,
-    valuesUrl: PropTypes.string.isRequired,
-    valueGetter: PropTypes.func,
-    textGetter: PropTypes.func,
-    tracksUrl: PropTypes.string,
-    activeMenuItem: PropTypes.string.isRequired,
-    setActiveMenuItem: PropTypes.func.isRequired,
-    setActiveSongList: PropTypes.func.isRequired,
-    dropdownOnClickCallback: PropTypes.func,
-    buildServerUrl: PropTypes.func.isRequired
-};
-
-DropdownListComponent.defaultProps = {
-    valueGetter: (value) => value,
-    textGetter: (value) => value
-};
-
-export default DropdownListComponent;

@@ -7,6 +7,7 @@ import './react-contextmenu.css';
 import * as moment from 'moment';
 import {toast} from "react-toastify";
 import {api} from "./App";
+import * as lodash from "lodash";
 
 class SongListComponent extends Component {
 
@@ -50,17 +51,14 @@ class SongListComponent extends Component {
     _setRating = (id, rating) => {
         api.patch(this.props.buildServerUrl("/track/" + id + "/rating/" + rating))
             .then(() => {
-                let songsCopy = Object.assign([], this.props.songs);
-                let songCopy = songsCopy.find(song => song.id === id);
-                songCopy.rating = rating;
-                this.props.modifySongs(songsCopy);
+                this.props.performActionOnSingleSongInActiveSongsList(id, (song) => song.rating = rating);
                 toast.success(`Successfully set rating of ${rating} for song.`);
             })
     };
 
     render() {
 
-        const {error, loadedSongs, activeSongList} = this.props;
+        const {activeSongList} = this.props;
 
         return (
             <div>
@@ -147,7 +145,7 @@ class SongListComponent extends Component {
                         ]}
                         defaultPageSize={100}
                         minRows={0}
-                        noDataText={loadedSongs ? (error ? error : "No songs in database.") : "Loading songs..."}
+                        noDataText={lodash.isUndefined(activeSongList) ? "Loading songs..." : "No songs in database."}
                         filterable={true}
                         className="-striped -highlight"
                         defaultFilterMethod={this.props.defaultFilterMethod}
