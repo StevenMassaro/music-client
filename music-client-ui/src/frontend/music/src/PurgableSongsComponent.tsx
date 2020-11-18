@@ -40,7 +40,9 @@ export class PurgableSongsComponent extends Component<props, state> {
     }
 
     purgeTracks = () => {
-        let purgingMessage = toast.info("Purging deleted tracks", {
+        const count = this.state.selectedTracks.length;
+        const pluralizedString = count > 1 ? 's' : '';
+        let purgingMessage = toast.info(`Purging ${count} deleted track${pluralizedString}`, {
             autoClose: false,
             hideProgressBar: true
         });
@@ -48,7 +50,7 @@ export class PurgableSongsComponent extends Component<props, state> {
             .then(
                 () => {
                     toast.dismiss(purgingMessage);
-                    toast.success("Successfully purged deleted tracks.");
+                    toast.success(`Successfully purged ${count} deleted track${pluralizedString}.`);
                     this.listPurgableTracks();
                 });
     };
