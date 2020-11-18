@@ -57,3 +57,8 @@
 .rt-tr-group {
   flex: 0 0 auto !important;
 }
+
+/*Prevent the "no data" message from showing up on top of modal.*/
+.ReactTable .rt-noData {
+  z-index: unset !important;
+}
