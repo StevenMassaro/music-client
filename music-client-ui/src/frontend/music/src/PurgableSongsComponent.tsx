@@ -60,7 +60,8 @@ export class PurgableSongsComponent extends Component<props, state> {
             .then(
                 (result) => {
                     this.setState({
-                        purgableTracks: result.data
+                        purgableTracks: result.data,
+                        selectedTracks: []
                     });
                 });
     };
