@@ -21,7 +21,8 @@ type props = {
     shouldShowSyncButtons: boolean,
     musicFileSource: string,
     listSongs: (libraryId: number) => void,
-    buildServerUrl: (relativePath: string) => string
+    buildServerUrl: (relativePath: string) => string,
+    showPurgableTracksModalCallback: () => void
 };
 type state = {
     activeItem: MenuItem | null,
@@ -97,20 +98,6 @@ class NavigatorComponent extends Component<props, state> {
                     this.setState({
                         updatesCount: result.data
                     });
-                });
-    };
-
-    purgeTracks = () => {
-        let purgingMessage = toast.info("Purging deleted tracks", {
-            autoClose: false,
-            hideProgressBar: true
-        });
-        api.delete(this.props.buildServerUrl("/admin/purge"))
-            .then(
-                () => {
-                    toast.dismiss(purgingMessage);
-                    toast.success("Successfully purged deleted tracks.");
-                    this._refreshSongListWithActiveLibrary();
                 });
     };
 
@@ -212,7 +199,7 @@ class NavigatorComponent extends Component<props, state> {
                             }
                             <Menu.Item
                                 name={"Purge deleted tracks"}
-                                onClick={() => this.purgeTracks()}
+                                onClick={() => this.props.showPurgableTracksModalCallback()}
                             >
                                 Purge deleted tracks ({this.state.purgableTracksCount})
                             </Menu.Item>

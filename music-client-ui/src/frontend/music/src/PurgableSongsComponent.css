@@ -1,0 +1,4 @@
+/* This is to prevent the react table from going over top of the buttons in the modal. */
+.ReactTable {
+    position: static !important;
+}

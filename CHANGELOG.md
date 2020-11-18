@@ -1,5 +1,8 @@
 # changelog
 
+## 1.14.01
+* support purging individual tracks
+
 ## 1.14
 * support additional libraries
 * begin migration to typescript

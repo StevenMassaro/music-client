@@ -21,6 +21,8 @@ import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
+import {PurgableSongsComponent} from "./PurgableSongsComponent";
+import {Button} from "semantic-ui-react";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
@@ -359,6 +361,13 @@ class App extends Component {
         });
     };
 
+    showPurgableTracks = () =>
+        this.setState({
+            modalContent: <PurgableSongsComponent
+                buildServerUrl={this.buildServerUrl}
+            />
+        });
+
     setActiveSongList = (songs) => {
         this.setState({
             activeSongList: songs
@@ -437,7 +446,7 @@ class App extends Component {
                 }
                 <Modal isOpen={this.state.modalContent !== undefined}
                        contentLabel="Song info">
-                    <button onClick={() => this.setState({modalContent: undefined})}>Close</button>
+                    <Button onClick={() => this.setState({modalContent: undefined})}>Close</Button>
                     {this.state.modalContent}
                 </Modal>
                 <SplitPane split="horizontal" defaultSize="8%" style={{background: "rgba(255,255,255,0.85)"}}>
@@ -462,7 +471,9 @@ class App extends Component {
                                     showEditSmartPlaylist={this.showEditSmartPlaylist}
                                     showUploadSongs={this.showUploadSongs}
                                     buildServerUrl={this.buildServerUrl}
-                                    activeSongList={this.state.activeSongList}/>
+                                    activeSongList={this.state.activeSongList}
+                                    showPurgableTracksModalCallback={this.showPurgableTracks}
+                                />
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
