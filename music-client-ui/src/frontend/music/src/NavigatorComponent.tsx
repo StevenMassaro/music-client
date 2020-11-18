@@ -123,6 +123,7 @@ class NavigatorComponent extends Component<props, state> {
         return (<Menu vertical>
                 {this.state.libraries.map(library => {
                     return <Menu.Item
+                        key={library.id}
                         name={library.name}
                         active={this._isActive(library.name)}
                         onClick={() => {
