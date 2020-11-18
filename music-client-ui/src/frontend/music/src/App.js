@@ -37,6 +37,8 @@ export const MUSIC_FILE_SOURCE_TYPES = {
 
 export const api = require('axios').default.create();
 
+Modal.setAppElement('#root');
+
 class App extends Component {
 
     constructor(props) {
