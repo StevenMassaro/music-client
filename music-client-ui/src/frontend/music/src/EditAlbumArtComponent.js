@@ -63,7 +63,9 @@ class EditMetadataComponent extends Component {
                 />
             </div>
             <div>
-                <iframe src={this.getAlbumArtUrl()}
+                <iframe
+                    title={"Album Art Exchange search page"}
+                    src={this.getAlbumArtUrl()}
                         style={{'height': '70vh'}}
                         width={'100%'}
                 />
