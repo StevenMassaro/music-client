@@ -198,7 +198,7 @@ export class PurgableSongsComponent extends Component<props, state> {
                     minRows={0}
                     noDataText={lodash.isUndefined(this.state.purgableTracks) ? "Loading purgable songs..." : "No songs to purge."}
                     filterable={true}
-                    className="-striped -highlight"
+                    className="-striped -highlight PurgableSongsTable"
                 />
                     </span> : <span>No tracks to purge.</span>}
             </div>
