@@ -26,6 +26,7 @@ class UpNextComponent extends Component {
             <span>
                 <ContextMenuTrigger id="upNextMenu">
                 <ReactTable
+                    resizable={false}
                     data={this.props.upNext}
                     getTdProps={(state, rowInfo) => {
                         return {
