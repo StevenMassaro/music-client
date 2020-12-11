@@ -2,10 +2,16 @@ import React, {Component} from 'react';
 import './App.css';
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader';
-import PropTypes from 'prop-types';
 import {isNumber} from "lodash";
 
-class UploadSongsComponent extends Component {
+type props = {
+    existingId: number | null,
+    setActiveSongList: (songs?: Object) => void,
+    activeSongList: object[],
+    buildServerUrl: (relativePath: string) => string,
+}
+
+class UploadSongsComponent extends Component<props> {
 
     _getUrl = () => {
         let base = "/track/upload";
@@ -21,7 +27,7 @@ class UploadSongsComponent extends Component {
 
         return <Dropzone
             onChangeStatus={({ meta, file, xhr, remove }, status) => {
-                if(status === 'done'){
+                if(status === 'done' && xhr){
                     let songs = Object.assign([], this.props.activeSongList);
                     songs.push(JSON.parse(xhr.response));
                     this.props.setActiveSongList(songs);
@@ -35,11 +41,5 @@ class UploadSongsComponent extends Component {
         />
     }
 }
-
-UploadSongsComponent.propTypes = {
-    activeSongList: PropTypes.array.isRequired,
-    setActiveSongList: PropTypes.func.isRequired,
-    existingId: PropTypes.number
-};
 
 export default UploadSongsComponent;
