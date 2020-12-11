@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import ReactAudioPlayer from 'react-audio-player';
 import AlbumArtComponent from "./AlbumArtComponent";
+import {toast} from "react-toastify";
 
 class PlayerComponent extends Component {
     render() {
@@ -18,6 +19,12 @@ class PlayerComponent extends Component {
                         onListen={this.props.markListenedIfExceedsThreshold}
                         listenInterval={1000}
                         preload={"auto"}
+                        onError={() => {
+                            toast.error(`Failed to play ${this.props.currentSong().title} - ${this.props.currentSong().artist}`, {
+                                autoClose: false
+                            });
+                            return this.props.onSongEnd(false);
+                        }}
                     >
                         Your browser does not support the
                         <code>audio</code> element.
