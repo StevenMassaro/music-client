@@ -9,7 +9,6 @@
     <version>1.14.01</version>
     <modules>
         <module>music-client-ui</module>
-        <module>music-client-docker</module>
         <module>music-client-settings</module>
     </modules>
     <packaging>pom</packaging>
@@ -23,7 +22,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <docker.image.prefix>stevenmassaro</docker.image.prefix>
     </properties>
 
     <dependencyManagement>
