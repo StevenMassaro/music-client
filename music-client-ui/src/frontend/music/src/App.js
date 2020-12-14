@@ -12,6 +12,7 @@ import * as lodash from "lodash";
 import {
     buildAlbumArtUpdateToastMessage,
     buildSyncUpdateToastMessage,
+    defaultFilterMethod,
     generateUrl
 } from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
@@ -92,11 +93,6 @@ class App extends Component {
         this.setState({
             upNext: newUpNext
         });
-    };
-
-    defaultFilterMethod = (filter, row, column) => {
-        const id = filter.pivotId || filter.id;
-        return row[id] !== undefined ? String(row[id]).toLowerCase().includes(filter.value.toLowerCase()) : true
     };
 
     getCurrentSongSrc = () => {
@@ -481,7 +477,7 @@ class App extends Component {
                                 <div className="songListPane">
                                     <SongListComponent
                                         addToEndOfUpNext={this.addToEndOfUpNext}
-                                        defaultFilterMethod={this.defaultFilterMethod}
+                                        defaultFilterMethod={defaultFilterMethod}
                                         activeSongList={this.state.activeSongList}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
@@ -499,7 +495,6 @@ class App extends Component {
                                     <UpNextComponent
                                         upNext={this.state.upNext}
                                         modifyUpNext={this.modifyUpNext}
-                                        defaultFilterMethod={this.defaultFilterMethod}
                                         removeFromUpNext={this.removeFromUpNext}
                                         moveInUpNext={this.moveInUpNext}
                                     />

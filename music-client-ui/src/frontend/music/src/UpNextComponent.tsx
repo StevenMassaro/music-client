@@ -3,10 +3,22 @@ import './App.css';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {Track} from "./types/Track";
+import {defaultFilterMethod} from "./Utils";
 
+type props = {
+    upNext: Track[],
+    moveInUpNext: (indexA: number, offset: number) => void,
+    modifyUpNext: (newUpNext: Track[]) => void,
+    removeFromUpNext: (index: number) => void
+}
 
-class UpNextComponent extends Component {
-    constructor(props) {
+type state = {
+    clickedData: any
+}
+
+class UpNextComponent extends Component<props, state> {
+    constructor(props: props | Readonly<props>) {
         super(props);
         this.state = {
             clickedData: undefined
@@ -28,7 +40,7 @@ class UpNextComponent extends Component {
                 <ReactTable
                     resizable={false}
                     data={this.props.upNext}
-                    getTdProps={(state, rowInfo) => {
+                    getTdProps={(state: any, rowInfo: any) => {
                         return {
                             onContextMenu:()=>{
                                 this.setState({clickedData: rowInfo});
@@ -58,7 +70,7 @@ class UpNextComponent extends Component {
                     filterable={true}
                     sortable={false}
                     className="-striped -highlight"
-                    defaultFilterMethod={this.props.defaultFilterMethod}
+                    defaultFilterMethod={defaultFilterMethod}
                 />
                 </ContextMenuTrigger>
                 <ContextMenu id='upNextMenu'>
