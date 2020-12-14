@@ -3,8 +3,19 @@ import './App.css';
 import ReactAudioPlayer from 'react-audio-player';
 import AlbumArtComponent from "./AlbumArtComponent";
 import {toast} from "react-toastify";
+import {Track} from "./types/Track";
 
-class PlayerComponent extends Component {
+type props = {
+    currentSong: () => Track,
+    currentSongSrc: () => string,
+    onSongEnd: (skipped:boolean) => void,
+    setAudioElement: (element:ReactAudioPlayer|null) => void,
+    markListenedIfExceedsThreshold: () => void,
+    buildServerUrl: (relativePath: string) => string,
+    settings: object[],
+}
+
+class PlayerComponent extends Component<props> {
     render() {
         return (<div style={{"width":"100%"}}>
             {this.props.currentSongSrc() &&
@@ -12,7 +23,7 @@ class PlayerComponent extends Component {
                     <ReactAudioPlayer
                         controls
                         src={this.props.currentSongSrc()}
-                        autoplay
+                        autoPlay
                         onEnded={() => this.props.onSongEnd(false)}
                         ref={(element) => this.props.setAudioElement(element)}
                         style={{"width":"90%"}}

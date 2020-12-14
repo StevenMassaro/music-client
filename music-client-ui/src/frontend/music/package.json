@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.165",
+    "@types/react-audio-player": "^0.11.0",
     "http-proxy-middleware": "0.20.0"
   },
   "scripts": {
