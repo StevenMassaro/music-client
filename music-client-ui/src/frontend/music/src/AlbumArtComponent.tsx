@@ -4,8 +4,18 @@ import {generateUrl} from "./Utils";
 import './AlbumArtComponent.css';
 import Modal from "react-modal";
 
-class AlbumArtComponent extends Component {
-  constructor(props) {
+type props = {
+    settings: object[],
+    id: number, // current song ID
+    buildServerUrl: (relativePath: string) => string
+}
+
+type state = {
+    modalContent: any
+}
+
+class AlbumArtComponent extends Component<props,state> {
+  constructor(props: props | Readonly<props>) {
     super(props);
     this.state = {
       modalContent: undefined
