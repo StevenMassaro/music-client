@@ -21,6 +21,7 @@ class PlayerComponent extends Component<props> {
             {this.props.currentSongSrc() &&
                 <span>
                     <ReactAudioPlayer
+                        title={`${this.props.currentSong().title} - ${this.props.currentSong().artist}`}
                         controls
                         src={this.props.currentSongSrc()}
                         autoPlay
