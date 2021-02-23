@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.14.01</version>
+    <version>1.14.02</version>
     <modules>
         <module>music-client-ui</module>
         <module>music-client-settings</module>

@@ -18,7 +18,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class SyncService {
@@ -58,57 +61,62 @@ public class SyncService {
 
 				Map<String, File> existingFilesHash = determineExistingFilesHashes(currentTime);
 
-                syncWebsocket.sendSyncUpdateMessage(-1, tracksToSync.size(), SyncStep.SYNCING);
-				Map<String, String> newFilesHashes = new HashMap<>();
+                AtomicInteger trackIndex = new AtomicInteger(-1);
+                syncWebsocket.sendSyncUpdateMessage(trackIndex.get(), tracksToSync.size(), SyncStep.SYNCING);
+				Map<String, String> newFilesHashes = new ConcurrentHashMap<>();
 				// find existing files which match the hashes of files to sync, otherwise download the file from the server
-				for (int i = 0; i < tracksToSync.size(); i++) {
-                    syncWebsocket.sendSyncUpdateMessage(i, tracksToSync.size(), SyncStep.SYNCING);
-					Track track = tracksToSync.get(i);
-					String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
-					String destinationPath = privateSettings.getLocalMusicFileLocation() + destinationFilename;
-					File existingFile = existingFilesHash.get(track.getHash());
-					if (existingFile != null) {
-						logger.info(String.format("Track %s of %s already exists on disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
-						FileUtils.moveFile(existingFile, new File(destinationPath));
-						existingFilesHash.remove(track.getHash());
-						newFilesHashes.put(destinationFilename, track.getHash());
-						syncResult.incrementExistingFiles();
-					} else {
-						logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (i + 1), tracksToSync.size(), track.getId()));
-						URL url = new URL(publicSettings.getServerApiUrl() + "/track/" + track.getId() + "/stream");
-                        logger.debug(String.format("URL: %s", url));
-						logger.debug(String.format("Destination path: %s", destinationPath));
-						try {
-                            URLConnection connection = url.openConnection();
-                            connection.setRequestProperty("Authorization", publicSettings.getServerApiAuthHeader());
-                            connection.setReadTimeout(privateSettings.getReadTimeout());
-                            connection.setConnectTimeout(privateSettings.getConnectTimeout());
+                tracksToSync.parallelStream().forEach((track) -> {
+                    try {
+                        int index = trackIndex.incrementAndGet();
+                        syncWebsocket.sendSyncUpdateMessage(index, tracksToSync.size(), SyncStep.SYNCING);
+                        String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
+                        String destinationPath = privateSettings.getLocalMusicFileLocation() + destinationFilename;
+                        File existingFile = existingFilesHash.get(track.getHash());
+                        if (existingFile != null) {
+                            logger.info(String.format("Track %s of %s already exists on disk (ID: %s)", (index + 1), tracksToSync.size(), track.getId()));
+                            FileUtils.moveFile(existingFile, new File(destinationPath));
+                            existingFilesHash.remove(track.getHash());
+                            newFilesHashes.put(destinationFilename, track.getHash());
+                            syncResult.incrementExistingFiles();
+                        } else {
+                            logger.info(String.format("Syncing track %s of %s to disk (ID: %s)", (index + 1), tracksToSync.size(), track.getId()));
+                            URL url = new URL(publicSettings.getServerApiUrl() + "/track/" + track.getId() + "/stream");
+                            logger.debug(String.format("URL: %s", url));
+                            logger.debug(String.format("Destination path: %s", destinationPath));
+                            try {
+                                URLConnection connection = url.openConnection();
+                                connection.setRequestProperty("Authorization", publicSettings.getServerApiAuthHeader());
+                                connection.setReadTimeout(privateSettings.getReadTimeout());
+                                connection.setConnectTimeout(privateSettings.getConnectTimeout());
 
-                            FileUtils.copyInputStreamToFile(connection.getInputStream(), new File(destinationPath));
-							// ensure downloaded file matches expected
-							String downloadedFileHash = hashService.calculateHash(new File(destinationPath));
-							if (downloadedFileHash.equals(track.getHash())) {
-								logger.debug(String.format("Successfully downloaded track %s, hashes match", track.getTitle()));
-								newFilesHashes.put(destinationFilename, track.getHash());
-								syncResult.incrementNewlyDownloadedFiles();
-							} else {
-								logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
-								boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
-								if (!deletedSuccessfully) {
-									logger.error(String.format("Failed to delete track %s", track.getId()));
-								}
-								syncResult.addFailedDownloadedFile(track);
-							}
-						} catch (Exception e) {
-							logger.error(String.format("Failed to download track %s, deleting downloaded file", track.getTitle()), e);
-							boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
-							if (!deletedSuccessfully) {
-								logger.error(String.format("Failed to delete track %s", destinationPath));
-							}
-							syncResult.addFailedDownloadedFile(track);
-						}
-					}
-				}
+                                FileUtils.copyInputStreamToFile(connection.getInputStream(), new File(destinationPath));
+                                // ensure downloaded file matches expected
+                                String downloadedFileHash = hashService.calculateHash(new File(destinationPath));
+                                if (downloadedFileHash.equals(track.getHash())) {
+                                    logger.debug(String.format("Successfully downloaded track %s, hashes match", track.getTitle()));
+                                    newFilesHashes.put(destinationFilename, track.getHash());
+                                    syncResult.incrementNewlyDownloadedFiles();
+                                } else {
+                                    logger.error(String.format("Failed to download track %s, hashes don't match, deleting downloaded file", track.getTitle()));
+                                    boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
+                                    if (!deletedSuccessfully) {
+                                        logger.error(String.format("Failed to delete track %s", track.getId()));
+                                    }
+                                    syncResult.addFailedDownloadedFile(track);
+                                }
+                            } catch (Exception e) {
+                                logger.error(String.format("Failed to download track %s, deleting downloaded file", track.getTitle()), e);
+                                boolean deletedSuccessfully = FileUtils.deleteQuietly(new File(destinationPath));
+                                if (!deletedSuccessfully) {
+                                    logger.error(String.format("Failed to delete track %s", destinationPath));
+                                }
+                                syncResult.addFailedDownloadedFile(track);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed to sync track {}", track.getId(), e);
+                    }
+                });
 				hashService.dumpHashesToDisk(newFilesHashes);
 				// after generating the new hash dump, reload the cache
 				trackService.clearCacheFromHashDump();
