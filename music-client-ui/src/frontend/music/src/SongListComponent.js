@@ -127,6 +127,12 @@ class SongListComponent extends Component {
                                 accessor: "dateCreated",
                                 maxWidth: 100,
                                 Cell: row => moment(row.value).format("YYYY-MM-DD HH:mm")
+                            },
+                            {
+                                Header: "Last played",
+                                accessor: "lastPlayedDate",
+                                maxWidth: 100,
+                                Cell: row => row.value && moment(row.value).format("YYYY-MM-DD HH:mm")
                             }
                         ]}
                         defaultPageSize={100}
