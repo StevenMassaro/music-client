@@ -439,7 +439,7 @@ class App extends Component {
                         }
                     ]}
                     onPlay={() => this.state.audioEl.play()}
-                    onNextTrack={() => this.onCurrentSongEnd(false)}
+                    onNextTrack={() => this.onCurrentSongEnd(true)}
                 />
                 }
                 <Modal isOpen={this.state.modalContent !== undefined}
