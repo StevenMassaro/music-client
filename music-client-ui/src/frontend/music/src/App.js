@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
 import SplitPane from "react-split-pane";
-import SongListComponent from "./SongListComponent";
 import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
 import {toast, ToastContainer} from "react-toastify";
@@ -24,6 +23,7 @@ import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
 import {PurgableSongsComponent} from "./PurgableSongsComponent";
 import {Button} from "semantic-ui-react";
+import {GenericSongListComponent} from "./navigation/common";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
@@ -475,7 +475,7 @@ class App extends Component {
                             </div>
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
-                                    <SongListComponent
+                                    <GenericSongListComponent
                                         addToEndOfUpNext={this.addToEndOfUpNext}
                                         defaultFilterMethod={defaultFilterMethod}
                                         activeSongList={this.state.activeSongList}

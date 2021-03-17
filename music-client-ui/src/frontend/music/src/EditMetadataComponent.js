@@ -38,6 +38,7 @@ class EditMetadataComponent extends Component {
             .then(
                 () => {
                     toast.success("Successfully updated track metadata.");
+                    // this call causes an error because listSongs() expects a libraryId parameter
                     this.props.listSongs();
                 });
         event.preventDefault();
