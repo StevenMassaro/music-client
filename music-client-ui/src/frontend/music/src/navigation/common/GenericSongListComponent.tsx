@@ -182,19 +182,19 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
                         <div className="green">Play next</div>
                     </Item>
                     <Item onClick={() => this.props.showInfo(this.state.clickedData!)}>
-                        <div className="green">Show info</div>
+                        <div className="green">Show info...</div>
                     </Item>
                     <Item onClick={() => this.props.showEditMetadata(this.state.clickedData!)}>
-                        <div className="green">Edit</div>
+                        <div className="green">Edit...</div>
                     </Item>
                     <Item onClick={() => this.props.showEditAlbumArt(this.state.clickedData!)}>
-                        <div className="green">Edit album art</div>
+                        <div className="green">Edit album art...</div>
                     </Item>
                     <Submenu label="Rate">
                         {this._generateRatingList()}
                     </Submenu>
                     <Item onClick={() => this.props.showUploadSongs(this.state.clickedData!.id)}>
-                        <div className="green">Replace track</div>
+                        <div className="green">Replace track...</div>
                     </Item>
                     <Item onClick={() => this.props.deleteSong(this.state.clickedData!.id)}>
                         <div className="green">Delete</div>
