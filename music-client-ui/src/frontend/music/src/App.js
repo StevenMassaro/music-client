@@ -204,9 +204,9 @@ class App extends Component {
     };
 
     setAudioElement = (element) => {
-        if(element && (!this.state.audioEl || this.state.audioEl !== element.audioEl)){
+        if(element && (!this.state.audioEl || this.state.audioEl !== element)){
             this.setState({
-                audioEl: element.audioEl
+                audioEl: element
             });
         }
     };
@@ -447,7 +447,7 @@ class App extends Component {
                     <Button onClick={() => this.setState({modalContent: undefined})}>Close</Button>
                     {this.state.modalContent}
                 </Modal>
-                <SplitPane split="horizontal" defaultSize="8%" style={{background: "rgba(255,255,255,0.85)"}}>
+                <SplitPane split="horizontal" defaultSize={112} style={{background: "rgba(255,255,255,0.85)"}}>
                     <PlayerComponent
                         currentSong={this._getCurrentSong}
                         settings={this.state.settings}

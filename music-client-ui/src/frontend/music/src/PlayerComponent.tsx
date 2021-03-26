@@ -1,33 +1,48 @@
-import React, {Component} from 'react';
+import React, {Component, createRef} from 'react';
 import './App.css';
-import ReactAudioPlayer from 'react-audio-player';
 import AlbumArtComponent from "./AlbumArtComponent";
 import {toast} from "react-toastify";
 import {Track} from "./types/Track";
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import H5AudioPlayer from "react-h5-audio-player";
 
 type props = {
     currentSong: () => Track,
     currentSongSrc: () => string,
     onSongEnd: (skipped:boolean) => void,
-    setAudioElement: (element:ReactAudioPlayer|null) => void,
+    setAudioElement: (element:HTMLAudioElement|null) => void,
     markListenedIfExceedsThreshold: () => void,
     buildServerUrl: (relativePath: string) => string,
     settings: object[],
 }
 
 class PlayerComponent extends Component<props> {
+    audioRef: React.RefObject<H5AudioPlayer>;
+
+    constructor(props: Readonly<props> | props) {
+        super(props);
+        this.audioRef = createRef();
+    }
+
+    // this is intentionally NOT an arrow function, an arrow function does not have access to the correct "this"
+    onPlaying() {
+        this.props.setAudioElement(this.audioRef.current!.audio.current);
+    }
+
     render() {
         return (<div style={{"width":"100%"}}>
             {this.props.currentSongSrc() &&
                 <span>
-                    <ReactAudioPlayer
-                        title={`${this.props.currentSong().title} - ${this.props.currentSong().artist}`}
-                        controls
+                    <AudioPlayer
+                        header={`${this.props.currentSong().title} - ${this.props.currentSong().artist}`}
                         src={this.props.currentSongSrc()}
                         autoPlay
                         onEnded={() => this.props.onSongEnd(false)}
-                        ref={(element) => this.props.setAudioElement(element)}
-                        style={{"width":"90%"}}
+                        onClickNext={() => this.props.onSongEnd(true)}
+                        showSkipControls={true}
+                        ref={this.audioRef}
+                        onPlaying={this.onPlaying.bind(this)}
                         onListen={this.props.markListenedIfExceedsThreshold}
                         listenInterval={1000}
                         preload={"auto"}
@@ -37,13 +52,7 @@ class PlayerComponent extends Component<props> {
                             });
                             return this.props.onSongEnd(false);
                         }}
-                    >
-                        Your browser does not support the
-                        <code>audio</code> element.
-                    </ReactAudioPlayer>
-                    <button onClick={() => this.props.onSongEnd(true)}>
-                        Next
-                    </button>
+                    />
                     <AlbumArtComponent id={this.props.currentSong().id}
                                        settings={this.props.settings}
                                        buildServerUrl={this.props.buildServerUrl}
