@@ -24,6 +24,7 @@ type props<T> = {
     showUploadSongs: (id: number | undefined) => void,
     showEditAlbumArt: (song: Track) => void,
     showEditMetadata: (song: Track) => void,
+    setRating: (id: number, rating: number) => void,
 }
 
 type state = {
@@ -45,17 +46,9 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
         let ratingList = [];
         for (let i = 0; i < 11; i++) {
             ratingList.push(<Item
-                onClick={() => this._setRating(this.state.clickedData!.id, i)}>{i}</Item>);
+                onClick={() => this.props.setRating(this.state.clickedData!.id, i)}>{i}</Item>);
         }
         return ratingList;
-    };
-
-    _setRating = (id: number, rating: number) => {
-        api.patch(this.props.buildServerUrl("/track/" + id + "/rating/" + rating))
-            .then(() => {
-                this.props.performActionOnSingleSongInActiveSongsList(id, (song) => song.rating = rating);
-                toast.success(`Successfully set rating of ${rating} for song.`);
-            })
     };
 
     _getFilteredSongList = () => this.state.tableRef!.getResolvedState().sortedData;

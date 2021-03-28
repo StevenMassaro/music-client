@@ -402,6 +402,17 @@ class App extends Component {
     };
 
     /**
+     * Set the rating of a song.
+     * @param id
+     * @param rating
+     * @private
+     */
+    _setRating = (id, rating) => {
+        api.patch(this.buildServerUrl("/track/" + id + "/rating/" + rating))
+            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.rating = rating))
+    };
+
+    /**
      * Given a relative path, build the full path to this resource using the server's API URL as defined in the client
      * servers settings.
      */
@@ -456,6 +467,7 @@ class App extends Component {
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
                         setAudioElement={this.setAudioElement}
                         buildServerUrl={this.buildServerUrl}
+                        setRating={this._setRating}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
@@ -489,6 +501,7 @@ class App extends Component {
                                         showUploadSongs={this.showUploadSongs}
                                         buildServerUrl={this.buildServerUrl}
                                         performActionOnSingleSongInActiveSongsList={this._performActionOnSingleSongInActiveSongsList}
+                                        setRating={this._setRating}
                                     />
                                 </div>
                                 <div>

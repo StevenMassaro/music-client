@@ -6,18 +6,22 @@ import {Track} from "./types/Track";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import H5AudioPlayer from "react-h5-audio-player";
+import StarRatingComponent from 'react-star-rating-component';
 
 type props = {
     currentSong: () => Track,
     currentSongSrc: () => string,
-    onSongEnd: (skipped:boolean) => void,
-    setAudioElement: (element:HTMLAudioElement|null) => void,
+    onSongEnd: (skipped: boolean) => void,
+    setAudioElement: (element: HTMLAudioElement | null) => void,
     markListenedIfExceedsThreshold: () => void,
     buildServerUrl: (relativePath: string) => string,
     settings: object[],
+    setRating: (id: number, rating: number) => void,
 }
 
-class PlayerComponent extends Component<props> {
+type state = {}
+
+class PlayerComponent extends Component<props, state> {
     audioRef: React.RefObject<H5AudioPlayer>;
 
     constructor(props: Readonly<props> | props) {
@@ -35,7 +39,17 @@ class PlayerComponent extends Component<props> {
             {this.props.currentSongSrc() &&
                 <span>
                     <AudioPlayer
-                        header={`${this.props.currentSong().title} - ${this.props.currentSong().artist}`}
+                        header={<span>
+                            {this.props.currentSong().title} - {this.props.currentSong().artist}
+                            <span style={{'float': 'right'}}>
+                                <StarRatingComponent
+                                    name={"songrating"}
+                                    value={this.props.currentSong().rating ?? 0}
+                                    starCount={10}
+                                    onStarClick={((nextValue) => this.props.setRating(this.props.currentSong().id, nextValue))}
+                                />
+                            </span>
+                        </span>}
                         src={this.props.currentSongSrc()}
                         autoPlay
                         onEnded={() => this.props.onSongEnd(false)}
