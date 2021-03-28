@@ -165,29 +165,35 @@ public class SyncService {
     }
 
     private Map<String, File> determineExistingFilesHashes(long currentTime) throws IOException {
-        Map<String, File> existingFilesHash = new HashMap<>();
+        Map<String, File> existingFilesHash = new ConcurrentHashMap<>();
         Map<String, String> hashDump = hashService.loadExistingHashDump();
         Collection<File> existingFiles = trackService.listFiles();
-        long existingFileCount = 0;
+        AtomicInteger existingFileCount = new AtomicInteger(0);
         syncWebsocket.sendSyncUpdateMessage(-1, existingFiles.size(), SyncStep.HASHING_EXISTING);
-        for (File existingFile : existingFiles) {
-            syncWebsocket.sendSyncUpdateMessage((int) existingFileCount, existingFiles.size(), SyncStep.HASHING_EXISTING);
-            existingFileCount++;
+        existingFiles.parallelStream().forEach((existingFile) -> {
+            syncWebsocket.sendSyncUpdateMessage(existingFileCount.get(), existingFiles.size(), SyncStep.HASHING_EXISTING);
+            existingFileCount.incrementAndGet();
             logger.debug(String.format("Hashing %s of %s: %s", existingFileCount, existingFiles.size(), existingFile.getName()));
-            if (existingFileCount % 100 == 0) {
+            if (existingFileCount.get() % 100 == 0) {
                 logger.info(String.format("Hashed %s of a total of %s files", existingFileCount, existingFiles.size()));
             }
             String originalFileName = existingFile.getName().replace(currentTime + "_", "");
-            String renamedFileHash;
+            String renamedFileHash = null;
             if (hashDump.containsKey(originalFileName)) {
                 logger.debug(String.format("Hash dump contains hash for existing file %s, loading instead of recalculating", existingFile.getName()));
                 renamedFileHash = hashDump.get(originalFileName);
             } else {
                 logger.debug(String.format("Hash dump does not contain hash for existing file %s, calculating hash", existingFile.getName()));
-                renamedFileHash = hashService.calculateHash(existingFile);
+                try {
+                    renamedFileHash = hashService.calculateHash(existingFile);
+                } catch (IOException e) {
+                    logger.error("Failed to calculate hash for file {}", existingFile.getName(), e);
+                }
             }
-            existingFilesHash.put(renamedFileHash, existingFile);
-        }
+            if (renamedFileHash != null) {
+                existingFilesHash.put(renamedFileHash, existingFile);
+            }
+        });
         return existingFilesHash;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +51,9 @@ public class HashService {
     }
 
     public String calculateHash(File file) throws IOException {
-        return DigestUtils.sha512Hex(FileUtils.openInputStream(file));
+        try (InputStream stream = FileUtils.openInputStream(file)) {
+            return DigestUtils.sha512Hex(stream);
+        }
     }
 
 }
