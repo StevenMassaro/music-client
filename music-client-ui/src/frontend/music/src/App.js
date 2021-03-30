@@ -273,20 +273,33 @@ class App extends Component {
      */
     _markListened = (id) => {
         api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
-            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.plays++));
+            .then((result) => this._replaceSingleSongInSongsLists(id, result.data));
     };
 
     /**
-     * Safely perform some action on a particular song in the state, then modify the state.
+     * Safely replace a particular song in the state, then modify the state.
      * @param id song ID to look for
-     * @param actionCallback function callback that will be called on that song
+     * @param newSong the new song to replace the existing one
      * @private
      */
-    _performActionOnSingleSongInActiveSongsList = (id, actionCallback) => {
-        let songs = Object.assign([], this.state.activeSongList);
-        // find the matching song, and increment the play counter in the state
-        actionCallback(songs.find(song => song.id === id));
-        this.setActiveSongList(songs)
+    _replaceSingleSongInSongsLists = (id, newSong) => {
+        // update the song in the active song list first
+        let songIndex = this.state.activeSongList.findIndex(song => song.id === id);
+        const updatedHeaders = this.state.activeSongList.map((obj, index) => {
+            return index === songIndex ? newSong : obj;
+        });
+        this.setActiveSongList(updatedHeaders);
+
+        if (!lodash.isEmpty(this.state.upNext)) {
+            let upNextIndex = this.state.upNext.findIndex(song => song.id === id);
+            // if we can find the song in the up next list, update it there too
+            if (upNextIndex > -1) {
+                const updatedUpNext = this.state.upNext.map((obj, index) => {
+                    return index === upNextIndex ? newSong : obj;
+                })
+                this.setUpNext(updatedUpNext);
+            }
+        }
     };
 
     /**
@@ -297,7 +310,7 @@ class App extends Component {
      */
     _markSkipped = (id, secondsPlayedBeforeSkip) => {
         api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
-            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.skips++));
+            .then((result) => this._replaceSingleSongInSongsLists(id, result.data));
     };
 
     showInfo = (song) => {
@@ -409,7 +422,7 @@ class App extends Component {
      */
     _setRating = (id, rating) => {
         api.patch(this.buildServerUrl("/track/" + id + "/rating/" + rating))
-            .then(() => this._performActionOnSingleSongInActiveSongsList(id, (song) => song.rating = rating))
+            .then((result) => this._replaceSingleSongInSongsLists(id, result.data))
     };
 
     /**
@@ -500,7 +513,6 @@ class App extends Component {
                                         setActiveSongList={this.setActiveSongList}
                                         showUploadSongs={this.showUploadSongs}
                                         buildServerUrl={this.buildServerUrl}
-                                        performActionOnSingleSongInActiveSongsList={this._performActionOnSingleSongInActiveSongsList}
                                         setRating={this._setRating}
                                     />
                                 </div>

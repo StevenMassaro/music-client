@@ -14,7 +14,6 @@ import {Track} from "../../types/Track";
 type props<T> = {
     activeSongList: Track[], // possible Object[]
     buildServerUrl: (url: string) => string,
-    performActionOnSingleSongInActiveSongsList: (id: number, actionCallback: (track: any) => any) => void,
     addToEndOfUpNext: (song: Track) => void,
     defaultFilterMethod: (filter: any, row: any, column: any) => boolean,
     shuffleSongs: (songs: Track[], selector: (song: Track) => Track) => void,
