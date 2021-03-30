@@ -26,7 +26,7 @@ class AlbumArtComponent extends Component<props,state> {
     this.setState({
       modalContent: <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
                          alt={"No album artwork"}
-                         className={"albumArt modal"}
+                         className={"albumArtLarge modal"}
                          onClick={() => this.setState({modalContent: undefined})}
       />
     })
@@ -39,8 +39,8 @@ class AlbumArtComponent extends Component<props,state> {
         {this.state.modalContent}
       </Modal>
       <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
-           alt={"No album artwork"}
-           className={"albumArt"}
+           alt={""}
+           className={"albumArtSmall"}
            onClick={this.showModal}
       />
     </span>);

@@ -40,7 +40,10 @@ class PlayerComponent extends Component<props, state> {
                 <span>
                     <AudioPlayer
                         header={<span>
-                            {this.props.currentSong().title} - {this.props.currentSong().artist}
+                            <AlbumArtComponent id={this.props.currentSong().id}
+                                               settings={this.props.settings}
+                                               buildServerUrl={this.props.buildServerUrl}
+                            /> {this.props.currentSong().title} - {this.props.currentSong().artist}
                             <span style={{'float': 'right'}}>
                                 <StarRatingComponent
                                     name={"songrating"}
@@ -66,10 +69,6 @@ class PlayerComponent extends Component<props, state> {
                             });
                             return this.props.onSongEnd(false);
                         }}
-                    />
-                    <AlbumArtComponent id={this.props.currentSong().id}
-                                       settings={this.props.settings}
-                                       buildServerUrl={this.props.buildServerUrl}
                     />
                 </span>}
         </div>

@@ -1,5 +1,10 @@
-.albumArt {
+.albumArtLarge {
     height: 100%;
+    position: relative;
+}
+
+.albumArtSmall {
+    height: 11px;
     position: relative;
 }
 
