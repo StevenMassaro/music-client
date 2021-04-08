@@ -69,6 +69,10 @@ class PlayerComponent extends Component<props, state> {
                             });
                             return this.props.onSongEnd(false);
                         }}
+                        style={{
+                            "backgroundColor": "rgba(255, 255, 255, 0.25)",
+                            "boxShadow": "unset"
+                        }}
                     />
                 </span>}
         </div>
