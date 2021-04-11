@@ -5,5 +5,9 @@ export interface Track {
     /**
      * A value from 0-10 indicating the rating of the song. Also can be null if the song is not rated.
      */
-    rating: number | null
+    rating: number | null,
+    album: string,
+    plays: number,
+    skips: number,
+    target: string | undefined
 }

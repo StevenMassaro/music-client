@@ -3,9 +3,10 @@ import './App.css';
 import {generateUrl} from "./Utils";
 import './AlbumArtComponent.css';
 import Modal from "react-modal";
+import {Settings} from "./types/Settings";
 
 type props = {
-    settings: object[],
+    settings: Settings,
     id: number, // current song ID
     buildServerUrl: (relativePath: string) => string
 }

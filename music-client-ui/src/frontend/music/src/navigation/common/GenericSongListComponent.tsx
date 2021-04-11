@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
-import {Dropdown} from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
-import {toast} from "react-toastify";
 import * as lodash from "lodash";
-import {api} from "../../App";
 import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
 import moment from 'moment';
@@ -12,7 +9,7 @@ import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
 
 type props<T> = {
-    activeSongList: Track[], // possible Object[]
+    activeSongList: Track[],
     buildServerUrl: (url: string) => string,
     addToEndOfUpNext: (song: Track) => void,
     defaultFilterMethod: (filter: any, row: any, column: any) => boolean,

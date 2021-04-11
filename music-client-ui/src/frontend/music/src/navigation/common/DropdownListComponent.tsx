@@ -6,6 +6,8 @@ import * as lodash from "lodash";
 import {api} from "../../App";
 import {Library} from "../../types/Library";
 import {MenuItem} from "../../types/MenuItem";
+import {Track} from "../../types/Track";
+import {AxiosResponse} from "axios";
 
 type props<T> = {
     buildServerUrl: (valuesUrl: string) => string,
@@ -13,7 +15,7 @@ type props<T> = {
     title: string,
     tracksUrl?: string,
     setActiveMenuItem: (name: string, library?:Library, callback?: (() => void) | undefined) => void,
-    setActiveSongList: (songs: object[]) => void, // todo this should be an array of song
+    setActiveSongList: (songs: Track[]) => void,
     activeMenuItem: MenuItem,
     valueGetter?: (value: T) => string | number,
     textGetter?: (value: T) => string,
@@ -36,7 +38,7 @@ export class DropdownListComponent<T> extends Component<props<T>, state> {
     listValues = () => {
         api.get(this.props.buildServerUrl(this.props.valuesUrl))
             .then(
-                (result) => {
+                (result: AxiosResponse) => {
                     this.setState({
                         values: result.data
                     });
@@ -55,7 +57,7 @@ export class DropdownListComponent<T> extends Component<props<T>, state> {
     listTracks = (selectedValue: string) => {
         api.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
-                (result) => {
+                (result: AxiosResponse<Track[]>) => {
                     this.props.setActiveMenuItem(this.props.title + selectedValue);
                     this.props.setActiveSongList(result.data);
                 })

@@ -3,7 +3,7 @@ import './App.css';
 import SplitPane from "react-split-pane";
 import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
-import {toast, ToastContainer} from "react-toastify";
+import {toast, ToastContainer, ToastContent} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
@@ -18,12 +18,15 @@ import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
 import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
-import SockJsClient from "react-stomp";
 import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
 import {PurgableSongsComponent} from "./PurgableSongsComponent";
 import {Button} from "semantic-ui-react";
 import {GenericSongListComponent} from "./navigation/common";
+import {AxiosResponse} from "axios";
+import {Track} from "./types/Track";
+import {Settings} from "./types/Settings";
+import {Device} from './types/Device';
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
@@ -40,21 +43,38 @@ export const api = require('axios').default.create();
 
 Modal.setAppElement('#root');
 
-class App extends Component {
+type props = {}
 
-    constructor(props) {
+type state = {
+    upNext: Track[],
+    loadedSettings: boolean,
+    currentSongMarkedListened: boolean,
+    modalContent: any,
+    activeSongList: any,
+    audioEl: HTMLAudioElement | undefined,
+    settings: Settings | undefined,
+    device: Device | undefined
+}
+
+class App extends Component<props, state> {
+
+    constructor(props: props | Readonly<props>) {
         super(props);
         this.state = {
+            upNext: [],
             loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
-            activeSongList: undefined
+            activeSongList: undefined,
+            audioEl: undefined,
+            settings: undefined,
+            device: undefined
         };
 
-        api.interceptors.response.use((response) => {
+        api.interceptors.response.use((response: AxiosResponse) => {
             console.log(response);
             return response;
-        }, (error) => {
+        }, (error: any) => {
             console.log(error.toJSON());
             console.log(error.response);
             toast.error(`API call to ${error.config.url} failed: ${error.message}`, {
@@ -74,7 +94,7 @@ class App extends Component {
         this.getSettings();
     }
 
-    addToEndOfUpNext = (song) => {
+    addToEndOfUpNext = (song: Track) => {
         if (song) {
             let upNext = Object.assign([], this.state.upNext);
             upNext.push(song);
@@ -86,8 +106,8 @@ class App extends Component {
      * Set the upNext list in the state to the newUpNext, and automatically change the background album art as needed.
      * @param newUpNext
      */
-    setUpNext = (newUpNext) => {
-        if(!lodash.isEmpty(newUpNext)){
+    setUpNext = (newUpNext: Track[]) => {
+        if (!lodash.isEmpty(newUpNext)) {
             this._setBackgroundImage(newUpNext[0].id);
         }
         this.setState({
@@ -98,7 +118,7 @@ class App extends Component {
     getCurrentSongSrc = () => {
         if (this._getCurrentSong()) {
             if (this.state.settings) {
-                return generateUrl(this.state.settings, "/track/" + this._getCurrentSong().id + "/stream", this.buildServerUrl);
+                return generateUrl(this.state.settings, "/track/" + this._getCurrentSong()!.id + "/stream", this.buildServerUrl);
             }
         } else {
             return undefined;
@@ -123,11 +143,11 @@ class App extends Component {
      */
     onCurrentSongEnd = (skipped = false) => {
         if (skipped) {
-            const durationBeforeSkipped = this.state.audioEl.currentTime;
+            const durationBeforeSkipped = this.state.audioEl!.currentTime;
             console.log(`song played ${durationBeforeSkipped} seconds before being skipped`);
-            this._markSkipped(this._getCurrentSong().id, durationBeforeSkipped);
+            this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
         }
-        let upNext = Object.assign([], this.state.upNext);
+        let upNext: Track[] = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
         if (!lodash.isEmpty(upNext)) {
             this._setBackgroundImage(upNext[0].id);
@@ -135,36 +155,36 @@ class App extends Component {
         this.setState({
             upNext: upNext,
             currentSongMarkedListened: false
-        }, () => !lodash.isEmpty(upNext) && this.state.audioEl.play());
+        }, () => !lodash.isEmpty(upNext) && this.state.audioEl!.play());
     };
 
-    _setBackgroundImage = (id) => {
+    _setBackgroundImage = (id: number) => {
         document.body.style.backgroundImage = "url(" + this._generateAlbumArtUrl(id) + ")";
     };
 
-    _generateAlbumArtUrl = (id) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
+    _generateAlbumArtUrl = (id: number) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
 
-    listSongs = (libraryId) => {
+    listSongs = (libraryId: number) => {
         api.get(this.buildServerUrl(`/track?libraryId=${libraryId}`))
-            .then((result) => this.setActiveSongList(result.data));
+            .then((result: AxiosResponse<Track[]>) => this.setActiveSongList(result.data));
     };
 
-    deleteSong = id => {
+    deleteSong = (id: number) => {
         api.delete(this.buildServerUrl("/track/" + id))
-            .then((result) => {
-                    let {data} = result;
-                    let songs = this.state.activeSongList.filter(song => {
-                        return song.id !== data.id
-                    });
-                    this.setActiveSongList(songs);
-                    toast.success("Marked '" + data.title + "' as deleted.");
-                })
+            .then((result: AxiosResponse<Track>) => {
+                let {data} = result;
+                let songs = this.state.activeSongList.filter((song: Track) => {
+                    return song.id !== data.id
+                });
+                this.setActiveSongList(songs);
+                toast.success("Marked '" + data.title + "' as deleted.");
+            })
     };
 
     getSettings = () => {
         api.get("./settings/")
             .then(
-                (result) => {
+                (result: AxiosResponse<Settings>) => {
                     let {data} = result;
                     api.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
                     api.defaults.headers.post['Content-Type'] = 'application/json';
@@ -177,9 +197,9 @@ class App extends Component {
     };
 
     getDeviceId = () => {
-        api.get(this.buildServerUrl("/device/name/" + this.state.settings.deviceName))
+        api.get(this.buildServerUrl("/device/name/" + this.state.settings!.deviceName))
             .then(
-                (result) => {
+                (result: AxiosResponse<Device>) => {
                     this.setState({
                         device: result.data
                     });
@@ -191,9 +211,9 @@ class App extends Component {
      * Shuffle the provided songs
      * @param selector a function callback that is called on every song provided in songs before setting the state
      */
-    shuffleSongs = (songs, selector = s => s) => {
+    shuffleSongs = (songs: Track[], selector = (s: Track) => s) => {
         let a = Object.assign([], songs);
-        var j, x, i;
+        let j, x, i;
         for (i = a.length - 1; i > 0; i--) {
             j = Math.floor(Math.random() * (i + 1));
             x = a[i];
@@ -203,17 +223,17 @@ class App extends Component {
         this.setUpNext(a.map(selector));
     };
 
-    setAudioElement = (element) => {
-        if(element && (!this.state.audioEl || this.state.audioEl !== element)){
+    setAudioElement = (element: HTMLAudioElement | null) => {
+        if (element && (!this.state.audioEl || this.state.audioEl !== element)) {
             this.setState({
                 audioEl: element
             });
         }
     };
 
-    modifyUpNext = (newUpNext) => {
+    modifyUpNext = (newUpNext: Track[]) => {
         // if clearing the up next list
-        if(newUpNext === []){
+        if (newUpNext === []) {
             this.setState({
                 currentSongMarkedListened: false
             });
@@ -221,7 +241,7 @@ class App extends Component {
         this.setUpNext(newUpNext);
     };
 
-    removeFromUpNext = (index) => {
+    removeFromUpNext = (index: number) => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.splice(index, 1);
         this.setUpNext(upNext);
@@ -232,7 +252,7 @@ class App extends Component {
      * @param indexA index of song to move
      * @param offset the distance to move the song, -1 moves it one spot down, 1 moves it one spot up
      */
-    moveInUpNext = (indexA, offset) => {
+    moveInUpNext = (indexA: number, offset: number) => {
         let upNext = Object.assign([], this.state.upNext);
         let indexB = indexA - offset;
 
@@ -247,7 +267,7 @@ class App extends Component {
      * Put the specified song next in line to be played
      * @param song
      */
-    playNext = (song) => {
+    playNext = (song: Track) => {
         let upNext = Object.assign([], this.state.upNext);
         upNext.splice(1, 0, song);
         this.setUpNext(upNext);
@@ -258,9 +278,9 @@ class App extends Component {
      * listened to. If exceeded threshold, then tell backend that song was listened to.
      */
     markListenedIfExceedsThreshold = () => {
-        const curThresh = this.state.audioEl.currentTime / this.state.audioEl.duration;
+        const curThresh = this.state.audioEl!.currentTime / this.state.audioEl!.duration;
         if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
-            this._markListened(this._getCurrentSong().id);
+            this._markListened(this._getCurrentSong()!.id);
             this.setState({
                 currentSongMarkedListened: true
             })
@@ -271,9 +291,9 @@ class App extends Component {
      * Send rest request to backend to record that song was played.
      * @private
      */
-    _markListened = (id) => {
-        api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device.id))
-            .then((result) => this._replaceSingleSongInSongsLists(id, result.data));
+    _markListened = (id: number) => {
+        api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device!.id))
+            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
     };
 
     /**
@@ -282,10 +302,10 @@ class App extends Component {
      * @param newSong the new song to replace the existing one
      * @private
      */
-    _replaceSingleSongInSongsLists = (id, newSong) => {
+    _replaceSingleSongInSongsLists = (id: number, newSong: Track) => {
         // update the song in the active song list first
-        let songIndex = this.state.activeSongList.findIndex(song => song.id === id);
-        const updatedHeaders = this.state.activeSongList.map((obj, index) => {
+        let songIndex = this.state.activeSongList.findIndex((song: Track) => song.id === id);
+        const updatedHeaders = this.state.activeSongList.map((obj: Track, index: number) => {
             return index === songIndex ? newSong : obj;
         });
         this.setActiveSongList(updatedHeaders);
@@ -308,20 +328,22 @@ class App extends Component {
      * @param secondsPlayedBeforeSkip nullable parameter indicating the number of seconds that the song was played before it was skipped
      * @private
      */
-    _markSkipped = (id, secondsPlayedBeforeSkip) => {
-        api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
-            .then((result) => this._replaceSingleSongInSongsLists(id, result.data));
+    _markSkipped = (id: number, secondsPlayedBeforeSkip: number) => {
+        api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device!.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
+            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
     };
 
-    showInfo = (song) => {
+    showInfo = (song: Track) => {
         let copy = Object.assign([], song);
         delete copy.target;
-        this.setState({modalContent: <ReactJson src={copy}
-                                                displayDataTypes={false}
-            />});
+        this.setState({
+            modalContent: <ReactJson src={copy}
+                                     displayDataTypes={false}
+            />
+        });
     };
 
-    showEditMetadata = (song) => {
+    showEditMetadata = (song: Track) => {
         this.setState({
             modalContent: <EditMetadataComponent song={song}
                                                  listSongs={this.listSongs}
@@ -330,7 +352,7 @@ class App extends Component {
         })
     };
 
-    showEditAlbumArt = (song) => {
+    showEditAlbumArt = (song: Track) => {
         this.setState({
             modalContent: <EditAlbumArtComponent song={song}
                                                  buildServerUrl={this.buildServerUrl}
@@ -347,7 +369,7 @@ class App extends Component {
         });
     };
 
-    showEditSmartPlaylist = (toEdit) => {
+    showEditSmartPlaylist = (toEdit: any) => {
         this.setState({
             modalContent: <CreateSmartPlaylistComponent
                 existingSmartPlaylist={toEdit}
@@ -361,7 +383,7 @@ class App extends Component {
      * @param existingId if not null or undefined, this should be the ID of the song that is being replaced. If null or
      * undefined, it is assumed that new tracks are being uploaded and no tracks are being replaced.
      */
-    showUploadSongs = (existingId = undefined) => {
+    showUploadSongs = (existingId: number | undefined = undefined) => {
         this.setState({
             modalContent: <UploadSongsComponent
                 activeSongList={this.state.activeSongList}
@@ -379,26 +401,25 @@ class App extends Component {
             />
         });
 
-    setActiveSongList = (songs) => {
+    setActiveSongList = (songs: Track[]) => {
         this.setState({
             activeSongList: songs
         });
     };
 
-    handleWebsocketMessage = (msg, topic) => {
-        // todo there is probably a better way of doing this, but at the moment this works
-        if (topic === WEBSOCKET_ROUTES.albumArtUpdates) {
-            this.handleAlbumArtUpdateToast(msg,
-                msg => buildAlbumArtUpdateToastMessage(msg),
-                msg => msg.album);
-        } else if (topic === WEBSOCKET_ROUTES.syncUpdates) {
-            this.handleAlbumArtUpdateToast(msg,
-                msg => buildSyncUpdateToastMessage(msg),
-                () => "sync_updates_toast")
-        }
-    };
+    handleAlbumArtUpdateMessage = (msg: any) => {
+        this.handleAlbumArtUpdateToast(msg,
+            (msg: any) => buildAlbumArtUpdateToastMessage(msg),
+            (msg: { album: any; }) => msg.album);
+    }
 
-    handleAlbumArtUpdateToast = (msg, toastMessageCallback, toastIdCallback) => {
+    handleSyncUpdateMessage = (msg: any) => {
+        this.handleAlbumArtUpdateToast(msg,
+            (msg: any) => buildSyncUpdateToastMessage(msg),
+            () => "sync_updates_toast")
+    }
+
+    handleAlbumArtUpdateToast = (msg: any, toastMessageCallback: (arg0: any) => ToastContent, toastIdCallback: (arg0: any) => any) => {
         if (msg.position === 0) {
             toast.info(toastMessageCallback(msg), {
                 toastId: toastIdCallback(msg),
@@ -420,17 +441,17 @@ class App extends Component {
      * @param rating
      * @private
      */
-    _setRating = (id, rating) => {
+    _setRating = (id: number, rating: number) => {
         api.patch(this.buildServerUrl("/track/" + id + "/rating/" + rating))
-            .then((result) => this._replaceSingleSongInSongsLists(id, result.data))
+            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data))
     };
 
     /**
      * Given a relative path, build the full path to this resource using the server's API URL as defined in the client
      * servers settings.
      */
-    buildServerUrl = (relativePath) => {
-        return this.state.settings.serverApiUrl + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
+    buildServerUrl = (relativePath: string) => {
+        return this.state.settings!.serverApiUrl + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
     };
 
     render() {
@@ -440,16 +461,16 @@ class App extends Component {
         return (
             this.state.loadedSettings ?
             <div>
-                <SockJsClient
-                    url={this.buildServerUrl("/gs-guide-websocket")}
-                    topics={[WEBSOCKET_ROUTES.albumArtUpdates]}
-                    onMessage={this.handleWebsocketMessage}
-                />
-                <SockJsClient
-                    url={"./gs-guide-websocket"}
-                    topics={[WEBSOCKET_ROUTES.syncUpdates]}
-                    onMessage={this.handleWebsocketMessage}
-                />
+                {/*<StompClient*/}
+                {/*    endpoint={this.buildServerUrl("/gs-guide-websocket")}*/}
+                {/*    topic={WEBSOCKET_ROUTES.albumArtUpdates}*/}
+                {/*    onMessage={this.handleAlbumArtUpdateMessage}*/}
+                {/*/>*/}
+                {/*<StompClient*/}
+                {/*    endpoint={"./gs-guide-websocket"}*/}
+                {/*    topic={WEBSOCKET_ROUTES.syncUpdates}*/}
+                {/*    onMessage={this.handleSyncUpdateMessage}*/}
+                {/*/>*/}
                 <ToastContainer/>
                 {(this.state.audioEl && currentSong) &&
                 <MediaSession
@@ -462,7 +483,7 @@ class App extends Component {
                             sizes: '512x512'
                         }
                     ]}
-                    onPlay={() => this.state.audioEl.play()}
+                    onPlay={() => this.state.audioEl!.play()}
                     onNextTrack={() => this.onCurrentSongEnd(true)}
                 />
                 }
@@ -474,7 +495,7 @@ class App extends Component {
                 <SplitPane split="horizontal" defaultSize={112} style={{background: "rgba(255,255,255,0.85)"}}>
                     <PlayerComponent
                         currentSong={this._getCurrentSong}
-                        settings={this.state.settings}
+                        settings={this.state.settings!}
                         currentSongSrc={this.getCurrentSongSrc}
                         onSongEnd={this.onCurrentSongEnd}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
@@ -487,8 +508,8 @@ class App extends Component {
                             <div>
                                 <NavigatorComponent
                                     setActiveSongList={this.setActiveSongList}
-                                    shouldShowSyncButtons={() => lodash.isEmpty(this.state.upNext)}
-                                    musicFileSource={this.state.settings && this.state.settings.musicFileSource}
+                                    shouldShowSyncButtons={lodash.isEmpty(this.state.upNext)}
+                                    musicFileSource={this.state.settings!.musicFileSource}
                                     listSongs={this.listSongs}
                                     showCreateSmartPlaylist={this.showCreateSmartPlaylist}
                                     showEditSmartPlaylist={this.showEditSmartPlaylist}
@@ -510,7 +531,6 @@ class App extends Component {
                                         showInfo={this.showInfo}
                                         showEditMetadata={this.showEditMetadata}
                                         showEditAlbumArt={this.showEditAlbumArt}
-                                        setActiveSongList={this.setActiveSongList}
                                         showUploadSongs={this.showUploadSongs}
                                         buildServerUrl={this.buildServerUrl}
                                         setRating={this._setRating}

@@ -11,6 +11,8 @@ import moment from 'moment';
 import {Button} from 'semantic-ui-react'
 import './PurgableSongsComponent.css';
 import selectTableHOC from "react-table/lib/hoc/selectTable";
+import {AxiosResponse} from "axios";
+import {Track} from "./types/Track";
 
 const SelectTable = selectTableHOC(ReactTable);
 
@@ -58,7 +60,7 @@ export class PurgableSongsComponent extends Component<props, state> {
     listPurgableTracks = () => {
         api.get(this.props.buildServerUrl("/admin/purge"))
             .then(
-                (result) => {
+                (result: AxiosResponse<Track[]>) => {
                     this.setState({
                         purgableTracks: result.data,
                         selectedTracks: []

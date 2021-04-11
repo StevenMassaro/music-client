@@ -1,5 +1,8 @@
 # changelog
 
+## 1.15
+* convert majority of application to typescript
+
 ## 1.14.01
 * support purging individual tracks
 

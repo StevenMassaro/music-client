@@ -11,12 +11,13 @@ import {AxiosResponse} from "axios";
 import {Library} from "./types/Library";
 import {MenuItem} from "./types/MenuItem";
 import {SmartPlaylist} from "./types/SmartPlaylist";
+import {Track} from "./types/Track";
 
 type props = {
     showEditSmartPlaylist: (toEdit: Object) => void,
     showCreateSmartPlaylist: () => void,
     showUploadSongs: () => void,
-    setActiveSongList: (songs?: Object) => void,
+    setActiveSongList: (songs: Track[]) => void,
     activeSongList: object[],
     shouldShowSyncButtons: boolean,
     musicFileSource: string,
@@ -51,8 +52,8 @@ class NavigatorComponent extends Component<props, state> {
     }
 
     listLibraries = () => {
-        api.get<Library[]>(this.props.buildServerUrl('/library'))
-            .then((response: AxiosResponse) => {
+        api.get(this.props.buildServerUrl('/library'))
+            .then((response: AxiosResponse<Library[]>) => {
                 this.setState({
                     libraries: response.data,
                     activeItem: new MenuItem(response.data[0].name, response.data[0]) // todo after implementing library sorting on backend this should be smarter
@@ -127,7 +128,7 @@ class NavigatorComponent extends Component<props, state> {
                         name={library.name}
                         active={this._isActive(library.name)}
                         onClick={() => {
-                            this.props.setActiveSongList(undefined);
+                            this.props.setActiveSongList([]);
                             return this._setActiveMenuItem(library.name, library, () => this._refreshSongListWithActiveLibrary());
                         }}
                     >

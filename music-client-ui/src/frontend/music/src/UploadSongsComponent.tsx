@@ -2,18 +2,17 @@ import React, {Component} from 'react';
 import './App.css';
 import 'react-dropzone-uploader/dist/styles.css';
 import Dropzone from 'react-dropzone-uploader';
-import StatusValue from 'react-dropzone-uploader';
 import {isEmpty, isNumber} from "lodash";
 import {Dropdown} from "semantic-ui-react";
 import {DropdownProps} from "semantic-ui-react/dist/commonjs/modules/Dropdown/Dropdown";
 import {Library} from "./types/Library";
 import {api} from "./App";
 import {AxiosResponse} from "axios";
-import {MenuItem} from "./types/MenuItem";
+import {Track} from "./types/Track";
 
 type props = {
-    existingId: number | null,
-    setActiveSongList: (songs?: Object) => void,
+    existingId: number | undefined,
+    setActiveSongList: (songs: Track[]) => void,
     activeSongList: object[],
     buildServerUrl: (relativePath: string) => string,
 }
@@ -40,8 +39,8 @@ class UploadSongsComponent extends Component<props, state> {
     }
 
     listLibraries = () => {
-        api.get<Library[]>(this.props.buildServerUrl('/library'))
-            .then((response: AxiosResponse) => {
+        api.get(this.props.buildServerUrl('/library'))
+            .then((response: AxiosResponse<Library[]>) => {
                 this.setState({
                     libraries: response.data
                 });
@@ -93,7 +92,7 @@ class UploadSongsComponent extends Component<props, state> {
                 disabled={this.state.isLibraryDropdownDisabled}
             />}
             <Dropzone
-                disabled={!this.props.existingId && this.state.selectedLibraryId == -1}
+                disabled={!this.props.existingId && this.state.selectedLibraryId === -1}
                 onChangeStatus={({meta, file, xhr, remove}, status) => {
                     if (status === 'done') {
                         this.setState({

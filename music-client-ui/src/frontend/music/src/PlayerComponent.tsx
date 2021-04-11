@@ -7,15 +7,16 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import H5AudioPlayer from "react-h5-audio-player";
 import StarRatingComponent from 'react-star-rating-component';
+import {Settings} from "./types/Settings";
 
 type props = {
-    currentSong: () => Track,
+    currentSong: () => Track | undefined,
     currentSongSrc: () => string,
     onSongEnd: (skipped: boolean) => void,
     setAudioElement: (element: HTMLAudioElement | null) => void,
     markListenedIfExceedsThreshold: () => void,
     buildServerUrl: (relativePath: string) => string,
-    settings: object[],
+    settings: Settings,
     setRating: (id: number, rating: number) => void,
 }
 
@@ -40,16 +41,16 @@ class PlayerComponent extends Component<props, state> {
                 <span>
                     <AudioPlayer
                         header={<span>
-                            <AlbumArtComponent id={this.props.currentSong().id}
+                            <AlbumArtComponent id={this.props.currentSong()!.id}
                                                settings={this.props.settings}
                                                buildServerUrl={this.props.buildServerUrl}
-                            /> {this.props.currentSong().title} - {this.props.currentSong().artist}
+                            /> {this.props.currentSong()!.title} - {this.props.currentSong()!.artist}
                             <span style={{'float': 'right'}}>
                                 <StarRatingComponent
                                     name={"songrating"}
-                                    value={this.props.currentSong().rating ?? 0}
+                                    value={this.props.currentSong()!.rating ?? 0}
                                     starCount={10}
-                                    onStarClick={((nextValue) => this.props.setRating(this.props.currentSong().id, nextValue))}
+                                    onStarClick={((nextValue) => this.props.setRating(this.props.currentSong()!.id, nextValue))}
                                 />
                             </span>
                         </span>}
@@ -64,7 +65,7 @@ class PlayerComponent extends Component<props, state> {
                         listenInterval={1000}
                         preload={"auto"}
                         onError={() => {
-                            toast.error(`Failed to play ${this.props.currentSong().title} - ${this.props.currentSong().artist}`, {
+                            toast.error(`Failed to play ${this.props.currentSong()!.title} - ${this.props.currentSong()!.artist}`, {
                                 autoClose: false
                             });
                             return this.props.onSongEnd(false);
