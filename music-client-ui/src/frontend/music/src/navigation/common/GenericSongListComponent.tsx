@@ -52,7 +52,6 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
     _filteredSongListSelector = (s: any) => s._original;
 
     _handleContextMenu(event: TriggerEvent) {
-        // event.preventDefault();
         const {show} = useContextMenu({
             id: 'menu_id',
         });

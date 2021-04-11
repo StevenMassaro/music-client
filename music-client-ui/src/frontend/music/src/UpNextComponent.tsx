@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import './App.css';
 import ReactTable from "react-table";
 import "react-table/react-table.css";
-import {ContextMenu, ContextMenuTrigger, MenuItem} from "react-contextmenu";
+import {Item, Menu, useContextMenu, TriggerEvent} from "react-contexify";
+import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "./types/Track";
 import {defaultFilterMethod} from "./Utils";
 
@@ -31,18 +32,26 @@ class UpNextComponent extends Component<props, state> {
 
     _getIndex = () => this.state.clickedData ? this.state.clickedData.index : null;
 
-    _shouldRenderMoveDown = () => this.props.upNext && this._getIndex() < this.props.upNext.length-1;
+    _shouldRenderMoveDown = () => this.props.upNext && this._getIndex() < this.props.upNext.length - 1;
+
+    _handleContextMenu(event: TriggerEvent) {
+        const {show} = useContextMenu({
+            id: 'upNextMenu',
+        });
+        show(event)
+    }
 
     render() {
         return (
             <span>
-                <ContextMenuTrigger id="upNextMenu">
                 <ReactTable
                     resizable={false}
                     data={this.props.upNext}
                     getTdProps={(state: any, rowInfo: any) => {
                         return {
-                            onContextMenu:()=>{
+                            onContextMenu: (e: any) => {
+                                e.preventDefault();
+                                this._handleContextMenu(e);
                                 this.setState({clickedData: rowInfo});
                             }
                         };
@@ -72,29 +81,24 @@ class UpNextComponent extends Component<props, state> {
                     className="-striped -highlight"
                     defaultFilterMethod={defaultFilterMethod}
                 />
-                </ContextMenuTrigger>
-                <ContextMenu id='upNextMenu'>
+                <Menu id='upNextMenu'>
                     {this._getIndex() > 0 &&
-                        <MenuItem data={this.state.clickedData}
-                                  onClick={() => this.props.moveInUpNext(this._getIndex(), 1)}>
-                            <div className="green">Move '{this._getTitle()}' up</div>
-                        </MenuItem>
+                    <Item onClick={() => this.props.moveInUpNext(this._getIndex(), 1)}>
+                        <div className="green">Move '{this._getTitle()}' up</div>
+                    </Item>
                     }
                     {this._shouldRenderMoveDown() &&
-                        <MenuItem data={this.state.clickedData}
-                                  onClick={() => this.props.moveInUpNext(this._getIndex(), -1)}>
-                            <div className="green">Move '{this._getTitle()}' down</div>
-                        </MenuItem>
+                    <Item onClick={() => this.props.moveInUpNext(this._getIndex(), -1)}>
+                        <div className="green">Move '{this._getTitle()}' down</div>
+                    </Item>
                     }
-                    <MenuItem data={this.state.clickedData}
-                              onClick={() => this.props.removeFromUpNext(this._getIndex())}>
+                    <Item onClick={() => this.props.removeFromUpNext(this._getIndex())}>
                         <div className="green">Remove '{this._getTitle()}'</div>
-                    </MenuItem>
-                    <MenuItem data={this.state.clickedData}
-                              onClick={() => this.props.modifyUpNext([])}>
+                    </Item>
+                    <Item onClick={() => this.props.modifyUpNext([])}>
                         <div className="green">Clear up next</div>
-                    </MenuItem>
-                </ContextMenu>
+                    </Item>
+                </Menu>
             </span>
         )
     }
