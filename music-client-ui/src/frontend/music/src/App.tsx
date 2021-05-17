@@ -16,7 +16,7 @@ import {
 } from "./Utils";
 import NavigatorComponent from "./NavigatorComponent";
 import EditMetadataComponent from "./EditMetadataComponent";
-import CreateSmartPlaylistComponent from "./playlist/CreateSmartPlaylistComponent";
+import CreatePlaylistComponent, { PlaylistTypeEnum } from "./playlist/CreatePlaylistComponent";
 import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
@@ -27,6 +27,7 @@ import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
 import {Settings} from "./types/Settings";
 import {Device} from './types/Device';
+import { Playlist } from './types/Playlist';
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 export const WEBSOCKET_ROUTES = {
@@ -53,7 +54,8 @@ type state = {
     activeSongList: any,
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
-    device: Device | undefined
+    device: Device | undefined,
+    playlists: Playlist[]
 }
 
 class App extends Component<props, state> {
@@ -68,7 +70,8 @@ class App extends Component<props, state> {
             activeSongList: undefined,
             audioEl: undefined,
             settings: undefined,
-            device: undefined
+            device: undefined,
+            playlists: []
         };
 
         api.interceptors.response.use((response: AxiosResponse) => {
@@ -192,9 +195,27 @@ class App extends Component<props, state> {
                     this.setState({
                         loadedSettings: true,
                         settings: data
-                    }, () => this.getDeviceId());
+                    }, () => {
+                        this._listPlaylists();
+                        this.getDeviceId();
+                    });
                 });
     };
+
+    _listPlaylists = () => {
+        api.get(this.buildServerUrl("/playlist"))
+            .then(
+                (result: AxiosResponse<Playlist[]>) => {
+                    this.setState({
+                        playlists: result.data
+                    });
+                });
+    }
+
+    _addToPlaylist = (playlistId: number, trackId: number) => {
+        api.patch(this.buildServerUrl(`/playlist/${playlistId}?trackId=${trackId}`))
+            .then(() => toast.success(`Added track ${trackId} to playlist ${playlistId}`))
+    }
 
     getDeviceId = () => {
         api.get(this.buildServerUrl("/device/name/" + this.state.settings!.deviceName))
@@ -360,19 +381,21 @@ class App extends Component<props, state> {
         });
     };
 
-    showCreateSmartPlaylist = () => {
+    showCreatePlaylist = (type: PlaylistTypeEnum) => {
         this.setState({
-            modalContent: <CreateSmartPlaylistComponent
-                existingSmartPlaylist={null}
+            modalContent: <CreatePlaylistComponent
+                playlistType={type}
+                existingPlaylist={undefined}
                 buildServerUrl={this.buildServerUrl}
             />
         });
     };
 
-    showEditSmartPlaylist = (toEdit: any) => {
+    showEditPlaylist = (type: PlaylistTypeEnum, toEdit: any) => {
         this.setState({
-            modalContent: <CreateSmartPlaylistComponent
-                existingSmartPlaylist={toEdit}
+            modalContent: <CreatePlaylistComponent
+                playlistType={type}
+                existingPlaylist={toEdit}
                 buildServerUrl={this.buildServerUrl}
             />
         });
@@ -511,8 +534,8 @@ class App extends Component<props, state> {
                                     shouldShowSyncButtons={lodash.isEmpty(this.state.upNext)}
                                     musicFileSource={this.state.settings!.musicFileSource}
                                     listSongs={this.listSongs}
-                                    showCreateSmartPlaylist={this.showCreateSmartPlaylist}
-                                    showEditSmartPlaylist={this.showEditSmartPlaylist}
+                                    showCreatePlaylist={this.showCreatePlaylist}
+                                    showEditPlaylist={this.showEditPlaylist}
                                     showUploadSongs={this.showUploadSongs}
                                     buildServerUrl={this.buildServerUrl}
                                     activeSongList={this.state.activeSongList}
@@ -534,6 +557,8 @@ class App extends Component<props, state> {
                                         showUploadSongs={this.showUploadSongs}
                                         buildServerUrl={this.buildServerUrl}
                                         setRating={this._setRating}
+                                        playlists={this.state.playlists}
+                                        addToPlaylist={this._addToPlaylist}
                                     />
                                 </div>
                                 <div>

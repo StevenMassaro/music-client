@@ -7,6 +7,7 @@ import moment from 'moment';
 import {Item, Menu, Submenu, Separator, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
+import { Playlist } from '../../types/Playlist';
 
 type props<T> = {
     activeSongList: Track[],
@@ -21,6 +22,8 @@ type props<T> = {
     showEditAlbumArt: (song: Track) => void,
     showEditMetadata: (song: Track) => void,
     setRating: (id: number, rating: number) => void,
+    playlists: Playlist[],
+    addToPlaylist: (playlistId: number, trackId: number) => void
 }
 
 type state = {
@@ -45,6 +48,12 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
                 onClick={() => this.props.setRating(this.state.clickedData!.id, i)}>{i}</Item>);
         }
         return ratingList;
+    };
+
+    _generatePlaylistList = () => {
+        return this.props.playlists.map(playlist => {
+            return <Item onClick={() => this.props.addToPlaylist(playlist.id, this.state.clickedData!.id)}>{playlist.name}</Item>
+        })
     };
 
     _getFilteredSongList = () => this.state.tableRef!.getResolvedState().sortedData;
@@ -181,6 +190,11 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
                     <Submenu label="Rate">
                         {this._generateRatingList()}
                     </Submenu>
+                    {!lodash.isEmpty(this.props.playlists) &&
+                        <Submenu label="Add to playlist">
+                            {this._generatePlaylistList()}
+                        </Submenu>
+                    }
                     <Item onClick={() => this.props.showUploadSongs(this.state.clickedData!.id)}>
                         <div className="green">Replace track...</div>
                     </Item>

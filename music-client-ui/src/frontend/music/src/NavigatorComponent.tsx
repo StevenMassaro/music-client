@@ -12,10 +12,12 @@ import {Library} from "./types/Library";
 import {MenuItem} from "./types/MenuItem";
 import {SmartPlaylist} from "./types/SmartPlaylist";
 import {Track} from "./types/Track";
+import {Playlist} from "./types/Playlist";
+import {PlaylistTypeEnum} from "./playlist/CreatePlaylistComponent";
 
 type props = {
-    showEditSmartPlaylist: (toEdit: Object) => void,
-    showCreateSmartPlaylist: () => void,
+    showEditPlaylist: (type: PlaylistTypeEnum, toEdit: Object) => void,
+    showCreatePlaylist: (type: PlaylistTypeEnum) => void,
     showUploadSongs: () => void,
     setActiveSongList: (songs: Track[]) => void,
     activeSongList: object[],
@@ -158,7 +160,7 @@ class NavigatorComponent extends Component<props, state> {
                     <Menu.Menu>
                         <Menu.Item
                             name={"Create smart playlist"}
-                            onClick={this.props.showCreateSmartPlaylist}
+                            onClick={() => this.props.showCreatePlaylist(PlaylistTypeEnum.smart)}
                         >
                             Create smart playlist
                         </Menu.Item>
@@ -168,32 +170,64 @@ class NavigatorComponent extends Component<props, state> {
                             setActiveSongList={this.props.setActiveSongList}
                             valuesUrl={"/playlist/smart"}
                             setActiveMenuItem={this._setActiveMenuItem}
-                            dropdownOnClickCallback={this.props.showEditSmartPlaylist}
+                            dropdownOnClickCallback={(value: object) => this.props.showEditPlaylist(PlaylistTypeEnum.smart, value)}
                             valueGetter={(value: SmartPlaylist) => value.id}
                             textGetter={(value: SmartPlaylist) => value.name}
                             buildServerUrl={this.props.buildServerUrl}
                         />
                     </Menu.Menu>
                 </Menu.Item>
+                <Menu.Item>
+                    <DropdownListComponent
+                        title={"Playlists"}
+                        valuesUrl={"/playlist"}
+                        tracksUrl={"/track?playlist="}
+                        valueGetter={(value: Playlist) => value.id}
+                        textGetter={(value: Playlist) => value.name}
+                        activeMenuItem={this.state.activeItem!}
+                        setActiveMenuItem={this._setActiveMenuItem}
+                        setActiveSongList={this.props.setActiveSongList}
+                        buildServerUrl={this.props.buildServerUrl}
+                    />
+                    <Menu.Menu>
+                        <Menu.Item
+                            name={"Create playlist"}
+                            onClick={() => this.props.showCreatePlaylist(PlaylistTypeEnum.default)}
+                        >
+                            Create playlist
+                        </Menu.Item>
+                        <DropdownListComponent
+                            activeMenuItem={this.state.activeItem!}
+                            title={"Edit playlist"}
+                            setActiveSongList={this.props.setActiveSongList}
+                            valuesUrl={"/playlist"}
+                            setActiveMenuItem={this._setActiveMenuItem}
+                            dropdownOnClickCallback={(value: object) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
+                            valueGetter={(value: Playlist) => value.id}
+                            textGetter={(value: Playlist) => value.name}
+                            buildServerUrl={this.props.buildServerUrl}
+                        />
+                    </Menu.Menu>
+                </Menu.Item>
                 {this.props.shouldShowSyncButtons &&
-                    <Menu.Item>
-                        Administrative
-                        <Menu.Menu>
-                            <Menu.Item
-                                name={"Sync server active library"}
-                                onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=false&libraryId=${this.state.activeItem!.library!.id}`))}
-                            >
-                                Sync server active library
-                            </Menu.Item>
-                            <Menu.Item
-                                name={"Sync server active library, forcing updates"}
-                                onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=true&libraryId=${this.state.activeItem!.library!.id}`))}
-                            >
-                                Sync server active library, forcing updates
-                            </Menu.Item>
-                            {this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local &&
-                                <Menu.Item
-                                    name={"Sync client active library"}
+                <Menu.Item>
+                    Administrative
+                    <Menu.Menu>
+                        <Menu.Item
+                            name={"Sync server active library"}
+                            onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=false&libraryId=${this.state.activeItem!.library!.id}`))}
+                        >
+                            Sync server active library
+                        </Menu.Item>
+                        <Menu.Item
+                            name={"Sync server active library, forcing updates"}
+                            onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=true&libraryId=${this.state.activeItem!.library!.id}`))}
+                        >
+                            Sync server active library, forcing updates
+                        </Menu.Item>
+                        {this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local &&
+                        <Menu.Item
+                            name={"Sync client active library"}
                                     onClick={() => this.performSync("./sync")}
                                 >
                                     Sync client active library
