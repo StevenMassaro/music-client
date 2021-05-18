@@ -15,7 +15,7 @@ type props<T> = {
     title: string,
     tracksUrl?: string,
     setActiveMenuItem: (name: string, library?:Library, callback?: (() => void) | undefined) => void,
-    setActiveSongList: (songs: Track[]) => void,
+    setActiveSongList: (songs: Track[], name: string | undefined) => void,
     activeMenuItem: MenuItem,
     valueGetter?: (value: T) => string | number,
     textGetter?: (value: T) => string,
@@ -54,12 +54,12 @@ export class DropdownListComponent<T> extends Component<props<T>, state> {
      * List the tracks for the selected value. For example, one might select a particular playlist, and this should
      * fetch the tracks for that playlist and set the active song list to that playlist's array of songs.
      */
-    listTracks = (selectedValue: string) => {
+    listTracks = (selectedValue: string, name: string) => {
         api.get(this.props.buildServerUrl((this.props.tracksUrl || this.props.valuesUrl) + selectedValue))
             .then(
                 (result: AxiosResponse<Track[]>) => {
                     this.props.setActiveMenuItem(this.props.title + selectedValue);
-                    this.props.setActiveSongList(result.data);
+                    this.props.setActiveSongList(result.data, name);
                 })
             .catch(
                 () => {
@@ -84,7 +84,7 @@ export class DropdownListComponent<T> extends Component<props<T>, state> {
                                                   if (lodash.isFunction(this.props.dropdownOnClickCallback)) {
                                                       return this.props.dropdownOnClickCallback(value);
                                                   }
-                                                  return this.listTracks(val);
+                                                  return this.listTracks(val, text);
                                               }}
                                               key={val}
                                               active={this._isActive(val)}

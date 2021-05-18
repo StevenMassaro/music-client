@@ -11,6 +11,7 @@ import { Playlist } from '../../types/Playlist';
 
 type props<T> = {
     activeSongList: Track[],
+    activeSongListName: string | undefined,
     buildServerUrl: (url: string) => string,
     addToEndOfUpNext: (song: Track) => void,
     defaultFilterMethod: (filter: any, row: any, column: any) => boolean,
@@ -69,10 +70,12 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
 
     render() {
         const {activeSongList} = this.props;
-
+        const headerHeight = "20px";
         return (
             <div>
+                {!lodash.isUndefined(this.props.activeSongListName) && <div style={{"textAlign": "center", "height": headerHeight, "fontWeight": "bold"}}>{this.props.activeSongListName}</div>}
                 <ReactTable
+                    style={{"height": lodash.isUndefined(this.props.activeSongListName) ? "100%" : `calc(100% - ${headerHeight})`}}
                     data={activeSongList}
                     ref={(tableRef) => {
                         !this.state.tableRef &&

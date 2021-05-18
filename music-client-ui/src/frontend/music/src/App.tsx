@@ -51,7 +51,8 @@ type state = {
     loadedSettings: boolean,
     currentSongMarkedListened: boolean,
     modalContent: any,
-    activeSongList: any,
+    activeSongList: Track[],
+    activeSongListName: string | undefined,
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
     device: Device | undefined,
@@ -67,7 +68,8 @@ class App extends Component<props, state> {
             loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
-            activeSongList: undefined,
+            activeSongList: [],
+            activeSongListName: undefined,
             audioEl: undefined,
             settings: undefined,
             device: undefined,
@@ -424,9 +426,10 @@ class App extends Component<props, state> {
             />
         });
 
-    setActiveSongList = (songs: Track[]) => {
+    setActiveSongList = (songs: Track[], name: string | undefined = undefined) => {
         this.setState({
-            activeSongList: songs
+            activeSongList: songs,
+            activeSongListName: name
         });
     };
 
@@ -548,6 +551,7 @@ class App extends Component<props, state> {
                                         addToEndOfUpNext={this.addToEndOfUpNext}
                                         defaultFilterMethod={defaultFilterMethod}
                                         activeSongList={this.state.activeSongList}
+                                        activeSongListName={this.state.activeSongListName}
                                         deleteSong={this.deleteSong}
                                         playNext={this.playNext}
                                         shuffleSongs={this.shuffleSongs}

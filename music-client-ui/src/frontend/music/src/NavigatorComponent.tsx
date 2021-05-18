@@ -19,7 +19,7 @@ type props = {
     showEditPlaylist: (type: PlaylistTypeEnum, toEdit: Object) => void,
     showCreatePlaylist: (type: PlaylistTypeEnum) => void,
     showUploadSongs: () => void,
-    setActiveSongList: (songs: Track[]) => void,
+    setActiveSongList: (songs: Track[], name: string | undefined) => void,
     activeSongList: object[],
     shouldShowSyncButtons: boolean,
     musicFileSource: string,
@@ -130,7 +130,7 @@ class NavigatorComponent extends Component<props, state> {
                         name={library.name}
                         active={this._isActive(library.name)}
                         onClick={() => {
-                            this.props.setActiveSongList([]);
+                            this.props.setActiveSongList([], undefined);
                             return this._setActiveMenuItem(library.name, library, () => this._refreshSongListWithActiveLibrary());
                         }}
                     >
