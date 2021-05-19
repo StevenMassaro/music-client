@@ -46,6 +46,7 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
         let ratingList = [];
         for (let i = 0; i < 11; i++) {
             ratingList.push(<Item
+                key={`rating-${i}`}
                 onClick={() => this.props.setRating(this.state.clickedData!.id, i)}>{i}</Item>);
         }
         return ratingList;
@@ -53,7 +54,9 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
 
     _generatePlaylistList = () => {
         return this.props.playlists.map(playlist => {
-            return <Item onClick={() => this.props.addToPlaylist(playlist.id, this.state.clickedData!.id)}>{playlist.name}</Item>
+            return <Item
+                key={`playlist-${playlist.id}`}
+                onClick={() => this.props.addToPlaylist(playlist.id, this.state.clickedData!.id)}>{playlist.name}</Item>
         })
     };
 
