@@ -147,7 +147,15 @@ class App extends Component<props, state> {
         if (skipped) {
             const durationBeforeSkipped = this.state.audioEl!.currentTime;
             console.log(`song played ${durationBeforeSkipped} seconds before being skipped`);
-            this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
+            const curThresh = this._determineCurrentListenedThreshold();
+            if (curThresh < LISTENED_THRESHOLD) {
+                console.log(`song is not considered listened to (listen threshold of ${curThresh}), marked as skipped`);
+                this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
+            }
+            else {
+                console.log(`song is considered listened to, not marking as skipped`);
+                this.markListenedIfExceedsThreshold();
+            }
         }
         let upNext: Track[] = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
@@ -298,7 +306,7 @@ class App extends Component<props, state> {
      * listened to. If exceeded threshold, then tell backend that song was listened to.
      */
     markListenedIfExceedsThreshold = () => {
-        const curThresh = this.state.audioEl!.currentTime / this.state.audioEl!.duration;
+        const curThresh = this._determineCurrentListenedThreshold();
         if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
             this._markListened(this._getCurrentSong()!.id);
             this.setState({
@@ -306,6 +314,11 @@ class App extends Component<props, state> {
             })
         }
     };
+
+    /**
+     * Determine what percent of the song has been listened to already. Returns a value between 0 and 1.
+     */
+    _determineCurrentListenedThreshold = () => this.state.audioEl!.currentTime / this.state.audioEl!.duration;
 
     /**
      * Send rest request to backend to record that song was played.
