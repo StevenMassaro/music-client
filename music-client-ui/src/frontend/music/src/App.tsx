@@ -28,12 +28,9 @@ import {Track} from "./types/Track";
 import {Settings} from "./types/Settings";
 import {Device} from './types/Device';
 import { Playlist } from './types/Playlist';
+import {WebsocketListener} from "./WebsocketListener";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
-export const WEBSOCKET_ROUTES = {
-    albumArtUpdates: '/topic/art/updates',
-    syncUpdates: '/topic/sync/updates'
-};
 
 export const MUSIC_FILE_SOURCE_TYPES = {
     local: 'local',
@@ -433,34 +430,6 @@ class App extends Component<props, state> {
         });
     };
 
-    handleAlbumArtUpdateMessage = (msg: any) => {
-        this.handleAlbumArtUpdateToast(msg,
-            (msg: any) => buildAlbumArtUpdateToastMessage(msg),
-            (msg: { album: any; }) => msg.album);
-    }
-
-    handleSyncUpdateMessage = (msg: any) => {
-        this.handleAlbumArtUpdateToast(msg,
-            (msg: any) => buildSyncUpdateToastMessage(msg),
-            () => "sync_updates_toast")
-    }
-
-    handleAlbumArtUpdateToast = (msg: any, toastMessageCallback: (arg0: any) => ToastContent, toastIdCallback: (arg0: any) => any) => {
-        if (msg.position === 0) {
-            toast.info(toastMessageCallback(msg), {
-                toastId: toastIdCallback(msg),
-                autoClose: false,
-                hideProgressBar: true
-            });
-        } else if (msg.position === msg.max) {
-            toast.dismiss(toastIdCallback(msg));
-        } else {
-            toast.update(toastIdCallback(msg), {
-                render: toastMessageCallback(msg)
-            });
-        }
-    };
-
     /**
      * Set the rating of a song.
      * @param id
@@ -487,17 +456,9 @@ class App extends Component<props, state> {
         return (
             this.state.loadedSettings ?
             <div>
-                {/*<StompClient*/}
-                {/*    endpoint={this.buildServerUrl("/gs-guide-websocket")}*/}
-                {/*    topic={WEBSOCKET_ROUTES.albumArtUpdates}*/}
-                {/*    onMessage={this.handleAlbumArtUpdateMessage}*/}
-                {/*/>*/}
-                {/*<StompClient*/}
-                {/*    endpoint={"./gs-guide-websocket"}*/}
-                {/*    topic={WEBSOCKET_ROUTES.syncUpdates}*/}
-                {/*    onMessage={this.handleSyncUpdateMessage}*/}
-                {/*/>*/}
                 <ToastContainer/>
+                <WebsocketListener
+                    buildServerUrl={this.buildServerUrl}/>
                 {(this.state.audioEl && currentSong) &&
                 <MediaSession
                     title={currentSong.title}
