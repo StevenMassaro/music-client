@@ -3,14 +3,12 @@ import './App.css';
 import SplitPane from "react-split-pane";
 import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
-import {toast, ToastContainer, ToastContent} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
 import {
-    buildAlbumArtUpdateToastMessage,
-    buildSyncUpdateToastMessage,
     defaultFilterMethod,
     generateUrl
 } from "./Utils";
@@ -86,14 +84,11 @@ class App extends Component<props, state> {
         });
     }
 
-    componentWillMount() {
+    componentDidMount() {
+        this.getSettings();
         document.body.style.backgroundPosition = "center";
         document.body.style.backgroundSize = "auto 100%";
         document.body.style.backgroundRepeat = "no-repeat";
-    }
-
-    componentDidMount() {
-        this.getSettings();
     }
 
     addToEndOfUpNext = (song: Track) => {

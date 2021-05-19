@@ -1,6 +1,6 @@
 import SockJsClient from "react-stomp";
 import {buildAlbumArtUpdateToastMessage, buildSyncUpdateToastMessage} from "./Utils";
-import {toast, ToastContent} from "react-toastify";
+import {toast} from "react-toastify";
 import React, {Component} from 'react';
 
 export const WEBSOCKET_ROUTES = {
@@ -14,10 +14,6 @@ export const WEBSOCKET_ROUTES = {
  * figuring out why the TypeScript implementations were not working.
  */
 export class WebsocketListener extends Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     handleAlbumArtUpdateMessage = (msg) => {
         this.handleAlbumArtUpdateToast(msg,

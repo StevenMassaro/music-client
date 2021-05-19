@@ -62,7 +62,7 @@ class CreatePlaylistComponent extends Component<props, state> {
     };
 
     _getEndpointPath = () => {
-        return this.props.playlistType == PlaylistTypeEnum.smart ? "/playlist/smart" : "/playlist"
+        return this.props.playlistType === PlaylistTypeEnum.smart ? "/playlist/smart" : "/playlist"
     }
 
     render() {
@@ -76,7 +76,7 @@ class CreatePlaylistComponent extends Component<props, state> {
                     value={lodash.get(this.state.playlist, name, "")}
                     onChange={(e) => this.handleInputChange(name, e.target.value)}
                 />
-                    {this.props.playlistType == PlaylistTypeEnum.smart && <span>
+                    {this.props.playlistType === PlaylistTypeEnum.smart && <span>
                          <br/>
                 Dynamic SQL: WHERE<input
                         type={"text"}
