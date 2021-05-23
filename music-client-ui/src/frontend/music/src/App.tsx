@@ -162,7 +162,7 @@ class App extends Component<props, state> {
         this.setState({
             upNext: upNext,
             currentSongMarkedListened: false
-        }, () => !lodash.isEmpty(upNext) && this.state.audioEl!.play());
+        }, () => !lodash.isEmpty(upNext) && !lodash.isUndefined(this.state.audioEl) && this.state.audioEl!.play());
     };
 
     _setBackgroundImage = (id: number) => {
