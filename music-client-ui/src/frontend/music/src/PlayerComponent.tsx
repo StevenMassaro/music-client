@@ -20,7 +20,11 @@ type props = {
     setRating: (id: number, rating: number) => void,
 }
 
-type state = {}
+type state = {
+    consecutiveFailedPlays: number
+}
+
+const consecutiveFailedPlaysLimit = 3;
 
 class PlayerComponent extends Component<props, state> {
     audioRef: React.RefObject<H5AudioPlayer>;
@@ -28,11 +32,17 @@ class PlayerComponent extends Component<props, state> {
     constructor(props: Readonly<props> | props) {
         super(props);
         this.audioRef = createRef();
+        this.state = {
+            consecutiveFailedPlays: 0
+        }
     }
 
     // this is intentionally NOT an arrow function, an arrow function does not have access to the correct "this"
     onPlaying() {
         this.props.setAudioElement(this.audioRef.current!.audio.current);
+        this.setState({
+            consecutiveFailedPlays: 0
+        })
     }
 
     render() {
@@ -65,10 +75,20 @@ class PlayerComponent extends Component<props, state> {
                         listenInterval={1000}
                         preload={"auto"}
                         onError={() => {
-                            toast.error(`Failed to play ${this.props.currentSong()!.title} - ${this.props.currentSong()!.artist}`, {
-                                autoClose: false
+                            this.setState((state: state) => ({
+                                consecutiveFailedPlays: state.consecutiveFailedPlays + 1
+                            }), () => {
+                                toast.warn(`Failed to play ${this.props.currentSong()!.title} - ${this.props.currentSong()!.artist}`, {
+                                    autoClose: false
+                                });
+                                if (this.state.consecutiveFailedPlays >= consecutiveFailedPlaysLimit) {
+                                    toast.error(`Halting because the number of consecutive tracks which failed to play exceeds the threshold.`, {
+                                        autoClose: false
+                                    })
+                                } else {
+                                    return this.props.onSongEnd(false);
+                                }
                             });
-                            return this.props.onSongEnd(false);
                         }}
                         style={{
                             "backgroundColor": "rgba(255, 255, 255, 0.25)",
