@@ -24,7 +24,8 @@ type props<T> = {
     showEditMetadata: (song: Track) => void,
     setRating: (id: number, rating: number) => void,
     playlists: Playlist[],
-    addToPlaylist: (playlistId: number, trackId: number) => void
+    addToPlaylist: (playlistId: number, trackId: number) => void,
+    listingSongs: boolean
 }
 
 type state = {
@@ -168,7 +169,7 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
                     ]}
                     defaultPageSize={100}
                     minRows={0}
-                    noDataText={lodash.isUndefined(activeSongList) ? "Loading songs..." : "No songs in database."}
+                    noDataText={this.props.listingSongs ? "Loading songs..." : "No matching songs."}
                     filterable={true}
                     className="-striped -highlight"
                     defaultFilterMethod={this.props.defaultFilterMethod}

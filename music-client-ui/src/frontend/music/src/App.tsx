@@ -51,7 +51,8 @@ type state = {
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
     device: Device | undefined,
-    playlists: Playlist[]
+    playlists: Playlist[],
+    listingSongs: boolean
 }
 
 class App extends Component<props, state> {
@@ -68,7 +69,8 @@ class App extends Component<props, state> {
             audioEl: undefined,
             settings: undefined,
             device: undefined,
-            playlists: []
+            playlists: [],
+            listingSongs: false
         };
 
         api.interceptors.response.use((response: AxiosResponse) => {
@@ -170,8 +172,16 @@ class App extends Component<props, state> {
     _generateAlbumArtUrl = (id: number) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
 
     listSongs = (libraryId: number) => {
+        this.setState({
+            listingSongs: true
+        });
         api.get(this.buildServerUrl(`/track?libraryId=${libraryId}`))
-            .then((result: AxiosResponse<Track[]>) => this.setActiveSongList(result.data));
+            .then((result: AxiosResponse<Track[]>) => {
+                this.setActiveSongList(result.data);
+                this.setState({
+                    listingSongs: false
+                });
+            });
     };
 
     deleteSong = (id: number) => {
@@ -532,6 +542,7 @@ class App extends Component<props, state> {
                                         setRating={this._setRating}
                                         playlists={this.state.playlists}
                                         addToPlaylist={this._addToPlaylist}
+                                        listingSongs={this.state.listingSongs}
                                     />
                                 </div>
                                 <div>
