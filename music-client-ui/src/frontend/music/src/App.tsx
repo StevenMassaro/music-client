@@ -27,6 +27,7 @@ import {Settings} from "./types/Settings";
 import {Device} from './types/Device';
 import { Playlist } from './types/Playlist';
 import {WebsocketListener} from "./WebsocketListener";
+import {Library} from "./types/Library";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
@@ -46,13 +47,15 @@ type state = {
     loadedSettings: boolean,
     currentSongMarkedListened: boolean,
     modalContent: any,
+    modalOnCloseCallback: (() => void) | undefined,
     activeSongList: Track[],
     activeSongListName: string | undefined,
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
     device: Device | undefined,
     playlists: Playlist[],
-    listingSongs: boolean
+    listingSongs: boolean,
+    activeLibrary: Library | undefined
 }
 
 class App extends Component<props, state> {
@@ -64,13 +67,15 @@ class App extends Component<props, state> {
             loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
+            modalOnCloseCallback: undefined,
             activeSongList: [],
             activeSongListName: undefined,
             audioEl: undefined,
             settings: undefined,
             device: undefined,
             playlists: [],
-            listingSongs: false
+            listingSongs: false,
+            activeLibrary: undefined
         };
 
         api.interceptors.response.use((response: AxiosResponse) => {
@@ -171,11 +176,11 @@ class App extends Component<props, state> {
 
     _generateAlbumArtUrl = (id: number) => generateUrl(this.state.settings, "/track/" + id + "/art", this.buildServerUrl);
 
-    listSongs = (libraryId: number) => {
+    listSongs = () => {
         this.setState({
             listingSongs: true
         });
-        api.get(this.buildServerUrl(`/track?libraryId=${libraryId}`))
+        api.get(this.buildServerUrl(`/track?libraryId=${this.state.activeLibrary!.id}`))
             .then((result: AxiosResponse<Track[]>) => {
                 this.setActiveSongList(result.data);
                 this.setState({
@@ -386,7 +391,8 @@ class App extends Component<props, state> {
             modalContent: <EditMetadataComponent song={song}
                                                  listSongs={this.listSongs}
                                                  buildServerUrl={this.buildServerUrl}
-            />
+            />,
+            modalOnCloseCallback: this.listSongs
         })
     };
 
@@ -404,7 +410,8 @@ class App extends Component<props, state> {
                 playlistType={type}
                 existingPlaylist={undefined}
                 buildServerUrl={this.buildServerUrl}
-            />
+            />,
+            modalOnCloseCallback: this._listPlaylists
         });
     };
 
@@ -414,7 +421,8 @@ class App extends Component<props, state> {
                 playlistType={type}
                 existingPlaylist={toEdit}
                 buildServerUrl={this.buildServerUrl}
-            />
+            />,
+            modalOnCloseCallback: this._listPlaylists
         });
     };
 
@@ -430,7 +438,8 @@ class App extends Component<props, state> {
                 setActiveSongList={this.setActiveSongList}
                 existingId={existingId}
                 buildServerUrl={this.buildServerUrl}
-            />
+            />,
+            modalOnCloseCallback: this.listSongs
         });
     };
 
@@ -438,7 +447,8 @@ class App extends Component<props, state> {
         this.setState({
             modalContent: <PurgableSongsComponent
                 buildServerUrl={this.buildServerUrl}
-            />
+            />,
+            modalOnCloseCallback: this.listSongs
         });
 
     setActiveSongList = (songs: Track[], name: string | undefined = undefined) => {
@@ -494,7 +504,8 @@ class App extends Component<props, state> {
                 }
                 <Modal isOpen={this.state.modalContent !== undefined}
                        contentLabel="Song info">
-                    <Button onClick={() => this.setState({modalContent: undefined})}>Close</Button>
+                    <Button
+                        onClick={() => this.setState({modalContent: undefined}, this.state.modalOnCloseCallback)}>Close</Button>
                     {this.state.modalContent}
                 </Modal>
                 <SplitPane split="horizontal" defaultSize={112} style={{background: "rgba(255,255,255,0.85)"}}>

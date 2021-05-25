@@ -23,9 +23,11 @@ type props = {
     activeSongList: object[],
     shouldShowSyncButtons: boolean,
     musicFileSource: string,
-    listSongs: (libraryId: number) => void,
+    listSongs: () => void,
     buildServerUrl: (relativePath: string) => string,
-    showPurgableTracksModalCallback: () => void
+    showPurgableTracksModalCallback: () => void,
+    setActiveLibrary: (library: Library, callback: () => void) => void
+    activeLibrary: Library | undefined
 };
 type state = {
     activeItem: MenuItem | null,
@@ -56,10 +58,11 @@ class NavigatorComponent extends Component<props, state> {
     listLibraries = () => {
         api.get(this.props.buildServerUrl('/library'))
             .then((response: AxiosResponse<Library[]>) => {
+                const activeLibrary = response.data[0];
                 this.setState({
                     libraries: response.data,
-                    activeItem: new MenuItem(response.data[0].name, response.data[0]) // todo after implementing library sorting on backend this should be smarter
-                }, () => this.props.listSongs(this.state.activeItem!.library!.id));
+                    activeItem: new MenuItem(activeLibrary.name, activeLibrary) // todo after implementing library sorting on backend this should be smarter
+                }, () => this.props.setActiveLibrary(activeLibrary, this.props.listSongs));
             });
     };
 
@@ -80,7 +83,7 @@ class NavigatorComponent extends Component<props, state> {
 
     _refreshSongListWithActiveLibrary = () => {
         if (this.state.activeItem!.library) {
-            this.props.listSongs(this.state.activeItem!.library!.id);
+            this.props.listSongs();
         }
     };
 
