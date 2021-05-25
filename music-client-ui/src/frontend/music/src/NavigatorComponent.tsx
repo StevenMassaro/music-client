@@ -126,7 +126,8 @@ class NavigatorComponent extends Component<props, state> {
     _setActiveMenuItem = (name: string, library?:Library, callback?: (() => void) | undefined) => this.setState({activeItem: new MenuItem(name, library)}, callback);
 
     render() {
-        return (<Menu vertical>
+        return (<Menu vertical
+                        style={{"max-height": "100%", "width": "100%", "overflow": "auto"}}>
                 {this.state.libraries.map(library => {
                     return <Menu.Item
                         key={library.id}

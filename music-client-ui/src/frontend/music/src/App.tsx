@@ -521,20 +521,20 @@ class App extends Component<props, state> {
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
-                            <div>
-                                <NavigatorComponent
-                                    setActiveSongList={this.setActiveSongList}
-                                    shouldShowSyncButtons={lodash.isEmpty(this.state.upNext)}
-                                    musicFileSource={this.state.settings!.musicFileSource}
-                                    listSongs={this.listSongs}
-                                    showCreatePlaylist={this.showCreatePlaylist}
-                                    showEditPlaylist={this.showEditPlaylist}
-                                    showUploadSongs={this.showUploadSongs}
-                                    buildServerUrl={this.buildServerUrl}
-                                    activeSongList={this.state.activeSongList}
-                                    showPurgableTracksModalCallback={this.showPurgableTracks}
-                                />
-                            </div>
+                            <NavigatorComponent
+                                setActiveSongList={this.setActiveSongList}
+                                shouldShowSyncButtons={lodash.isEmpty(this.state.upNext)}
+                                musicFileSource={this.state.settings!.musicFileSource}
+                                listSongs={this.listSongs}
+                                showCreatePlaylist={this.showCreatePlaylist}
+                                showEditPlaylist={this.showEditPlaylist}
+                                showUploadSongs={this.showUploadSongs}
+                                buildServerUrl={this.buildServerUrl}
+                                activeSongList={this.state.activeSongList}
+                                showPurgableTracksModalCallback={this.showPurgableTracks}
+                                activeLibrary={this.state.activeLibrary}
+                                setActiveLibrary={(activeLibrary: Library, callback: () => void) => this.setState({activeLibrary}, callback)}
+                            />
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">
                                     <GenericSongListComponent
