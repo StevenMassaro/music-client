@@ -24,7 +24,7 @@ type props<T> = {
     showEditMetadata: (song: Track) => void,
     setRating: (id: number, rating: number) => void,
     playlists: Playlist[],
-    addToPlaylist: (playlistId: number, trackId: number) => void,
+    addToPlaylist: (playlist: Playlist, track: Track) => void,
     listingSongs: boolean
 }
 
@@ -57,7 +57,7 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
         return this.props.playlists.map(playlist => {
             return <Item
                 key={`playlist-${playlist.id}`}
-                onClick={() => this.props.addToPlaylist(playlist.id, this.state.clickedData!.id)}>{playlist.name}</Item>
+                onClick={() => this.props.addToPlaylist(playlist, this.state.clickedData!)}>{playlist.name}</Item>
         })
     };
 

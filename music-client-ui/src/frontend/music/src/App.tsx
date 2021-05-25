@@ -229,9 +229,9 @@ class App extends Component<props, state> {
                 });
     }
 
-    _addToPlaylist = (playlistId: number, trackId: number) => {
-        api.patch(this.buildServerUrl(`/playlist/${playlistId}?trackId=${trackId}`))
-            .then(() => toast.success(`Added track ${trackId} to playlist ${playlistId}`))
+    _addToPlaylist = (playlist: Playlist, track: Track) => {
+        api.patch(this.buildServerUrl(`/playlist/${playlist.id}?trackId=${track.id}`))
+            .then(() => toast.success(`Added track ${track.title} - ${track.artist} to playlist ${playlist.name}`))
     }
 
     getDeviceId = () => {
