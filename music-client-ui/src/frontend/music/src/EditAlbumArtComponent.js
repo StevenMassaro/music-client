@@ -29,6 +29,7 @@ class EditMetadataComponent extends Component {
                         var formData = new FormData();
                         formData.append('file', blob, "image_file");
 
+                        toast.info("Updating album art...");
                         api({
                             url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll),
                             method: 'post',
