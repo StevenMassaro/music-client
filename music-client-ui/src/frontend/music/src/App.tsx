@@ -533,7 +533,7 @@ class App extends Component<props, state> {
                                 activeSongList={this.state.activeSongList}
                                 showPurgableTracksModalCallback={this.showPurgableTracks}
                                 activeLibrary={this.state.activeLibrary}
-                                setActiveLibrary={(activeLibrary: Library, callback: () => void) => this.setState({activeLibrary}, callback)}
+                                setActiveLibrary={(activeLibrary: Library, callback?: () => void) => this.setState({activeLibrary}, callback)}
                             />
                             <SplitPane split="vertical" defaultSize="70%">
                                 <div className="songListPane">

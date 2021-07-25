@@ -26,7 +26,7 @@ type props = {
     listSongs: () => void,
     buildServerUrl: (relativePath: string) => string,
     showPurgableTracksModalCallback: () => void,
-    setActiveLibrary: (library: Library, callback: () => void) => void
+    setActiveLibrary: (library: Library, callback?: () => void) => void
     activeLibrary: Library | undefined
 };
 type state = {
@@ -123,7 +123,12 @@ class NavigatorComponent extends Component<props, state> {
 
     _isActive = (name: string) => this.state.activeItem!.name === name;
 
-    _setActiveMenuItem = (name: string, library?:Library, callback?: (() => void) | undefined) => this.setState({activeItem: new MenuItem(name, library)}, callback);
+    _setActiveMenuItem = (name: string, library?: Library, callback?: (() => void) | undefined) => {
+        if (library) {
+            this.props.setActiveLibrary(library, callback);
+        }
+        this.setState({activeItem: new MenuItem(name, library)});
+    };
 
     render() {
         return (<Menu vertical
