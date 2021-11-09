@@ -1,6 +1,7 @@
 package musicclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import music.settings.PrivateSettings;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -17,11 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Log4j2
 public class HashService {
-    Logger logger = LoggerFactory.getLogger(HashService.class);
 
     private final PrivateSettings privateSettings;
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     public HashService(PrivateSettings privateSettings) {
         this.privateSettings = privateSettings;
     }
@@ -32,12 +33,12 @@ public class HashService {
      * @throws IOException
      */
     public Map<String, String> loadExistingHashDump() throws IOException {
-        logger.info("Loading hash dump");
+        log.info("Loading hash dump");
         try{
             String hashDump = FileUtils.readFileToString(getHashDumpFile(), StandardCharsets.UTF_8);
             return (Map<String, String>) objectMapper.readValue(hashDump, Map.class);
         } catch (FileNotFoundException e){
-            logger.error("No existing hash dump found", e);
+            log.error("No existing hash dump found", e);
             return new HashMap<>();
         }
     }

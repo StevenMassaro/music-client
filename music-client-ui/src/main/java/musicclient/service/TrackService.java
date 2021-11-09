@@ -1,5 +1,6 @@
 package musicclient.service;
 
+import lombok.extern.log4j.Log4j2;
 import music.settings.PrivateSettings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -17,15 +18,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Log4j2
 public class TrackService {
-
-    Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     private final PrivateSettings privateSettings;
 
-    private HashService hashService;
+    private final HashService hashService;
 
-    private Map<Long, String> hashDumpCache = new HashMap<>();
+    private final static Map<Long, String> hashDumpCache = new HashMap<>();
 
     @Autowired
     public TrackService(PrivateSettings privateSettings, HashService hashService) {
@@ -89,10 +89,10 @@ public class TrackService {
      * @return list of files found that match the supplied ID, or an empty collection if no files are found
      */
     private Collection<File> listFiles(long id){
-        logger.debug(String.format("Begin listing filtered files (ID: %s)", id));
+        log.debug("Begin listing filtered files (ID: {})", id);
         IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
         Collection<File> files = FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
-        logger.debug(String.format("Finish listing filtered files (ID: %s)", id));
+        log.debug("Finish listing filtered files (ID: {})", id);
         return files;
     }
 
@@ -102,11 +102,11 @@ public class TrackService {
      */
     @Deprecated
     private File getFileFromHashDump(long id) throws IOException {
-        logger.debug(String.format("Begin finding file from hash dump (ID: %s)", id));
+        log.debug("Begin finding file from hash dump (ID: {})", id);
         Map<String, String> files = hashService.loadExistingHashDump();
         for (Map.Entry<String, String> file : files.entrySet()) {
             if (FilenameUtils.removeExtension(file.getKey()).equals(Long.toString(id))) {
-                logger.debug(String.format("Finish finding file from hash dump (ID: %s)", id));
+                log.debug("Finish finding file from hash dump (ID: {})", id);
                 return new File(privateSettings.getLocalMusicFileLocation() + file.getKey());
             }
         }
@@ -129,24 +129,24 @@ public class TrackService {
      * @return If the file is not in the hash dump, null is returned.
      */
     private File getFileFromHashDumpCache(long id, boolean shouldTryToLoadCache) throws IOException {
-        if (hashDumpCache != null && !hashDumpCache.isEmpty()) {
+        if (!hashDumpCache.isEmpty()) {
             String filename = hashDumpCache.get(id);
             if (StringUtils.isNotEmpty(filename)) {
-                logger.trace("Loaded {} without reloading cache dump", id);
+                log.trace("Loaded {} without reloading cache dump", id);
                 return new File(privateSettings.getLocalMusicFileLocation() + filename);
             } else {
-                logger.error("Could not find {} in the cached hash dump", id);
+                log.error("Could not find {} in the cached hash dump", id);
                 return null;
             }
         } else {
-            logger.trace("Cached hash dump is empty");
+            log.trace("Cached hash dump is empty");
             // if the cache isn't loaded, and we haven't tried to load it yet, try loading it
             if (shouldTryToLoadCache) {
-                logger.trace("Reloading cached hash dump");
+                log.trace("Reloading cached hash dump");
                 buildCacheFromHashDump();
                 return getFileFromHashDumpCache(id, false);
             } else {
-                logger.error("Not reloading cached hash dump for file {}, attempting to load without using hash dump", id);
+                log.error("Not reloading cached hash dump for file {}, attempting to load without using hash dump", id);
                 return getFile(id, false);
             }
         }
@@ -165,19 +165,19 @@ public class TrackService {
      * Load the hash dump and build the cache.
      */
     public void buildCacheFromHashDump() throws IOException {
-        logger.debug("Begin building hash dump cache");
+        log.debug("Begin building hash dump cache");
         Map<String, String> files = hashService.loadExistingHashDump();
         for (Map.Entry<String, String> file : files.entrySet()) {
             hashDumpCache.put(Long.valueOf(FilenameUtils.removeExtension(file.getKey())), file.getKey());
         }
-        logger.debug("Finish building hash dump cache");
+        log.debug("Finish building hash dump cache");
     }
 
     /**
      * Clear the hash dump cache.
      */
     public void clearCacheFromHashDump() {
-        hashDumpCache = new HashMap<>();
-        logger.debug("Cleared hash dump cache");
+        hashDumpCache.clear();
+        log.debug("Cleared hash dump cache");
     }
 }
