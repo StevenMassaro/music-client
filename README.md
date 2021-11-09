@@ -18,7 +18,7 @@ Note that the below command has a few placeholders that need to be replaced. It 
 Also note that the `local.music.file.location` MUST end with a trailing slash.
 
 ```
-docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e "zuul.music-api.authorizationHeader"="AUTHORIZATION_HEADER" -e "music.file.source"="local" -e "device.name"="DEVICE_NAME" -e "server.port"="8080" -p "8080:8080/tcp" -v music:/music -e "local.music.file.location"="/music/" stevenmassaro/music-client
+docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e "zuul.music-api.authorizationHeader"="AUTHORIZATION_HEADER" -e "music.file.source"="local" -e "device.name"="DEVICE_NAME" -e "server.port"="8080" -p "8080:8080/tcp" -v music:/music -e "local.music.file.location"="/music/" --name music --rm stevenmassaro/music-client
 ```
 
 ## Other useful tools
