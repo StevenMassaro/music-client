@@ -2,30 +2,22 @@ package musicclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import music.settings.PrivateSettings;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @Log4j2
-public class HashService {
+public class HashService extends AbstractService {
 
-    private final PrivateSettings privateSettings;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    public HashService(PrivateSettings privateSettings) {
-        this.privateSettings = privateSettings;
-    }
+    public static final String HASH_DUMP_FILENAME = "hashes.txt";
 
     /**
      * Load the hash dump file generated after a local sync.
@@ -48,13 +40,6 @@ public class HashService {
     }
 
     private File getHashDumpFile(){
-        return new File(privateSettings.getLocalMusicFileLocation() + privateSettings.getHASH_DUMP_FILENAME());
+        return new File(localMusicFileLocation + HASH_DUMP_FILENAME);
     }
-
-    public String calculateHash(File file) throws IOException {
-        try (InputStream stream = FileUtils.openInputStream(file)) {
-            return DigestUtils.sha512Hex(stream);
-        }
-    }
-
 }

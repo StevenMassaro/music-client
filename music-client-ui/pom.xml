@@ -5,7 +5,7 @@
     <parent>
         <artifactId>music-client</artifactId>
         <groupId>com.massaro</groupId>
-        <version>1.16</version>
+        <version>1.17</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,22 +45,12 @@
         <dependency>
             <groupId>com.massaro</groupId>
             <artifactId>music-service</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.massaro</groupId>
-                    <artifactId>music-settings</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.massaro</groupId>
-            <artifactId>music-client-settings</artifactId>
         </dependency>
         <dependency>
             <groupId>org</groupId>

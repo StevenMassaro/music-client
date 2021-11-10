@@ -6,10 +6,9 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.16</version>
+    <version>1.17</version>
     <modules>
         <module>music-client-ui</module>
-        <module>music-client-settings</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -28,29 +27,18 @@
         <dependencies>
             <dependency>
                 <groupId>com.massaro</groupId>
-                <artifactId>music-client-settings</artifactId>
-                <version>1.14.01</version>
-            </dependency>
-            <dependency>
-                <groupId>com.massaro</groupId>
                 <artifactId>music-model</artifactId>
-                <version>1.14.01</version>
+                <version>1.17</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-utils</artifactId>
-                <version>1.14.01</version>
+                <version>1.17</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-service</artifactId>
-                <version>1.14.01</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.massaro</groupId>
-                        <artifactId>music-settings</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>1.17</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

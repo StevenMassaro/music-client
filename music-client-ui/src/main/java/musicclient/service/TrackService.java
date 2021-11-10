@@ -1,7 +1,6 @@
 package musicclient.service;
 
 import lombok.extern.log4j.Log4j2;
-import music.settings.PrivateSettings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
@@ -19,17 +18,14 @@ import java.util.Map;
 
 @Service
 @Log4j2
-public class TrackService {
-
-    private final PrivateSettings privateSettings;
+public class TrackService extends AbstractService {
 
     private final HashService hashService;
 
     private final static Map<Long, String> hashDumpCache = new HashMap<>();
 
     @Autowired
-    public TrackService(PrivateSettings privateSettings, HashService hashService) {
-        this.privateSettings = privateSettings;
+    public TrackService(HashService hashService) {
         this.hashService = hashService;
     }
 
@@ -37,7 +33,7 @@ public class TrackService {
      * Get a file if you know the exact name (including extension) of the file.
      */
     public File getFileByName(String name) {
-        return new File(privateSettings.getLocalMusicFileLocation() + name);
+        return new File(localMusicFileLocation + name);
     }
 
     /**
@@ -91,7 +87,7 @@ public class TrackService {
     private Collection<File> listFiles(long id){
         log.debug("Begin listing filtered files (ID: {})", id);
         IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
-        Collection<File> files = FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), fileFilter, null);
+        Collection<File> files = FileUtils.listFiles(new File(localMusicFileLocation), fileFilter, null);
         log.debug("Finish listing filtered files (ID: {})", id);
         return files;
     }
@@ -107,7 +103,7 @@ public class TrackService {
         for (Map.Entry<String, String> file : files.entrySet()) {
             if (FilenameUtils.removeExtension(file.getKey()).equals(Long.toString(id))) {
                 log.debug("Finish finding file from hash dump (ID: {})", id);
-                return new File(privateSettings.getLocalMusicFileLocation() + file.getKey());
+                return new File(localMusicFileLocation + file.getKey());
             }
         }
         return null;
@@ -133,7 +129,7 @@ public class TrackService {
             String filename = hashDumpCache.get(id);
             if (StringUtils.isNotEmpty(filename)) {
                 log.trace("Loaded {} without reloading cache dump", id);
-                return new File(privateSettings.getLocalMusicFileLocation() + filename);
+                return new File(localMusicFileLocation + filename);
             } else {
                 log.error("Could not find {} in the cached hash dump", id);
                 return null;
@@ -156,9 +152,9 @@ public class TrackService {
      * List all files in the local music file location, except the hash dump file.
      */
     public Collection<File> listFiles(){
-        IOFileFilter hashDumpFileFilter = new NameFileFilter(privateSettings.getHASH_DUMP_FILENAME());
+        IOFileFilter hashDumpFileFilter = new NameFileFilter(HashService.HASH_DUMP_FILENAME);
         IOFileFilter excludeHashesFile = new NotFileFilter(hashDumpFileFilter);
-        return FileUtils.listFiles(new File(privateSettings.getLocalMusicFileLocation()), excludeHashesFile, TrueFileFilter.INSTANCE);
+        return FileUtils.listFiles(new File(localMusicFileLocation), excludeHashesFile, TrueFileFilter.INSTANCE);
     }
 
     /**

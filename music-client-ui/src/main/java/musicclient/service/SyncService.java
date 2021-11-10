@@ -3,15 +3,14 @@ package musicclient.service;
 import lombok.extern.log4j.Log4j2;
 import music.exception.TaskInProgressException;
 import music.model.Track;
-import music.settings.PrivateSettings;
-import music.settings.PublicSettings;
+import music.utils.HashUtils;
+import musicclient.settings.PublicSettings;
 import musicclient.SyncWebsocket;
 import musicclient.model.impl.SyncResult;
 import musicclient.model.impl.SyncStep;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -22,14 +21,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Log4j2
-public class SyncService {
+public class SyncService extends AbstractService {
 	private final AtomicBoolean currentlySyncing = new AtomicBoolean(false);
-
-    private final PrivateSettings privateSettings;
 
     private final TrackService trackService;
 
@@ -41,8 +37,7 @@ public class SyncService {
 
     private final String RENAME_SEPARATOR = "_";
 
-    public SyncService(PrivateSettings privateSettings, TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket, PublicSettings publicSettings) {
-        this.privateSettings = privateSettings;
+    public SyncService(TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket, PublicSettings publicSettings) {
         this.trackService = trackService;
         this.hashService = hashService;
         this.syncWebsocket = syncWebsocket;
@@ -65,13 +60,14 @@ public class SyncService {
                 AtomicInteger trackIndex = new AtomicInteger(-1);
                 syncWebsocket.sendSyncUpdateMessage(trackIndex.get(), tracksToSync.size(), SyncStep.SYNCING);
 				Map<String, String> newFilesHashes = new ConcurrentHashMap<>();
+				SyncSettings syncSettings = new SyncSettings();
 				// find existing files which match the hashes of files to sync, otherwise download the file from the server
                 tracksToSync.parallelStream().forEach((track) -> {
                     try {
                         int index = trackIndex.incrementAndGet();
                         syncWebsocket.sendSyncUpdateMessage(index, tracksToSync.size(), SyncStep.SYNCING);
                         String destinationFilename = track.getId() + "." + FilenameUtils.getExtension(track.getLocation());
-                        String destinationPath = privateSettings.getLocalMusicFileLocation() + destinationFilename;
+                        String destinationPath = Objects.requireNonNull(localMusicFileLocation) + destinationFilename;
                         File existingFile = existingFilesHash.get(track.getHash());
                         if (existingFile != null) {
                             log.info("Track {} of {} already exists on disk (ID: {})", (index + 1), tracksToSync.size(), track.getId());
@@ -87,12 +83,12 @@ public class SyncService {
                             try {
                                 URLConnection connection = url.openConnection();
                                 connection.setRequestProperty("Authorization", publicSettings.getServerApiAuthHeader());
-                                connection.setReadTimeout(privateSettings.getReadTimeout());
-                                connection.setConnectTimeout(privateSettings.getConnectTimeout());
+                                connection.setReadTimeout(syncSettings.getReadTimeout());
+                                connection.setConnectTimeout(syncSettings.getConnectTimeout());
 
                                 FileUtils.copyInputStreamToFile(connection.getInputStream(), new File(destinationPath));
                                 // ensure downloaded file matches expected
-                                String downloadedFileHash = hashService.calculateHash(new File(destinationPath));
+                                String downloadedFileHash = HashUtils.calculateHash(new File(destinationPath));
                                 if (downloadedFileHash.equals(track.getHash())) {
                                     log.debug("Successfully downloaded track {}, hashes match", track.getTitle());
                                     newFilesHashes.put(destinationFilename, track.getHash());
@@ -160,7 +156,7 @@ public class SyncService {
             if (existingFileCount % 100 == 0) {
                 log.info("Renamed {} of a total of {} files", existingFileCount, existingFiles.size());
             }
-            File renamedFile = new File(privateSettings.getLocalMusicFileLocation() + newName);
+            File renamedFile = new File(Objects.requireNonNull(localMusicFileLocation) + newName);
             FileUtils.moveFile(existingFile, renamedFile);
         }
     }
@@ -186,7 +182,7 @@ public class SyncService {
             } else {
                 log.debug("Hash dump does not contain hash for existing file {}, calculating hash", existingFile.getName());
                 try {
-                    renamedFileHash = hashService.calculateHash(existingFile);
+                    renamedFileHash = HashUtils.calculateHash(existingFile);
                 } catch (IOException e) {
                     log.error("Failed to calculate hash for file {}", existingFile.getName(), e);
                 }
@@ -203,4 +199,29 @@ public class SyncService {
 			throw new TaskInProgressException("sync");
 		}
 	}
+
+	private static class SyncSettings {
+        @Value("${sync.connect_timeout:#{15}}")
+        private String connectTimeout;
+
+        @Value("${sync.read_timeout:#{60}}")
+        private String readTimeout;
+
+        public int getConnectTimeout() {
+            return tryParseInt(connectTimeout, 15);
+        }
+
+        public int getReadTimeout() {
+            return tryParseInt(readTimeout, 60);
+        }
+
+        private int tryParseInt(String val, int defaultValue) {
+            try {
+                return Integer.parseInt(val) * 1000;
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                return defaultValue * 1000;
+            }
+        }
+    }
 }
