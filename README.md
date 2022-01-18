@@ -17,6 +17,8 @@ Note that the below command has a few placeholders that need to be replaced. It 
 
 Also note that the `local.music.file.location` MUST end with a trailing slash.
 
+Optionally, you can use the variable `$HOST` in the `zuul.routes.music-api.url` property, which will be expanded client side to `window.location.origin`. This could be useful if you host both the API and UI on the same origin, and want to be able to access the API and UI directly from the host (rather than using the CNAME configured for the host).
+
 ```
 docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e "zuul.music-api.authorizationHeader"="AUTHORIZATION_HEADER" -e "music.file.source"="local" -e "device.name"="DEVICE_NAME" -e "server.port"="8080" -p "8080:8080/tcp" -v music:/music -e "local.music.file.location"="/music/" --name music --rm stevenmassaro/music-client
 ```

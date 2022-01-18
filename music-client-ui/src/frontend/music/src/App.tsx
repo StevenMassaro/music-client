@@ -474,7 +474,9 @@ class App extends Component<props, state> {
      * servers settings.
      */
     buildServerUrl = (relativePath: string) => {
-        return this.state.settings!.serverApiUrl + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
+        return this.state.settings!.serverApiUrl
+            .replaceAll("$HOST", window.location.origin)
+            + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
     };
 
     render() {
