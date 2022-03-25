@@ -23,6 +23,12 @@ Optionally, you can use the variable `$HOST` in the `zuul.routes.music-api.url` 
 docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e "zuul.music-api.authorizationHeader"="AUTHORIZATION_HEADER" -e "music.file.source"="local" -e "device.name"="DEVICE_NAME" -e "server.port"="8080" -p "8080:8080/tcp" -v music:/music -e "local.music.file.location"="/music/" --name music --rm stevenmassaro/music-client
 ```
 
+Here's an example of running in remote mode (where music is streamed from the server).
+
+```
+docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e "zuul.music-api.authorizationHeader"="AUTHORIZATION_HEADER" -e "music.file.source"="remote" -e "device.name"="DEVICE_NAME" -e "server.port"="8080" -p "8080:8080/tcp" --name music --rm stevenmassaro/music-client 
+```
+
 ## Other useful tools
 - https://github.com/evilpro/Taskplay - puts playback controls on the Windows taskbar
 - https://github.com/randyrants/sharpkeys - allows remapping of keyboard keys (used to remap something useless, like scroll lock, to the "skip track" key) 
