@@ -25,7 +25,8 @@ type props<T> = {
     setRating: (id: number, rating: number) => void,
     playlists: Playlist[],
     addToPlaylist: (playlist: Playlist, track: Track) => void,
-    listingSongs: boolean
+    listingSongs: boolean,
+    downloadSong: (song: Track) => void,
 }
 
 type state = {
@@ -187,6 +188,9 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
                     </Item>
                     <Item onClick={() => this.props.showInfo(this.state.clickedData!)}>
                         <div className="green">Show info...</div>
+                    </Item>
+                    <Item onClick={() => this.props.downloadSong(this.state.clickedData!)}>
+                        <div className="green">Download</div>
                     </Item>
                     <Item onClick={() => this.props.showEditMetadata(this.state.clickedData!)}>
                         <div className="green">Edit...</div>

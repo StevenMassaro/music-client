@@ -28,6 +28,7 @@ import {Device} from './types/Device';
 import { Playlist } from './types/Playlist';
 import {WebsocketListener} from "./WebsocketListener";
 import {Library} from "./types/Library";
+import download from 'downloadjs';
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
@@ -128,6 +129,16 @@ class App extends Component<props, state> {
             return undefined;
         }
     };
+
+    downloadSong = (track: Track) => {
+        const url = generateUrl(this.state.settings, "/track/" + track.id + "/stream", this.buildServerUrl);
+
+        api.get(url, {
+            responseType: 'blob',
+        }).then((response: AxiosResponse) => {
+            download(response.data, track.title);
+        });
+    }
 
     /**
      * Get currently playing song object.
@@ -556,6 +567,7 @@ class App extends Component<props, state> {
                                         playlists={this.state.playlists}
                                         addToPlaylist={this._addToPlaylist}
                                         listingSongs={this.state.listingSongs}
+                                        downloadSong={this.downloadSong}
                                     />
                                 </div>
                                 <div>
