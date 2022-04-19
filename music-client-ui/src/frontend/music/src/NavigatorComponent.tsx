@@ -72,9 +72,10 @@ class NavigatorComponent extends Component<props, state> {
         });
         api.post(url, this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local ? this.props.activeSongList : null)
             .then(
-                () => {
+                // This response is purposefully not deserialized because the music and music-client response objects are different shapes.
+                (response: AxiosResponse) => {
                     toast.dismiss(toastId);
-                    toast.success(`Finished sync successfully.`, {
+                    toast.success((<div>Finished sync successfully.<br/>{JSON.stringify(response.data, null, 2)}</div>), {
                         autoClose: false
                     });
                     this._refreshSongListWithActiveLibrary();
