@@ -73,7 +73,7 @@ export class PurgableSongsComponent extends Component<props, state> {
      */
     isSelected = (key: string) => {
         return !lodash.isUndefined(this.state.selectedTracks.find((track) => {
-            return track.id == key;
+            return !lodash.isUndefined(track) && track.id === lodash.toInteger(key);
         }))
     };
 
@@ -102,17 +102,17 @@ export class PurgableSongsComponent extends Component<props, state> {
      */
     toggleSelection = (key: string) => {
         const splits = key.split("-");
-        const id = splits[1];
-        if (this.isSelected(id)) { // todo the key is coming in with some additional data, so we need to split it here or something
+        const id = lodash.toInteger(splits[1]);
+        if (this.isSelected(id.toString())) { // todo the key is coming in with some additional data, so we need to split it here or something
             this.setState((state) => ({
                 selectedTracks: state.selectedTracks.filter((track) => {
-                    return track.id != id;
+                    return track.id !== id;
                 })
             }));
         } else {
             this.setState((state) => ({
                 selectedTracks: [...state.selectedTracks, state.purgableTracks!.find((track) => {
-                    return track.id == id
+                    return track.id === id
                 })]
             }));
         }
@@ -126,7 +126,7 @@ export class PurgableSongsComponent extends Component<props, state> {
                 <Button
                     negative
                     onClick={this.purgeTracks}>
-                    Purge {this.state.selectedTracks.length} selected track{this.state.selectedTracks.length != 1 ? "s" : ""} in list
+                    Purge {this.state.selectedTracks.length} selected track{this.state.selectedTracks.length !== 1 ? "s" : ""} in list
                 </Button>
                 <SelectTable
                     keyField="id"
