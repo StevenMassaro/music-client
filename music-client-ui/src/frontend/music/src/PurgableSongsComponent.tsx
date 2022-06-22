@@ -23,7 +23,8 @@ type props = {
 type state = {
     purgableTracks?: any[],
     selectedTracks: any[],
-    selectAll: boolean
+    selectAll: boolean,
+    destinationTrackId?: number
 }
 
 export class PurgableSongsComponent extends Component<props, state> {
@@ -33,7 +34,8 @@ export class PurgableSongsComponent extends Component<props, state> {
         this.state = {
             purgableTracks: undefined,
             selectedTracks: [],
-            selectAll: false
+            selectAll: false,
+            destinationTrackId: undefined
         }
     }
 
@@ -43,18 +45,34 @@ export class PurgableSongsComponent extends Component<props, state> {
 
     purgeTracks = () => {
         const count = this.state.selectedTracks.length;
-        const pluralizedString = count > 1 ? 's' : '';
-        let purgingMessage = toast.info(`Purging ${count} deleted track${pluralizedString}`, {
-            autoClose: false,
-            hideProgressBar: true
-        });
-        api.delete(this.props.buildServerUrl("/admin/purge"), {data: this.state.selectedTracks.map(x => x.id)})
-            .then(
-                () => {
-                    toast.dismiss(purgingMessage);
-                    toast.success(`Successfully purged ${count} deleted track${pluralizedString}.`);
-                    this.listPurgableTracks();
-                });
+        if (count === 1 && !lodash.isUndefined(this.state.destinationTrackId)) {
+            let idToDelete = this.state.selectedTracks.map(x => x.id);
+            let destinationId = this.state.destinationTrackId;
+            let purgingMessage = toast.info(`Purging track ID ${idToDelete} into ${destinationId}.`, {
+                autoClose: false,
+                hideProgressBar: true
+            });
+            api.delete(this.props.buildServerUrl("/admin/purge/" + idToDelete + "/into/" + destinationId))
+                .then(
+                    () => {
+                        toast.dismiss(purgingMessage);
+                        toast.success(`Successfully purged track ID ${idToDelete}.`);
+                        this.listPurgableTracks();
+                    });
+        } else {
+            const pluralizedString = count > 1 ? 's' : '';
+            let purgingMessage = toast.info(`Purging ${count} deleted track${pluralizedString}`, {
+                autoClose: false,
+                hideProgressBar: true
+            });
+            api.delete(this.props.buildServerUrl("/admin/purge"), {data: this.state.selectedTracks.map(x => x.id)})
+                .then(
+                    () => {
+                        toast.dismiss(purgingMessage);
+                        toast.success(`Successfully purged ${count} deleted track${pluralizedString}.`);
+                        this.listPurgableTracks();
+                    });
+        }
     };
 
     listPurgableTracks = () => {
@@ -116,7 +134,14 @@ export class PurgableSongsComponent extends Component<props, state> {
                 })]
             }));
         }
+        this.setState({
+            destinationTrackId: undefined
+        });
     };
+
+    handleDestinationTrackIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({destinationTrackId: parseInt(event.target.value)});
+    }
 
     render() {
         return (
@@ -128,6 +153,16 @@ export class PurgableSongsComponent extends Component<props, state> {
                     onClick={this.purgeTracks}>
                     Purge {this.state.selectedTracks.length} selected track{this.state.selectedTracks.length !== 1 ? "s" : ""} in list
                 </Button>
+                {this.state.selectedTracks.length === 1 &&
+                    <span>
+                        <Button
+                            negative
+                            onClick={this.purgeTracks}>
+                            Purge selected track into existing track ID {this.state.destinationTrackId}
+                        </Button>
+                        <input type="number" value={this.state.destinationTrackId} onChange={this.handleDestinationTrackIdChange} />
+                    </span>
+                }
                 <SelectTable
                     keyField="id"
                     // for some reason we need to define this method this way or it won't see the state
