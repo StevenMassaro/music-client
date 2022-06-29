@@ -34,7 +34,7 @@ class UpNextComponent extends Component<props, state> {
 
     _shouldRenderMoveDown = () => this.props.upNext && this._getIndex() < this.props.upNext.length - 1;
 
-    _handleContextMenu(event: TriggerEvent) {
+    _handleContextMenu = (event: TriggerEvent)  => {
         const {show} = useContextMenu({
             id: 'upNextMenu',
         });

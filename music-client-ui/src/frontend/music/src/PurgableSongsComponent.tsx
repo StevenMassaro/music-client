@@ -1,6 +1,5 @@
 import {Component} from 'react';
 import * as React from 'react';
-import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "./App";
