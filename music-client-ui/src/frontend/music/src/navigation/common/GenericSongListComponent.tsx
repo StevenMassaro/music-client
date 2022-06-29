@@ -8,7 +8,7 @@ import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
 import { Playlist } from '../../types/Playlist';
 
-type props<T> = {
+type props = {
     activeSongList: Track[],
     activeSongListName: string | undefined,
     buildServerUrl: (url: string) => string,
@@ -33,9 +33,9 @@ type state = {
     tableRef: any,
 }
 
-export class GenericSongListComponent<T> extends Component<props<T>, state> {
+export class GenericSongListComponent extends Component<props, state> {
 
-    constructor(props: props<T> | Readonly<props<T>>) {
+    constructor(props: props | Readonly<props>) {
         super(props);
         this.state = {
             clickedData: undefined,
