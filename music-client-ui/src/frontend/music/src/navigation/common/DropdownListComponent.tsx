@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Dropdown} from 'semantic-ui-react'
-import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../../App";

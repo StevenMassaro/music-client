@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import 'semantic-ui-css/semantic.min.css';
 import * as lodash from "lodash";
 import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
