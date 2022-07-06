@@ -14,7 +14,7 @@
     "axios": "0.27.2",
     "downloadjs": "1.4.7",
     "lodash": "4.17.21",
-    "moment": "2.29.3",
+    "moment": "2.29.4",
     "prop-types": "15.8.1",
     "react": "16.12.0",
     "react-h5-audio-player": "3.8.4",
