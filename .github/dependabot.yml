@@ -13,3 +13,7 @@ updates:
       directory: "/music-client-ui/src/frontend/music"
       schedule:
           interval: "daily"
+    - package-ecosystem: "docker"
+      directory: "/"
+      schedule:
+          interval: "daily"
