@@ -50,19 +50,44 @@ public class SyncService extends AbstractService {
 			currentlySyncing.set(true);
 			SyncResult syncResult = new SyncResult();
 			if (tracksToSync != null) {
-				long currentTime = new Date().getTime();
+				Map<String, File> existingFilesHash = determineExistingFilesHashes();
 
-				// rename all existing files
-				renameExistingFiles(syncResult, tracksToSync, currentTime);
+                // for each file to be synced, see if it already exists on disk and hashes match
+                List<Track> actualTracksToSync = new ArrayList<>();
+                for (Track track : tracksToSync) {
+                    if (!existingFilesHash.containsKey(track.getHash())) {
+                        actualTracksToSync.add(track);
+                    }
+                }
+                log.info("{} tracks to sync", actualTracksToSync);
 
-				Map<String, File> existingFilesHash = determineExistingFilesHashes(currentTime);
+                // if there are files on disk that do not match any hash in the tracks to sync array, delete them
+                for (Map.Entry<String, File> existingFile : existingFilesHash.entrySet()) {
+                    File file = existingFile.getValue();
+                    String hash = existingFile.getKey();
 
+                    if (tracksToSync.stream().noneMatch(track -> {
+                        try {
+                            return track.getHash().equals(hash);
+                        } catch (IOException e) {
+                            // I don't think this will ever happen.
+                            log.error("Failed to read hash of {}", track.getId());
+                            return false;
+                        }
+                    })){
+                        log.debug("Deleting {} whose hash does not match any of the files to be synced", file);
+                        FileUtils.delete(file);
+                        existingFilesHash.remove(hash);
+                    }
+                }
+
+                // run the sync
                 AtomicInteger trackIndex = new AtomicInteger(-1);
                 syncWebsocket.sendSyncUpdateMessage(trackIndex.get(), tracksToSync.size(), SyncStep.SYNCING);
 				Map<String, String> newFilesHashes = new ConcurrentHashMap<>();
 				SyncSettings syncSettings = new SyncSettings();
 				// find existing files which match the hashes of files to sync, otherwise download the file from the server
-                tracksToSync.parallelStream().forEach((track) -> {
+                actualTracksToSync.parallelStream().forEach((track) -> {
                     try {
                         int index = trackIndex.incrementAndGet();
                         syncWebsocket.sendSyncUpdateMessage(index, tracksToSync.size(), SyncStep.SYNCING);
@@ -142,28 +167,9 @@ public class SyncService extends AbstractService {
 		}
     }
 
-    private void renameExistingFiles(SyncResult syncResult, List<Track> tracksToSync, long currentTime) throws IOException {
-        log.info("Renaming existing files on disk");
-        Collection<File> existingFiles = trackService.listFiles();
-        syncResult.setTotalFiles(tracksToSync.size());
-        long existingFileCount = 0;
-        syncWebsocket.sendSyncUpdateMessage(-1, tracksToSync.size(), SyncStep.RENAMING_EXISTING);
-        for (File existingFile : existingFiles) {
-            syncWebsocket.sendSyncUpdateMessage((int) existingFileCount, tracksToSync.size(), SyncStep.RENAMING_EXISTING);
-            existingFileCount++;
-            String newName = currentTime + RENAME_SEPARATOR + existingFile.getName();
-            log.debug("Renaming track {} of {} from {} to {}", existingFileCount, existingFiles.size(), existingFile.getName(), newName);
-            if (existingFileCount % 100 == 0) {
-                log.info("Renamed {} of a total of {} files", existingFileCount, existingFiles.size());
-            }
-            File renamedFile = new File(Objects.requireNonNull(localMusicFileLocation) + newName);
-            FileUtils.moveFile(existingFile, renamedFile);
-        }
-    }
-
-    private Map<String, File> determineExistingFilesHashes(long currentTime) throws IOException {
-        Map<String, File> existingFilesHash = new ConcurrentHashMap<>();
+    private Map<String, File> determineExistingFilesHashes() throws IOException {
         Map<String, String> hashDump = hashService.loadExistingHashDump();
+        Map<String, File> existingFilesHash = new ConcurrentHashMap<>(hashDump.size());
         Collection<File> existingFiles = trackService.listFiles();
         AtomicInteger existingFileCount = new AtomicInteger(0);
         syncWebsocket.sendSyncUpdateMessage(-1, existingFiles.size(), SyncStep.HASHING_EXISTING);
@@ -174,11 +180,11 @@ public class SyncService extends AbstractService {
             if (existingFileCount.get() % 100 == 0) {
                 log.info("Hashed {} of a total of {} files", existingFileCount, existingFiles.size());
             }
-            String originalFileName = existingFile.getName().replace(currentTime + "_", "");
+            //
             String renamedFileHash = null;
-            if (hashDump.containsKey(originalFileName)) {
+            if (hashDump.containsKey(existingFile.getName())) {
                 log.debug("Hash dump contains hash for existing file {}, loading instead of recalculating", existingFile.getName());
-                renamedFileHash = hashDump.get(originalFileName);
+                renamedFileHash = hashDump.get(existingFile.getName());
             } else {
                 log.debug("Hash dump does not contain hash for existing file {}, calculating hash", existingFile.getName());
                 try {
