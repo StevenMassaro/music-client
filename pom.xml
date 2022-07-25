@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.17</version>
+    <version>1.17.3</version>
     <modules>
         <module>music-client-ui</module>
     </modules>
@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.4.RELEASE</version>
+        <version>2.7.2</version>
     </parent>
 
     <properties>
@@ -28,17 +28,17 @@
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-model</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.3</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-utils</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.3</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-service</artifactId>
-                <version>1.17.1</version>
+                <version>1.17.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

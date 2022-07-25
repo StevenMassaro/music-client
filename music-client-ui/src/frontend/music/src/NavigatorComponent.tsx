@@ -3,7 +3,6 @@ import {Component} from 'react';
 import './App.css';
 import './NavigatorComponent.css';
 import {Menu} from 'semantic-ui-react'
-import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import {api, MUSIC_FILE_SOURCE_TYPES} from "./App";
 import {DropdownListComponent} from "./navigation/common";

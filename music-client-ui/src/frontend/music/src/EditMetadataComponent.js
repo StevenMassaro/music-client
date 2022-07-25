@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
 import './NavigatorComponent.css';
-import 'semantic-ui-css/semantic.min.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "./App";

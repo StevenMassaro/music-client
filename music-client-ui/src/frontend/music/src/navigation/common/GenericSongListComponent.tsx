@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import 'semantic-ui-css/semantic.min.css';
 import * as lodash from "lodash";
 import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
@@ -9,7 +8,7 @@ import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
 import { Playlist } from '../../types/Playlist';
 
-type props<T> = {
+type props = {
     activeSongList: Track[],
     activeSongListName: string | undefined,
     buildServerUrl: (url: string) => string,
@@ -34,9 +33,9 @@ type state = {
     tableRef: any,
 }
 
-export class GenericSongListComponent<T> extends Component<props<T>, state> {
+export class GenericSongListComponent extends Component<props, state> {
 
-    constructor(props: props<T> | Readonly<props<T>>) {
+    constructor(props: props | Readonly<props>) {
         super(props);
         this.state = {
             clickedData: undefined,
@@ -66,7 +65,7 @@ export class GenericSongListComponent<T> extends Component<props<T>, state> {
 
     _filteredSongListSelector = (s: any) => s._original;
 
-    _handleContextMenu(event: TriggerEvent) {
+    _handleContextMenu = (event: TriggerEvent) => {
         const {show} = useContextMenu({
             id: 'menu_id',
         });
