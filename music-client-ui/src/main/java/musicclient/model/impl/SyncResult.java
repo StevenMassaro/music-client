@@ -1,12 +1,16 @@
 package musicclient.model.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 import music.model.Track;
 
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class SyncResult {
 
     private long totalFiles = 0;
@@ -16,25 +20,9 @@ public class SyncResult {
     private long unmatchedDeletedFiles = 0;
     private boolean success = false;
 
-    public long getTotalFiles() {
-        return totalFiles;
-    }
-
-    public void setTotalFiles(long totalFiles) {
-        this.totalFiles = totalFiles;
-    }
-
-    public long getExistingFiles() {
-        return existingFiles;
-    }
-
     @JsonIgnore
     public void incrementExistingFiles() {
         existingFiles = existingFiles + 1;
-    }
-
-    public long getNewlyDownloadedFiles() {
-        return newlyDownloadedFiles;
     }
 
     @JsonIgnore
@@ -42,44 +30,24 @@ public class SyncResult {
         newlyDownloadedFiles = newlyDownloadedFiles + 1;
     }
 
-    public List<Track> getFailedDownloadedFiles() {
-        return failedDownloadedFiles;
-    }
-
     @JsonIgnore
     public void addFailedDownloadedFile(Track track) {
         failedDownloadedFiles.add(track);
     }
 
-    public long getUnmatchedDeletedFiles() {
-        return unmatchedDeletedFiles;
+    @JsonIgnore
+    public void incrementUnmatchedDeletedFiles() {
+        unmatchedDeletedFiles = unmatchedDeletedFiles + 1;
     }
 
-    public void setUnmatchedDeletedFiles(long unmatchedDeletedFiles) {
-        this.unmatchedDeletedFiles = unmatchedDeletedFiles;
-    }
-
+    /**
+     * Custom override for Jackson.
+     */
     public boolean isSuccess() {
         if (failedDownloadedFiles.size() > 0) {
             return false;
         } else {
             return success;
         }
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    @Override
-    public String toString() {
-        return "SyncResult{" +
-                "totalFiles=" + totalFiles +
-                ", existingFiles=" + existingFiles +
-                ", newlyDownloadedFiles=" + newlyDownloadedFiles +
-                ", failedDownloadedFiles=" + failedDownloadedFiles +
-                ", unmatchedDeletedFiles=" + unmatchedDeletedFiles +
-                ", success=" + success +
-                '}';
     }
 }

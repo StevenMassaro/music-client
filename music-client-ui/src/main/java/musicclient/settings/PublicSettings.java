@@ -1,9 +1,11 @@
 package musicclient.settings;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class PublicSettings {
 
     @Value("${music.file.source}")
@@ -12,31 +14,15 @@ public class PublicSettings {
     @Value("${device.name}")
     private String deviceName;
 
+    /**
+     * The URL of the main server.
+     */
     @Value("${zuul.routes.music-api.url}")
     private String serverApiUrl;
 
+    /**
+     * The auth header to be used when making calls to the main server.
+     */
     @Value("${zuul.music-api.authorizationHeader}")
     private String serverApiAuthHeader;
-
-    public String getMusicFileSource() {
-        return musicFileSource.toLowerCase();
-    }
-
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    /**
-     * @return The URL of the main server.
-     */
-    public String getServerApiUrl() {
-        return serverApiUrl;
-    }
-
-    /**
-     * @return The auth header to be used when making calls to the main server.
-     */
-    public String getServerApiAuthHeader() {
-        return serverApiAuthHeader;
-    }
 }

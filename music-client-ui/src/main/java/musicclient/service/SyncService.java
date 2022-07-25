@@ -1,5 +1,6 @@
 package musicclient.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import music.exception.TaskInProgressException;
 import music.model.Track;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Log4j2
+@AllArgsConstructor
 public class SyncService extends AbstractService {
 	private final AtomicBoolean currentlySyncing = new AtomicBoolean(false);
 
@@ -34,15 +36,6 @@ public class SyncService extends AbstractService {
     private final SyncWebsocket syncWebsocket;
 
     private final PublicSettings publicSettings;
-
-    private final String RENAME_SEPARATOR = "_";
-
-    public SyncService(TrackService trackService, HashService hashService, SyncWebsocket syncWebsocket, PublicSettings publicSettings) {
-        this.trackService = trackService;
-        this.hashService = hashService;
-        this.syncWebsocket = syncWebsocket;
-        this.publicSettings = publicSettings;
-    }
 
     public SyncResult performSync(List<Track> tracksToSync) throws IOException, TaskInProgressException {
 		checkNotSyncing();
@@ -79,7 +72,7 @@ public class SyncService extends AbstractService {
                         log.debug("Deleting {} whose hash does not match any of the files to be synced", file);
                         FileUtils.delete(file);
                         existingFilesHash.remove(hash);
-                        syncResult.setUnmatchedDeletedFiles(syncResult.getUnmatchedDeletedFiles() + 1);
+                        syncResult.incrementUnmatchedDeletedFiles();
                     } else {
                         // Adding this file to the new file hashes map because it will remain on disk, untouched.
                         newFilesHashes.put(file.getName(), hash);
