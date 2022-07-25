@@ -3,6 +3,7 @@ package musicclient.model.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import music.model.Track;
 
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class SyncResult {
 
     private long totalFiles = 0;
