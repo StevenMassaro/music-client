@@ -1,35 +1,11 @@
 package musicclient.model.impl;
 
+import lombok.Data;
+
+@Data
 public class SyncUpdate {
 
     private final int position;
     private final int max;
     private final SyncStep syncStep;
-
-    public SyncUpdate(int position, int max, SyncStep syncStep) {
-        this.position = position;
-        this.max = max;
-        this.syncStep = syncStep;
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public SyncStep getSyncStep() {
-        return syncStep;
-    }
-
-    @Override
-    public String toString() {
-        return "SyncUpdate{" +
-            "position=" + position +
-            ", max=" + max +
-            ", syncStep=" + syncStep +
-            '}';
-    }
 }

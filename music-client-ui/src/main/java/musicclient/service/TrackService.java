@@ -1,5 +1,6 @@
 package musicclient.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -16,16 +17,12 @@ import java.util.Map;
 
 @Service
 @Log4j2
+@AllArgsConstructor
 public class TrackService extends AbstractService {
 
     private final HashService hashService;
 
     private final static Map<Long, String> hashDumpCache = new HashMap<>();
-
-    @Autowired
-    public TrackService(HashService hashService) {
-        this.hashService = hashService;
-    }
 
     /**
      * Get a file if you know the exact name (including extension) of the file.
