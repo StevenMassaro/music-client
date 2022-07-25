@@ -175,7 +175,6 @@ public class SyncService extends AbstractService {
             if (existingFileCount.get() % 100 == 0) {
                 log.info("Hashed {} of a total of {} files", existingFileCount, existingFiles.size());
             }
-            //
             String renamedFileHash = null;
             if (hashDump.containsKey(existingFile.getName())) {
                 log.debug("Hash dump contains hash for existing file {}, loading instead of recalculating", existingFile.getName());
