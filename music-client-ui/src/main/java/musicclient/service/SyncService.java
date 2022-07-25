@@ -169,7 +169,6 @@ public class SyncService extends AbstractService {
         AtomicInteger existingFileCount = new AtomicInteger(0);
         syncWebsocket.sendSyncUpdateMessage(-1, existingFiles.size(), SyncStep.HASHING_EXISTING);
         existingFiles.parallelStream().forEach((existingFile) -> {
-            syncWebsocket.sendSyncUpdateMessage(existingFileCount.get(), existingFiles.size(), SyncStep.HASHING_EXISTING);
             existingFileCount.incrementAndGet();
             log.debug("Hashing {} of {}: {}", existingFileCount, existingFiles.size(), existingFile.getName());
             if (existingFileCount.get() % 100 == 0) {
@@ -181,6 +180,7 @@ public class SyncService extends AbstractService {
                 renamedFileHash = hashDump.get(existingFile.getName());
             } else {
                 log.debug("Hash dump does not contain hash for existing file {}, calculating hash", existingFile.getName());
+                syncWebsocket.sendSyncUpdateMessage(existingFileCount.get(), existingFiles.size(), SyncStep.HASHING_EXISTING);
                 try {
                     renamedFileHash = HashUtils.calculateHash(existingFile);
                 } catch (IOException e) {
