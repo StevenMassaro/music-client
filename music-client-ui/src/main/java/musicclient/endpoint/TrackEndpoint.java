@@ -6,8 +6,11 @@ import musicclient.service.TrackService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jaudiotagger.tag.datatype.Artwork;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -28,18 +31,23 @@ public class TrackEndpoint {
     private final MetadataService metadataService;
 
     @GetMapping("/{id}/stream")
-    public ResponseEntity<StreamingResponseBody> stream(@PathVariable long id, final HttpServletResponse response) throws IOException {
+    public ResponseEntity<Resource> stream(@PathVariable long id) throws IOException {
         File file = trackService.getFile(id, true);
 
         String mimeType = Files.probeContentType(file.toPath());
-        response.setContentType(mimeType);
-        response.setHeader(
-            "Content-Disposition",
-            "attachment;filename=" + file.getName());
 
-        StreamingResponseBody stream = out -> IOUtils.copy(FileUtils.openInputStream(file), response.getOutputStream());
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_TYPE, mimeType);
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + file.getName() + "\"");
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
 
-        return new ResponseEntity<>(stream, HttpStatus.OK);
+        return ResponseEntity.ok()
+            .headers(header)
+            .contentLength(file.length())
+            .contentType(MediaType.parseMediaType(mimeType))
+            .body(new FileSystemResource(file));
     }
 
     @GetMapping("/{id}/art")
