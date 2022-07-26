@@ -7,11 +7,14 @@ import {toTime} from "./Utils";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import moment from 'moment';
-import {Button} from 'semantic-ui-react'
+import {Button, Dropdown} from 'semantic-ui-react'
 import './PurgableSongsComponent.css';
 import selectTableHOC from "react-table/lib/hoc/selectTable";
 import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
+import {DropdownListComponent} from "./navigation/common";
+import {MenuItem} from "./types/MenuItem";
+import {Library} from "./types/Library";
 
 const SelectTable = selectTableHOC(ReactTable);
 
@@ -23,7 +26,8 @@ type state = {
     purgableTracks?: any[],
     selectedTracks: any[],
     selectAll: boolean,
-    destinationTrackId?: number
+    destinationTrack?: Track,
+    activeItem?: MenuItem
 }
 
 export class PurgableSongsComponent extends Component<props, state> {
@@ -34,7 +38,8 @@ export class PurgableSongsComponent extends Component<props, state> {
             purgableTracks: undefined,
             selectedTracks: [],
             selectAll: false,
-            destinationTrackId: undefined
+            destinationTrack: undefined,
+            activeItem: new MenuItem("", undefined)
         }
     }
 
@@ -44,9 +49,9 @@ export class PurgableSongsComponent extends Component<props, state> {
 
     purgeTracks = () => {
         const count = this.state.selectedTracks.length;
-        if (count === 1 && !lodash.isUndefined(this.state.destinationTrackId)) {
+        if (count === 1 && !lodash.isUndefined(this.state.destinationTrack)) {
             let idToDelete = this.state.selectedTracks.map(x => x.id);
-            let destinationId = this.state.destinationTrackId;
+            let destinationId = this.state.destinationTrack?.id;
             let purgingMessage = toast.info(`Purging track ID ${idToDelete} into ${destinationId}.`, {
                 autoClose: false,
                 hideProgressBar: true
@@ -134,13 +139,17 @@ export class PurgableSongsComponent extends Component<props, state> {
             }));
         }
         this.setState({
-            destinationTrackId: undefined
+            destinationTrack: undefined
         });
     };
 
-    handleDestinationTrackIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({destinationTrackId: parseInt(event.target.value)});
+    handleDestinationTrackIdChange = (destinationTrack: Track) => {
+        this.setState({destinationTrack: destinationTrack});
     }
+
+    _setActiveMenuItem = (name: string, library?: Library, callback?: (() => void) | undefined) => {
+        this.setState({activeItem: new MenuItem(name, library)});
+    };
 
     render() {
         return (
@@ -157,9 +166,19 @@ export class PurgableSongsComponent extends Component<props, state> {
                         <Button
                             negative
                             onClick={this.purgeTracks}>
-                            Purge selected track into existing track ID {this.state.destinationTrackId}
+                            Purge selected track into existing track {this.state.destinationTrack?.title}
                         </Button>
-                        <input type="number" value={this.state.destinationTrackId} onChange={this.handleDestinationTrackIdChange} />
+                        <DropdownListComponent
+                            activeMenuItem={this.state.activeItem!}
+                            title={"Select track to purge into"}
+                            valuesUrl={"/track"}
+                            setActiveMenuItem={this._setActiveMenuItem}
+                            valueGetter={(value: Track) => value.id}
+                            textGetter={(value: Track) => value.title + " - " + value.artist + " - " + value.album}
+                            dropdownOnClickCallback={(value: Track) => this.handleDestinationTrackIdChange(value)}
+                            buildServerUrl={this.props.buildServerUrl}
+                            shouldListTracksOnClick={false}
+                        />
                     </span>
                 }
                 <SelectTable

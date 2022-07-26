@@ -154,6 +154,7 @@ class NavigatorComponent extends Component<props, state> {
                     setActiveMenuItem={this._setActiveMenuItem}
                     setActiveSongList={this.props.setActiveSongList}
                     buildServerUrl={this.props.buildServerUrl}
+                    shouldListTracksOnClick={true}
                 />
                 <Menu.Item>
                     <DropdownListComponent
@@ -166,6 +167,7 @@ class NavigatorComponent extends Component<props, state> {
                         setActiveMenuItem={this._setActiveMenuItem}
                         setActiveSongList={this.props.setActiveSongList}
                         buildServerUrl={this.props.buildServerUrl}
+                        shouldListTracksOnClick={true}
                     />
                     <Menu.Menu>
                         <Menu.Item
@@ -180,10 +182,11 @@ class NavigatorComponent extends Component<props, state> {
                             setActiveSongList={this.props.setActiveSongList}
                             valuesUrl={"/playlist/smart"}
                             setActiveMenuItem={this._setActiveMenuItem}
-                            dropdownOnClickCallback={(value: object) => this.props.showEditPlaylist(PlaylistTypeEnum.smart, value)}
+                            dropdownOnClickCallback={(value: SmartPlaylist) => this.props.showEditPlaylist(PlaylistTypeEnum.smart, value)}
                             valueGetter={(value: SmartPlaylist) => value.id}
                             textGetter={(value: SmartPlaylist) => value.name}
                             buildServerUrl={this.props.buildServerUrl}
+                            shouldListTracksOnClick={true}
                         />
                     </Menu.Menu>
                 </Menu.Item>
@@ -198,6 +201,7 @@ class NavigatorComponent extends Component<props, state> {
                         setActiveMenuItem={this._setActiveMenuItem}
                         setActiveSongList={this.props.setActiveSongList}
                         buildServerUrl={this.props.buildServerUrl}
+                        shouldListTracksOnClick={true}
                     />
                     <Menu.Menu>
                         <Menu.Item
@@ -212,10 +216,11 @@ class NavigatorComponent extends Component<props, state> {
                             setActiveSongList={this.props.setActiveSongList}
                             valuesUrl={"/playlist"}
                             setActiveMenuItem={this._setActiveMenuItem}
-                            dropdownOnClickCallback={(value: object) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
+                            dropdownOnClickCallback={(value: Playlist) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
                             valueGetter={(value: Playlist) => value.id}
                             textGetter={(value: Playlist) => value.name}
                             buildServerUrl={this.props.buildServerUrl}
+                            shouldListTracksOnClick={true}
                         />
                     </Menu.Menu>
                 </Menu.Item>
