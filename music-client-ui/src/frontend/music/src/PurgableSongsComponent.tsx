@@ -164,6 +164,7 @@ export class PurgableSongsComponent extends Component<props, state> {
                 {this.state.selectedTracks.length === 1 &&
                     <span>
                         <Button
+                            disabled={lodash.isUndefined(this.state.destinationTrack)}
                             negative
                             onClick={this.purgeTracks}>
                             Purge selected track into existing track {this.state.destinationTrack?.title}
