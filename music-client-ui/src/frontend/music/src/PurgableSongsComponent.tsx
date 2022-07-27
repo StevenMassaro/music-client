@@ -159,16 +159,13 @@ export class PurgableSongsComponent extends Component<props, state> {
                 <Button
                     negative
                     onClick={this.purgeTracks}>
-                    Purge {this.state.selectedTracks.length} selected track{this.state.selectedTracks.length !== 1 ? "s" : ""} in list
+                    {this.state.destinationTrack ?
+                        <span>Purge {this.state.selectedTracks[0].title} into existing track {this.state.destinationTrack?.title}</span> :
+                        <span>Purge {this.state.selectedTracks.length} selected track{this.state.selectedTracks.length !== 1 ? "s" : ""} in list</span>
+                    }
                 </Button>
                 {this.state.selectedTracks.length === 1 &&
                     <span>
-                        <Button
-                            disabled={lodash.isUndefined(this.state.destinationTrack)}
-                            negative
-                            onClick={this.purgeTracks}>
-                            Purge selected track into existing track {this.state.destinationTrack?.title}
-                        </Button>
                         <DropdownListComponent
                             activeMenuItem={this.state.activeItem!}
                             title={"Select track to purge into"}
