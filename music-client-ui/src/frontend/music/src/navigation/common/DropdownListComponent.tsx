@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Dropdown} from 'semantic-ui-react'
+import {Dropdown, DropdownItemProps, Input} from 'semantic-ui-react'
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../../App";
@@ -19,7 +19,8 @@ type props<T> = {
     valueGetter?: (value: T) => string | number,
     textGetter?: (value: T) => string,
     dropdownOnClickCallback?: (value: T) => void,
-    shouldListTracksOnClick: boolean
+    shouldListTracksOnClick: boolean,
+    groupBy?: (track: Track) => string
 }
 
 type state = {
@@ -71,32 +72,36 @@ export class DropdownListComponent<T> extends Component<props<T>, state> {
 
     _isActive = (item: string) => this.props.activeMenuItem.name === this.props.title + item;
 
+    _getValues = () => {
+        return this.state.values?.map(item => {
+            let val = this.props.valueGetter ? this.props.valueGetter(item) : item;
+            let text = this.props.textGetter ? this.props.textGetter(item) : item;
+            let dropdownItem:DropdownItemProps = {};
+            dropdownItem.text = text;
+            dropdownItem.value = val;
+            dropdownItem.onClick= () => {
+                console.log("fart");
+                this.props.setActiveMenuItem(this.props.title + val);
+                if (lodash.isFunction(this.props.dropdownOnClickCallback)) {
+                    return this.props.dropdownOnClickCallback(item);
+                }
+                if (this.props.shouldListTracksOnClick) {
+                    return this.listTracks(val, text);
+                }
+            }
+            return dropdownItem;
+        }) || []
+    }
+
     render() {
         return (
-            <Dropdown item scrolling text={this.props.title}
+            <Dropdown
+                options={this._getValues()}
+                search
+                fluid
+                placeholder={this.props.title}
                 onClick={this.listValues}
-            >
-                <Dropdown.Menu>
-                    {this.state.values && this.state.values.map(value => {
-                        let val = this.props.valueGetter ? this.props.valueGetter(value) : value;
-                        let text = this.props.textGetter ? this.props.textGetter(value) : value;
-                        return <Dropdown.Item text={text}
-                                              onClick={() => {
-                                                  this.props.setActiveMenuItem(this.props.title + val);
-                                                  if (lodash.isFunction(this.props.dropdownOnClickCallback)) {
-                                                      return this.props.dropdownOnClickCallback(value);
-                                                  }
-                                                  if (this.props.shouldListTracksOnClick) {
-                                                      return this.listTracks(val, text);
-                                                  }
-                                              }}
-                                              key={val}
-                                              active={this._isActive(val)}
-                        />;
-                    })
-                    }
-                </Dropdown.Menu>
-            </Dropdown>
+                />
         )
     }
 }
