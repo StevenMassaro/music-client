@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import './App.css';
 import {generateUrl} from "./Utils";
 import './AlbumArtComponent.css';
-import Modal from "react-modal";
 import {Settings} from "./types/Settings";
+import {Modal} from "semantic-ui-react";
 
 type props = {
     settings: Settings,
@@ -35,9 +35,10 @@ class AlbumArtComponent extends Component<props,state> {
 
   render() {
     return (<span>
-      <Modal isOpen={this.state.modalContent !== undefined}
-             contentLabel="Album art">
-        {this.state.modalContent}
+      <Modal open={this.state.modalContent !== undefined}>
+          <Modal.Content>
+            {this.state.modalContent}
+          </Modal.Content>
       </Modal>
       <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
            alt={""}

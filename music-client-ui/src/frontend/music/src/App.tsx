@@ -5,7 +5,6 @@ import UpNextComponent from "./UpNextComponent";
 import PlayerComponent from "./PlayerComponent";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
-import Modal from 'react-modal';
 import ReactJson from 'react-json-view'
 import * as lodash from "lodash";
 import {
@@ -19,7 +18,7 @@ import EditAlbumArtComponent from "./EditAlbumArtComponent";
 import UploadSongsComponent from "./UploadSongsComponent";
 import MediaSession from '@mebtte/react-media-session';
 import {PurgableSongsComponent} from "./PurgableSongsComponent";
-import {Button} from "semantic-ui-react";
+import {Button, Modal} from "semantic-ui-react";
 import {GenericSongListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
@@ -38,8 +37,6 @@ export const MUSIC_FILE_SOURCE_TYPES = {
 };
 
 export const api = require('axios').default.create();
-
-Modal.setAppElement('#root');
 
 type props = {}
 
@@ -515,11 +512,17 @@ class App extends Component<props, state> {
                     onNextTrack={() => this.onCurrentSongEnd(true)}
                 />
                 }
-                <Modal isOpen={this.state.modalContent !== undefined}
+                <Modal dimmer='blurring'
+                       open={this.state.modalContent !== undefined}
                        contentLabel="Song info">
-                    <Button
-                        onClick={() => this.setState({modalContent: undefined}, this.state.modalOnCloseCallback)}>Close</Button>
-                    {this.state.modalContent}
+                    <Modal.Content>
+                        {this.state.modalContent}
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button onClick={() => this.setState({modalContent: undefined}, this.state.modalOnCloseCallback)}>
+                            Close
+                        </Button>
+                    </Modal.Actions>
                 </Modal>
                 <SplitPane split="horizontal" defaultSize={112} style={{background: "rgba(255,255,255,0.85)"}}>
                     <PlayerComponent
