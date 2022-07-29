@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Dropdown, DropdownItemProps, Input} from 'semantic-ui-react'
+import {Dropdown, DropdownItemProps} from 'semantic-ui-react'
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../../App";

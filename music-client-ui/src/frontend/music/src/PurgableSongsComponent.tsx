@@ -7,7 +7,7 @@ import {toTime} from "./Utils";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import moment from 'moment';
-import {Button, Dropdown} from 'semantic-ui-react'
+import {Button} from 'semantic-ui-react'
 import './PurgableSongsComponent.css';
 import selectTableHOC from "react-table/lib/hoc/selectTable";
 import {AxiosResponse} from "axios";
