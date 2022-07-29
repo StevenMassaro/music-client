@@ -6,7 +6,7 @@
 
     <groupId>com.massaro</groupId>
     <artifactId>music-client</artifactId>
-    <version>1.17.3</version>
+    <version>1.17.4</version>
     <modules>
         <module>music-client-ui</module>
     </modules>
@@ -28,17 +28,17 @@
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-model</artifactId>
-                <version>1.17.3</version>
+                <version>1.17.4</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-utils</artifactId>
-                <version>1.17.3</version>
+                <version>1.17.4</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-service</artifactId>
-                <version>1.17.3</version>
+                <version>1.17.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
