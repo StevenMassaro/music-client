@@ -131,7 +131,7 @@ class NavigatorComponent extends Component<props, state> {
     };
 
     render() {
-        return (<Menu vertical
+        return (<Menu vertical fluid={true}
                         // style={{"max-height": "100%", "width": "100%", "overflow": "auto"}}
             >
                 {this.state.libraries.map(library => {
