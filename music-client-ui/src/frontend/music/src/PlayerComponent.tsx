@@ -46,9 +46,7 @@ class PlayerComponent extends Component<props, state> {
     }
 
     render() {
-        return (<div style={{"width":"100%"}}>
-            {this.props.currentSongSrc() &&
-                <span>
+        return (!this.props.currentSongSrc() ? null :
                     <AudioPlayer
                         header={<span>
                             <AlbumArtComponent id={this.props.currentSong()!.id}
@@ -92,11 +90,10 @@ class PlayerComponent extends Component<props, state> {
                         }}
                         style={{
                             "backgroundColor": "rgba(255, 255, 255, 0.25)",
-                            "boxShadow": "unset"
+                            "boxShadow": "unset",
+                            "width":"100%"
                         }}
                     />
-                </span>}
-        </div>
         )
     }
 }
