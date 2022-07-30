@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import './App.css';
-import './NavigatorComponent.css';
 import {Checkbox} from "semantic-ui-react";
 import {toast} from "react-toastify";
 import {api} from "./App";

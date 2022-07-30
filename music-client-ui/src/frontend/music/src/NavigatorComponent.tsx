@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {Component} from 'react';
 import './App.css';
-import './NavigatorComponent.css';
 import {Menu} from 'semantic-ui-react'
 import {toast} from "react-toastify";
 import {api, MUSIC_FILE_SOURCE_TYPES} from "./App";
