@@ -26,8 +26,8 @@ import {Settings} from "./types/Settings";
 import {Device} from './types/Device';
 import { Playlist } from './types/Playlist';
 import {WebsocketListener} from "./WebsocketListener";
-import {Library} from "./types/Library";
 import download from 'downloadjs';
+import {AdminEndpointApi, Library, LibraryEndpointApi} from "./server-api";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
@@ -37,6 +37,8 @@ export const MUSIC_FILE_SOURCE_TYPES = {
 };
 
 export const api = require('axios').default.create();
+export var AdminApi: AdminEndpointApi;
+export var LibraryApi: LibraryEndpointApi;
 
 type props = {}
 
@@ -217,6 +219,13 @@ class App extends Component<props, state> {
                     api.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
                     api.defaults.headers.post['Content-Type'] = 'application/json';
                     api.defaults.headers.patch['Content-Type'] = 'application/json';
+                    let config = {
+                        // todo this needs to not do a replace, this is wrong
+                        basePath: data.serverApiUrl.replaceAll("/Music", "")
+                    }
+                    AdminApi = new AdminEndpointApi(config)
+                    LibraryApi = new LibraryEndpointApi(config)
+
                     this.setState({
                         loadedSettings: true,
                         settings: data

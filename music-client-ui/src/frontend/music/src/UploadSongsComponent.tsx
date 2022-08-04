@@ -5,8 +5,8 @@ import Dropzone from 'react-dropzone-uploader';
 import {isEmpty, isNumber} from "lodash";
 import {Dropdown} from "semantic-ui-react";
 import {DropdownProps} from "semantic-ui-react/dist/commonjs/modules/Dropdown/Dropdown";
-import {Library} from "./types/Library";
-import {api} from "./App";
+import {Library} from "./server-api";
+import {api, LibraryApi} from "./App";
 import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
 
@@ -39,12 +39,11 @@ class UploadSongsComponent extends Component<props, state> {
     }
 
     listLibraries = () => {
-        api.get(this.props.buildServerUrl('/library'))
-            .then((response: AxiosResponse<Library[]>) => {
-                this.setState({
-                    libraries: response.data
-                });
+        LibraryApi.listUsingGET().then(libraries => {
+            this.setState({
+                libraries
             });
+        })
     };
 
     _getUrl = () => {

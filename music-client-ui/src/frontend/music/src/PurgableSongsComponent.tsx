@@ -14,7 +14,7 @@ import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
 import {DropdownListComponent} from "./navigation/common";
 import {MenuItem} from "./types/MenuItem";
-import {Library} from "./types/Library";
+import {Library} from "./server-api";
 
 const SelectTable = selectTableHOC(ReactTable);
 

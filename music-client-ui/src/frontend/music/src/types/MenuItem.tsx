@@ -1,4 +1,4 @@
-import {Library} from "./Library";
+import {Library} from "../server-api";
 
 /**
  * This represents an item that is selectable on the left-hand navigation menu.
