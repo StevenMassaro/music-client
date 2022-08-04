@@ -6,11 +6,10 @@ import {toast} from "react-toastify";
 import {AdminApi, api, LibraryApi, MUSIC_FILE_SOURCE_TYPES} from "./App";
 import {DropdownListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
-import {Library} from "./server-api";
+import {Library, PlaylistRes} from "./server-api";
 import {MenuItem} from "./types/MenuItem";
 import {SmartPlaylist} from "./types/SmartPlaylist";
 import {Track} from "./types/Track";
-import {Playlist} from "./types/Playlist";
 import {PlaylistTypeEnum} from "./playlist/CreatePlaylistComponent";
 import lodash from 'lodash';
 
@@ -188,8 +187,9 @@ class NavigatorComponent extends Component<props, state> {
                         title={"Playlists"}
                         valuesUrl={"/playlist"}
                         tracksUrl={"/track?playlist="}
-                        valueGetter={(value: Playlist) => value.id}
-                        textGetter={(value: Playlist) => value.name}
+                        // @ts-ignore
+                        valueGetter={(value: PlaylistRes) => value.id}
+                        textGetter={(value: PlaylistRes) => value.name}
                         activeMenuItem={this.state.activeItem!}
                         setActiveMenuItem={this._setActiveMenuItem}
                         setActiveSongList={this.props.setActiveSongList}
@@ -209,9 +209,10 @@ class NavigatorComponent extends Component<props, state> {
                             setActiveSongList={this.props.setActiveSongList}
                             valuesUrl={"/playlist"}
                             setActiveMenuItem={this._setActiveMenuItem}
-                            dropdownOnClickCallback={(value: Playlist) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
-                            valueGetter={(value: Playlist) => value.id}
-                            textGetter={(value: Playlist) => value.name}
+                            dropdownOnClickCallback={(value: PlaylistRes) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
+                            // @ts-ignore
+                            valueGetter={(value: PlaylistRes) => value.id}
+                            textGetter={(value: PlaylistRes) => value.name}
                             buildServerUrl={this.props.buildServerUrl}
                             shouldListTracksOnClick={true}
                         />

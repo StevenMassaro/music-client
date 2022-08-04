@@ -3,7 +3,7 @@ import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../App";
 import {SmartPlaylist} from "../types/SmartPlaylist";
-import {Playlist} from "../types/Playlist";
+import {PlaylistRes} from "../server-api";
 
 export enum PlaylistTypeEnum {
     default = "playlist",
@@ -13,11 +13,11 @@ export enum PlaylistTypeEnum {
 type props = {
     playlistType: PlaylistTypeEnum,
     buildServerUrl: (url: string) => string,
-    existingPlaylist: SmartPlaylist | Playlist | undefined,
+    existingPlaylist: SmartPlaylist | PlaylistRes | undefined,
 }
 
 type state = {
-    playlist: SmartPlaylist | Playlist | undefined,
+    playlist: SmartPlaylist | PlaylistRes | undefined,
     action: string
 }
 

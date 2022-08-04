@@ -23,11 +23,17 @@ import {GenericSongListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
 import {Settings} from "./types/Settings";
-import {Device} from './types/Device';
-import { Playlist } from './types/Playlist';
 import {WebsocketListener} from "./WebsocketListener";
 import download from 'downloadjs';
-import {AdminEndpointApi, Library, LibraryEndpointApi} from "./server-api";
+import {
+    AdminEndpointApi,
+    Device,
+    DeviceEndpointApi,
+    Library,
+    LibraryEndpointApi,
+    PlaylistEndpointApi,
+    PlaylistRes
+} from "./server-api";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
@@ -39,6 +45,8 @@ export const MUSIC_FILE_SOURCE_TYPES = {
 export const api = require('axios').default.create();
 export var AdminApi: AdminEndpointApi;
 export var LibraryApi: LibraryEndpointApi;
+export var PlaylistApi: PlaylistEndpointApi;
+export var DeviceApi: DeviceEndpointApi;
 
 type props = {}
 
@@ -53,7 +61,7 @@ type state = {
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
     device: Device | undefined,
-    playlists: Playlist[],
+    playlists: PlaylistRes[],
     listingSongs: boolean,
     activeLibrary: Library | undefined
 }
@@ -225,6 +233,8 @@ class App extends Component<props, state> {
                     }
                     AdminApi = new AdminEndpointApi(config)
                     LibraryApi = new LibraryEndpointApi(config)
+                    PlaylistApi = new PlaylistEndpointApi(config)
+                    DeviceApi = new DeviceEndpointApi(config)
 
                     this.setState({
                         loadedSettings: true,
@@ -237,29 +247,24 @@ class App extends Component<props, state> {
     };
 
     _listPlaylists = () => {
-        api.get(this.buildServerUrl("/playlist"))
-            .then(
-                (result: AxiosResponse<Playlist[]>) => {
-                    this.setState({
-                        playlists: result.data
-                    });
-                });
+        PlaylistApi.listUsingGET1().then(playlists => {
+            this.setState({
+                playlists
+            });
+        })
     }
 
-    _addToPlaylist = (playlist: Playlist, track: Track) => {
+    _addToPlaylist = (playlist: PlaylistRes, track: Track) => {
         api.patch(this.buildServerUrl(`/playlist/${playlist.id}?trackId=${track.id}`))
             .then(() => toast.success(`Added track ${track.title} - ${track.artist} to playlist ${playlist.name}`))
     }
 
     getDeviceId = () => {
-        api.get(this.buildServerUrl("/device/name/" + this.state.settings!.deviceName))
-            .then(
-                (result: AxiosResponse<Device>) => {
-                    this.setState({
-                        device: result.data
-                    });
-                })
-            ;
+        DeviceApi.getDeviceByNameUsingGET(this.state.settings!.deviceName).then(device => {
+            this.setState({
+                device
+            });
+        })
     };
 
     /**
