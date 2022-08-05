@@ -512,8 +512,7 @@ class App extends Component<props, state> {
                     onNextTrack={() => this.onCurrentSongEnd(true)}
                 />
                 }
-                <Modal dimmer='blurring'
-                       open={this.state.modalContent !== undefined}
+                <Modal open={this.state.modalContent !== undefined}
                        contentLabel="Song info">
                     <Modal.Content>
                         {this.state.modalContent}
