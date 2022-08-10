@@ -184,6 +184,8 @@ public class SyncService extends AbstractService {
                 existingFilesHash.put(renamedFileHash, existingFile);
             }
         });
+        // send the "complete" message here, because the message won't be sent if the hash dump contains all of the files
+        syncWebsocket.sendSyncStepCompleteMessage(existingFiles.size(), SyncStep.HASHING_EXISTING);
         return existingFilesHash;
     }
 
