@@ -2,10 +2,9 @@ import React, {Component} from 'react';
 import './App.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
-import {api} from "./App";
-import {Track} from "./types/Track";
-import {AxiosResponse} from "axios";
+import {TrackApi} from "./App";
 import {Form} from "semantic-ui-react";
+import {ModifyableTags, Track} from "./server-api";
 
 type props = {
     song: Track,
@@ -15,7 +14,7 @@ type props = {
 
 type state = {
     song: Track,
-    modifyableTags: any[]
+    modifyableTags: ModifyableTags[]
 }
 
 class EditMetadataComponent extends Component<props, state> {
@@ -34,19 +33,19 @@ class EditMetadataComponent extends Component<props, state> {
     }
 
     loadModifyableTags = () => {
-        api.get(this.props.buildServerUrl("/track/modifyabletags"))
+        TrackApi.listModifyableTagsUsingGET()
             .then(
-                (result: AxiosResponse) => {
+                (result: ModifyableTags[]) => {
                     this.setState({
-                        modifyableTags: result.data
+                        modifyableTags: result
                     });
                 });
     };
 
     handleSubmit = (event: React.FormEvent<HTMLFormElement>, song: Track) => {
         let songCopy = Object.assign({}, song);
-        delete songCopy.target;
-        api.patch(this.props.buildServerUrl("/track"), songCopy)
+        // delete songCopy.target;
+        TrackApi.updateTrackInfoUsingPATCH(songCopy)
             .then(
                 () => {
                     toast.success("Successfully updated track metadata.");
@@ -55,7 +54,7 @@ class EditMetadataComponent extends Component<props, state> {
         event.preventDefault();
     };
 
-    handleInputChange = (propertyName: lodash.PropertyPath, value: string) => {
+    handleInputChange = (propertyName: string, value: string) => {
         let song = Object.assign({}, this.state.song);
         lodash.set(song, propertyName, value);
         this.setState({
@@ -72,9 +71,9 @@ class EditMetadataComponent extends Component<props, state> {
                     <Form.Field>
                         <Form.Input
                             label={mt.propertyName}
-                            type={mt.htmlType}
-                            onChange={(e) => this.handleInputChange(mt.propertyName, e.target.value)}
-                            value={lodash.get(this.state.song, mt.propertyName, "")}
+                            type={mt.htmlType!.toString()}
+                            onChange={(e) => this.handleInputChange(mt.propertyName!, e.target.value)}
+                            value={lodash.get(this.state.song, mt.propertyName!, "")}
                             width={6}
                         />
                     </Form.Field>
