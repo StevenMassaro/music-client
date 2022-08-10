@@ -3,10 +3,24 @@ import './App.css';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "./App";
+import {Track} from "./types/Track";
+import {AxiosResponse} from "axios";
+import {Form} from "semantic-ui-react";
 
-class EditMetadataComponent extends Component {
+type props = {
+    song: Track,
+    listSongs: () => void,
+    buildServerUrl: (relativePath: string) => string,
+}
 
-    constructor(props) {
+type state = {
+    song: Track,
+    modifyableTags: any[]
+}
+
+class EditMetadataComponent extends Component<props, state> {
+
+    constructor(props: props) {
         super(props);
         let songCopy = Object.assign({}, props.song);
         this.state = {
@@ -22,14 +36,14 @@ class EditMetadataComponent extends Component {
     loadModifyableTags = () => {
         api.get(this.props.buildServerUrl("/track/modifyabletags"))
             .then(
-                (result) => {
+                (result: AxiosResponse) => {
                     this.setState({
                         modifyableTags: result.data
                     });
                 });
     };
 
-    handleSubmit = (event, song) => {
+    handleSubmit = (event: React.FormEvent<HTMLFormElement>, song: Track) => {
         let songCopy = Object.assign({}, song);
         delete songCopy.target;
         api.patch(this.props.buildServerUrl("/track"), songCopy)
@@ -41,7 +55,7 @@ class EditMetadataComponent extends Component {
         event.preventDefault();
     };
 
-    handleInputChange = (propertyName, value) => {
+    handleInputChange = (propertyName: lodash.PropertyPath, value: string) => {
         let song = Object.assign({}, this.state.song);
         lodash.set(song, propertyName, value);
         this.setState({
@@ -50,19 +64,23 @@ class EditMetadataComponent extends Component {
     };
 
     render() {
-        return <form onSubmit={(e) => this.handleSubmit(e, this.state.song)}>
+        return <Form
+            onSubmit={(e) => this.handleSubmit(e, this.state.song)}
+            loading={lodash.isEmpty(this.state.modifyableTags)}
+        >
             {this.state.modifyableTags.map(mt =>
-                <span>
-                    {mt.propertyName}: <input
-                    type={mt.htmlType}
-                    value={lodash.get(this.state.song, mt.propertyName, "")}
-                    onChange={(e) => this.handleInputChange(mt.propertyName, e.target.value)}
-                />
-                <br/>
-                </span>
+                    <Form.Field>
+                        <Form.Input
+                            label={mt.propertyName}
+                            type={mt.htmlType}
+                            onChange={(e) => this.handleInputChange(mt.propertyName, e.target.value)}
+                            value={lodash.get(this.state.song, mt.propertyName, "")}
+                            width={6}
+                        />
+                    </Form.Field>
             )}
-            <input type="submit" value="Submit"/>
-        </form>;
+            <Form.Button content='Submit' />
+        </Form>;
     }
 }
 
