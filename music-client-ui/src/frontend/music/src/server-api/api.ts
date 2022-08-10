@@ -1,6 +1,7 @@
 /// <reference path="./custom.d.ts" />
 // tslint:disable
 // @ts-nocheck
+/* eslint-disable */
 /**
  * Api Documentation
  * Api Documentation
