@@ -5,6 +5,7 @@ import * as lodash from "lodash";
 import {api} from "./App";
 import {Track} from "./types/Track";
 import {AxiosResponse} from "axios";
+import {Form} from "semantic-ui-react";
 
 type props = {
     song: Track,
@@ -63,19 +64,26 @@ class EditMetadataComponent extends Component<props, state> {
     };
 
     render() {
-        return <form onSubmit={(e) => this.handleSubmit(e, this.state.song)}>
+        return <Form
+            onSubmit={(e) => this.handleSubmit(e, this.state.song)}
+            loading={lodash.isEmpty(this.state.modifyableTags)}
+        >
             {this.state.modifyableTags.map(mt =>
                 <span>
-                    {mt.propertyName}: <input
-                    type={mt.htmlType}
-                    value={lodash.get(this.state.song, mt.propertyName, "")}
-                    onChange={(e) => this.handleInputChange(mt.propertyName, e.target.value)}
-                />
+                    <Form.Field>
+                        <Form.Input
+                            label={mt.propertyName}
+                            type={mt.htmlType}
+                            onChange={(e) => this.handleInputChange(mt.propertyName, e.target.value)}
+                            value={lodash.get(this.state.song, mt.propertyName, "")}
+                            width={6}
+                        />
+                    </Form.Field>
                 <br/>
                 </span>
             )}
-            <input type="submit" value="Submit"/>
-        </form>;
+            <Form.Button content='Submit' />
+        </Form>;
     }
 }
 
