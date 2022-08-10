@@ -4,9 +4,8 @@ import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../../App";
 import {MenuItem} from "../../types/MenuItem";
-import {Track} from "../../types/Track";
 import {AxiosResponse} from "axios";
-import {Library} from "../../server-api";
+import {Library, Track} from "../../server-api";
 
 type props<T> = {
     buildServerUrl: (valuesUrl: string) => string,

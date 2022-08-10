@@ -2,7 +2,7 @@ import {Component} from 'react';
 import * as React from 'react';
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
-import {api} from "./App";
+import {AdminApi} from "./App";
 import {toTime} from "./Utils";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
@@ -10,11 +10,9 @@ import moment from 'moment';
 import {Button} from 'semantic-ui-react'
 import './PurgableSongsComponent.css';
 import selectTableHOC from "react-table/lib/hoc/selectTable";
-import {AxiosResponse} from "axios";
-import {Track} from "./types/Track";
 import {DropdownListComponent} from "./navigation/common";
 import {MenuItem} from "./types/MenuItem";
-import {Library} from "./server-api";
+import {Library, Track} from "./server-api";
 
 const SelectTable = selectTableHOC(ReactTable);
 
@@ -50,14 +48,14 @@ export class PurgableSongsComponent extends Component<props, state> {
     purgeTracks = () => {
         const count = this.state.selectedTracks.length;
         if (count === 1 && !lodash.isUndefined(this.state.destinationTrack)) {
-            let idToDelete = this.state.selectedTracks.map(x => x.id);
+            let idToDelete: any[] = this.state.selectedTracks.map(x => x.id);
             let destinationId = this.state.destinationTrack?.id;
             let purgingMessage = toast.info(`Purging track ID ${idToDelete} into ${destinationId}.`, {
                 autoClose: false,
                 hideProgressBar: true
             });
-            api.delete(this.props.buildServerUrl("/admin/purge/" + idToDelete + "/into/" + destinationId))
-                .then(
+            // @ts-ignore
+            AdminApi.purgeIntoUsingDELETE(destinationId, idToDelete).then(
                     () => {
                         toast.dismiss(purgingMessage);
                         toast.success(`Successfully purged track ID ${idToDelete}.`);
@@ -69,7 +67,7 @@ export class PurgableSongsComponent extends Component<props, state> {
                 autoClose: false,
                 hideProgressBar: true
             });
-            api.delete(this.props.buildServerUrl("/admin/purge"), {data: this.state.selectedTracks.map(x => x.id)})
+            AdminApi.purgeDeletedTracksUsingDELETE(this.state.selectedTracks.map(x => x.id))
                 .then(
                     () => {
                         toast.dismiss(purgingMessage);
@@ -80,11 +78,11 @@ export class PurgableSongsComponent extends Component<props, state> {
     };
 
     listPurgableTracks = () => {
-        api.get(this.props.buildServerUrl("/admin/purge"))
+        AdminApi.listPurgableTracksUsingGET()
             .then(
-                (result: AxiosResponse<Track[]>) => {
+                (result: Track[]) => {
                     this.setState({
-                        purgableTracks: result.data,
+                        purgableTracks: result,
                         selectedTracks: []
                     });
                 });

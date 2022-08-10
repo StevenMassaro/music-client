@@ -6,10 +6,9 @@ import {toast} from "react-toastify";
 import {AdminApi, api, LibraryApi, MUSIC_FILE_SOURCE_TYPES} from "./App";
 import {DropdownListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
-import {Library, PlaylistRes} from "./server-api";
+import {Library, PlaylistRes, Track} from "./server-api";
 import {MenuItem} from "./types/MenuItem";
 import {SmartPlaylist} from "./types/SmartPlaylist";
-import {Track} from "./types/Track";
 import {PlaylistTypeEnum} from "./playlist/CreatePlaylistComponent";
 import lodash from 'lodash';
 

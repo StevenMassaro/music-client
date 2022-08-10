@@ -5,8 +5,7 @@ import {toTime} from "../../Utils";
 import moment from 'moment';
 import {Item, Menu, Submenu, Separator, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
-import {Track} from "../../types/Track";
-import {PlaylistRes} from "../../server-api";
+import {PlaylistRes, Track} from "../../server-api";
 
 type props = {
     activeSongList: Track[],

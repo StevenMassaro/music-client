@@ -21,7 +21,6 @@ import {PurgableSongsComponent} from "./PurgableSongsComponent";
 import {Button, Modal} from "semantic-ui-react";
 import {GenericSongListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
-import {Track} from "./types/Track";
 import {Settings} from "./types/Settings";
 import {WebsocketListener} from "./WebsocketListener";
 import download from 'downloadjs';
@@ -32,7 +31,7 @@ import {
     Library,
     LibraryEndpointApi,
     PlaylistEndpointApi,
-    PlaylistRes
+    PlaylistRes, Track, TrackEndpointApi
 } from "./server-api";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
@@ -47,6 +46,7 @@ export var AdminApi: AdminEndpointApi;
 export var LibraryApi: LibraryEndpointApi;
 export var PlaylistApi: PlaylistEndpointApi;
 export var DeviceApi: DeviceEndpointApi;
+export var TrackApi: TrackEndpointApi;
 
 type props = {}
 
@@ -120,7 +120,7 @@ class App extends Component<props, state> {
      */
     setUpNext = (newUpNext: Track[]) => {
         if (!lodash.isEmpty(newUpNext)) {
-            this._setBackgroundImage(newUpNext[0].id);
+            this._setBackgroundImage(newUpNext[0].id!);
         }
         this.setState({
             upNext: newUpNext
@@ -170,7 +170,7 @@ class App extends Component<props, state> {
             const curThresh = this._determineCurrentListenedThreshold();
             if (curThresh < LISTENED_THRESHOLD) {
                 console.log(`song is not considered listened to (listen threshold of ${curThresh}), marked as skipped`);
-                this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
+                this._markSkipped(this._getCurrentSong()!.id!, durationBeforeSkipped);
             }
             else {
                 console.log(`song is considered listened to, not marking as skipped`);
@@ -180,7 +180,7 @@ class App extends Component<props, state> {
         let upNext: Track[] = Object.assign([], this.state.upNext);
         upNext.shift(); // remove current song
         if (!lodash.isEmpty(upNext)) {
-            this._setBackgroundImage(upNext[0].id);
+            this._setBackgroundImage(upNext[0].id!);
         }
         this.setState({
             upNext: upNext,
@@ -198,9 +198,9 @@ class App extends Component<props, state> {
         this.setState({
             listingSongs: true
         });
-        api.get(this.buildServerUrl(`/track?libraryId=${this.state.activeLibrary!.id}`))
-            .then((result: AxiosResponse<Track[]>) => {
-                this.setActiveSongList(result.data);
+        TrackApi.listUsingGET3(this.state.activeLibrary!.id)
+            .then((result: Track[]) => {
+                this.setActiveSongList(result);
                 this.setState({
                     listingSongs: false
                 });
@@ -208,14 +208,13 @@ class App extends Component<props, state> {
     };
 
     deleteSong = (id: number) => {
-        api.delete(this.buildServerUrl("/track/" + id))
-            .then((result: AxiosResponse<Track>) => {
-                let {data} = result;
+        TrackApi.deleteUsingDELETE1(id)
+            .then((result: Track) => {
                 let songs = this.state.activeSongList.filter((song: Track) => {
-                    return song.id !== data.id
+                    return song.id !== result.id
                 });
                 this.setActiveSongList(songs);
-                toast.success("Marked '" + data.title + "' as deleted.");
+                toast.success("Marked '" + result.title + "' as deleted.");
             })
     };
 
@@ -235,6 +234,7 @@ class App extends Component<props, state> {
                     LibraryApi = new LibraryEndpointApi(config)
                     PlaylistApi = new PlaylistEndpointApi(config)
                     DeviceApi = new DeviceEndpointApi(config)
+                    TrackApi = new TrackEndpointApi(config)
 
                     this.setState({
                         loadedSettings: true,
@@ -255,7 +255,7 @@ class App extends Component<props, state> {
     }
 
     _addToPlaylist = (playlist: PlaylistRes, track: Track) => {
-        api.patch(this.buildServerUrl(`/playlist/${playlist.id}?trackId=${track.id}`))
+        PlaylistApi.addTrackToPlaylistUsingPATCH(playlist.id, track.id)
             .then(() => toast.success(`Added track ${track.title} - ${track.artist} to playlist ${playlist.name}`))
     }
 
@@ -340,7 +340,7 @@ class App extends Component<props, state> {
     markListenedIfExceedsThreshold = () => {
         const curThresh = this._determineCurrentListenedThreshold();
         if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
-            this._markListened(this._getCurrentSong()!.id);
+            this._markListened(this._getCurrentSong()!.id!);
             this.setState({
                 currentSongMarkedListened: true
             })
@@ -357,8 +357,9 @@ class App extends Component<props, state> {
      * @private
      */
     _markListened = (id: number) => {
-        api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device!.id))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
+        TrackApi.markTrackAsListenedUsingPOST1(this.state.device!.id, id).then(track => {
+            this._replaceSingleSongInSongsLists(id, track)
+        })
     };
 
     /**
@@ -394,13 +395,13 @@ class App extends Component<props, state> {
      * @private
      */
     _markSkipped = (id: number, secondsPlayedBeforeSkip: number) => {
-        api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device!.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
+        TrackApi.markTrackAsSkippedUsingPOST(this.state.device!.id, id, secondsPlayedBeforeSkip)
+            .then((result: Track) => this._replaceSingleSongInSongsLists(id, result));
     };
 
     showInfo = (song: Track) => {
         let copy = Object.assign([], song);
-        delete copy.target;
+        // delete copy.target;
         this.setState({
             modalContent: <ReactJson src={copy}
                                      displayDataTypes={false}
@@ -487,8 +488,8 @@ class App extends Component<props, state> {
      * @private
      */
     _setRating = (id: number, rating: number) => {
-        api.patch(this.buildServerUrl("/track/" + id + "/rating/" + rating))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data))
+        TrackApi.updateRatingUsingPATCH(id, rating)
+            .then((result: Track) => this._replaceSingleSongInSongsLists(id, result))
     };
 
     /**

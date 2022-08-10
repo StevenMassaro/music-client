@@ -5,10 +5,8 @@ import Dropzone from 'react-dropzone-uploader';
 import {isEmpty, isNumber} from "lodash";
 import {Dropdown} from "semantic-ui-react";
 import {DropdownProps} from "semantic-ui-react/dist/commonjs/modules/Dropdown/Dropdown";
-import {Library} from "./server-api";
-import {api, LibraryApi} from "./App";
-import {AxiosResponse} from "axios";
-import {Track} from "./types/Track";
+import {Library, Track} from "./server-api";
+import {LibraryApi} from "./App";
 
 type props = {
     existingId: number | undefined,
