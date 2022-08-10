@@ -69,7 +69,6 @@ class EditMetadataComponent extends Component<props, state> {
             loading={lodash.isEmpty(this.state.modifyableTags)}
         >
             {this.state.modifyableTags.map(mt =>
-                <span>
                     <Form.Field>
                         <Form.Input
                             label={mt.propertyName}
@@ -79,8 +78,6 @@ class EditMetadataComponent extends Component<props, state> {
                             width={6}
                         />
                     </Form.Field>
-                <br/>
-                </span>
             )}
             <Form.Button content='Submit' />
         </Form>;
