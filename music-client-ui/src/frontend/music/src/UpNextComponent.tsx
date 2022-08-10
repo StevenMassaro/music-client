@@ -4,7 +4,7 @@ import ReactTable, {RowInfo} from "react-table";
 import "react-table/react-table.css";
 import {Item, Menu, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
-import {Track} from "./types/Track";
+import {Track} from "./server-api";
 import {defaultFilterMethod} from "./Utils";
 
 type props = {

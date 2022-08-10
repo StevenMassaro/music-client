@@ -3,10 +3,9 @@ import {Dropdown, DropdownItemProps} from 'semantic-ui-react'
 import {toast} from "react-toastify";
 import * as lodash from "lodash";
 import {api} from "../../App";
-import {Library} from "../../types/Library";
 import {MenuItem} from "../../types/MenuItem";
-import {Track} from "../../types/Track";
 import {AxiosResponse} from "axios";
+import {Library, Track} from "../../server-api";
 
 type props<T> = {
     buildServerUrl: (valuesUrl: string) => string,

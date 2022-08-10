@@ -21,13 +21,18 @@ import {PurgableSongsComponent} from "./PurgableSongsComponent";
 import {Button, Modal} from "semantic-ui-react";
 import {GenericSongListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
-import {Track} from "./types/Track";
 import {Settings} from "./types/Settings";
-import {Device} from './types/Device';
-import { Playlist } from './types/Playlist';
 import {WebsocketListener} from "./WebsocketListener";
-import {Library} from "./types/Library";
 import download from 'downloadjs';
+import {
+    AdminEndpointApi,
+    Device,
+    DeviceEndpointApi,
+    Library,
+    LibraryEndpointApi,
+    PlaylistEndpointApi,
+    PlaylistRes, Track, TrackEndpointApi
+} from "./server-api";
 
 export const LISTENED_THRESHOLD = 0.75; //percentage of song needed to be listened to be considered a "play"
 
@@ -37,6 +42,11 @@ export const MUSIC_FILE_SOURCE_TYPES = {
 };
 
 export const api = require('axios').default.create();
+export var AdminApi: AdminEndpointApi;
+export var LibraryApi: LibraryEndpointApi;
+export var PlaylistApi: PlaylistEndpointApi;
+export var DeviceApi: DeviceEndpointApi;
+export var TrackApi: TrackEndpointApi;
 
 type props = {}
 
@@ -52,7 +62,7 @@ type state = {
     audioEl: HTMLAudioElement | undefined,
     settings: Settings | undefined,
     device: Device | undefined,
-    playlists: Playlist[],
+    playlists: PlaylistRes[],
     listingSongs: boolean,
     activeLibrary: Library | undefined
 }
@@ -162,7 +172,7 @@ class App extends Component<props, state> {
             const curThresh = this._determineCurrentListenedThreshold();
             if (curThresh < LISTENED_THRESHOLD) {
                 console.log(`song is not considered listened to (listen threshold of ${curThresh}), marked as skipped`);
-                this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
+                this._markSkipped(this._getCurrentSong()!.id!, durationBeforeSkipped);
             }
             else {
                 console.log(`song is considered listened to, not marking as skipped`);
@@ -193,9 +203,9 @@ class App extends Component<props, state> {
         this.setState({
             listingSongs: true
         });
-        api.get(this.buildServerUrl(`/track?libraryId=${this.state.activeLibrary!.id}`))
-            .then((result: AxiosResponse<Track[]>) => {
-                this.setActiveSongList(result.data);
+        TrackApi.listUsingGET3(this.state.activeLibrary!.id)
+            .then((result: Track[]) => {
+                this.setActiveSongList(result);
                 this.setState({
                     listingSongs: false
                 });
@@ -203,14 +213,13 @@ class App extends Component<props, state> {
     };
 
     deleteSong = (id: number) => {
-        api.delete(this.buildServerUrl("/track/" + id))
-            .then((result: AxiosResponse<Track>) => {
-                let {data} = result;
+        TrackApi.deleteUsingDELETE1(id)
+            .then((result: Track) => {
                 let songs = this.state.activeSongList.filter((song: Track) => {
-                    return song.id !== data.id
+                    return song.id !== result.id
                 });
                 this.setActiveSongList(songs);
-                toast.success("Marked '" + data.title + "' as deleted.");
+                toast.success("Marked '" + result.title + "' as deleted.");
             })
     };
 
@@ -222,6 +231,16 @@ class App extends Component<props, state> {
                     api.defaults.headers.common['Authorization'] = `${data.serverApiAuthHeader}`;
                     api.defaults.headers.post['Content-Type'] = 'application/json';
                     api.defaults.headers.patch['Content-Type'] = 'application/json';
+                    let config = {
+                        // todo this needs to not do a replace, this is wrong
+                        basePath: data.serverApiUrl.replaceAll("/Music", "")
+                    }
+                    AdminApi = new AdminEndpointApi(config)
+                    LibraryApi = new LibraryEndpointApi(config)
+                    PlaylistApi = new PlaylistEndpointApi(config)
+                    DeviceApi = new DeviceEndpointApi(config)
+                    TrackApi = new TrackEndpointApi(config)
+
                     this.setState({
                         loadedSettings: true,
                         settings: data
@@ -233,29 +252,24 @@ class App extends Component<props, state> {
     };
 
     _listPlaylists = () => {
-        api.get(this.buildServerUrl("/playlist"))
-            .then(
-                (result: AxiosResponse<Playlist[]>) => {
-                    this.setState({
-                        playlists: result.data
-                    });
-                });
+        PlaylistApi.listUsingGET1().then(playlists => {
+            this.setState({
+                playlists
+            });
+        })
     }
 
-    _addToPlaylist = (playlist: Playlist, track: Track) => {
-        api.patch(this.buildServerUrl(`/playlist/${playlist.id}?trackId=${track.id}`))
+    _addToPlaylist = (playlist: PlaylistRes, track: Track) => {
+        PlaylistApi.addTrackToPlaylistUsingPATCH(playlist.id, track.id)
             .then(() => toast.success(`Added track ${track.title} - ${track.artist} to playlist ${playlist.name}`))
     }
 
     getDeviceId = () => {
-        api.get(this.buildServerUrl("/device/name/" + this.state.settings!.deviceName))
-            .then(
-                (result: AxiosResponse<Device>) => {
-                    this.setState({
-                        device: result.data
-                    });
-                })
-            ;
+        DeviceApi.getDeviceByNameUsingGET(this.state.settings!.deviceName).then(device => {
+            this.setState({
+                device
+            });
+        })
     };
 
     /**
@@ -329,7 +343,7 @@ class App extends Component<props, state> {
     markListenedIfExceedsThreshold = () => {
         const curThresh = this._determineCurrentListenedThreshold();
         if (!this.state.currentSongMarkedListened && curThresh > LISTENED_THRESHOLD) {
-            this._markListened(this._getCurrentSong()!.id);
+            this._markListened(this._getCurrentSong()!.id!);
             this.setState({
                 currentSongMarkedListened: true
             })
@@ -346,8 +360,9 @@ class App extends Component<props, state> {
      * @private
      */
     _markListened = (id: number) => {
-        api.post(this.buildServerUrl("track/" + id + "/listened?deviceId=" + this.state.device!.id))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
+        TrackApi.markTrackAsListenedUsingPOST1(this.state.device!.id, id).then(track => {
+            this._replaceSingleSongInSongsLists(id, track)
+        })
     };
 
     /**
@@ -383,13 +398,13 @@ class App extends Component<props, state> {
      * @private
      */
     _markSkipped = (id: number, secondsPlayedBeforeSkip: number) => {
-        api.post(this.buildServerUrl("track/" + id + "/skipped?deviceId=" + this.state.device!.id + (secondsPlayedBeforeSkip ? "&secondsPlayed=" + secondsPlayedBeforeSkip : "")))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data));
+        TrackApi.markTrackAsSkippedUsingPOST(this.state.device!.id, id, secondsPlayedBeforeSkip)
+            .then((result: Track) => this._replaceSingleSongInSongsLists(id, result));
     };
 
     showInfo = (song: Track) => {
         let copy = Object.assign([], song);
-        delete copy.target;
+        // delete copy.target;
         this.setState({
             modalContent: <ReactJson src={copy}
                                      displayDataTypes={false}
@@ -476,8 +491,8 @@ class App extends Component<props, state> {
      * @private
      */
     _setRating = (id: number, rating: number) => {
-        api.patch(this.buildServerUrl("/track/" + id + "/rating/" + rating))
-            .then((result: AxiosResponse<Track>) => this._replaceSingleSongInSongsLists(id, result.data))
+        TrackApi.updateRatingUsingPATCH(id, rating)
+            .then((result: Track) => this._replaceSingleSongInSongsLists(id, result))
     };
 
     /**

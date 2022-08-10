@@ -2,12 +2,12 @@ import React, {Component, createRef} from 'react';
 import './App.css';
 import AlbumArtComponent from "./AlbumArtComponent";
 import {toast} from "react-toastify";
-import {Track} from "./types/Track";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import H5AudioPlayer from "react-h5-audio-player";
 import StarRatingComponent from 'react-star-rating-component';
 import {Settings} from "./types/Settings";
+import {Track} from "./server-api";
 
 type props = {
     currentSong: () => Track | undefined,

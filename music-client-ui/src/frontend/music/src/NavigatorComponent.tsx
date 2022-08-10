@@ -3,15 +3,14 @@ import {Component} from 'react';
 import './App.css';
 import {Menu} from 'semantic-ui-react'
 import {toast} from "react-toastify";
-import {api, MUSIC_FILE_SOURCE_TYPES} from "./App";
+import {AdminApi, api, LibraryApi, MUSIC_FILE_SOURCE_TYPES} from "./App";
 import {DropdownListComponent} from "./navigation/common";
 import {AxiosResponse} from "axios";
-import {Library} from "./types/Library";
+import {Library, PlaylistRes, Track} from "./server-api";
 import {MenuItem} from "./types/MenuItem";
 import {SmartPlaylist} from "./types/SmartPlaylist";
-import {Track} from "./types/Track";
-import {Playlist} from "./types/Playlist";
 import {PlaylistTypeEnum} from "./playlist/CreatePlaylistComponent";
+import lodash from 'lodash';
 
 type props = {
     showEditPlaylist: (type: PlaylistTypeEnum, toEdit: Object) => void,
@@ -29,8 +28,8 @@ type props = {
 };
 type state = {
     activeItem: MenuItem | null,
-    purgableTracksCount: string,
-    updatesCount: string,
+    purgableTracksCount?: number,
+    updatesCount?: number,
     libraries: Library[]
 };
 
@@ -40,8 +39,8 @@ class NavigatorComponent extends Component<props, state> {
         super(props);
         this.state = {
             activeItem: null,
-            purgableTracksCount: "?",
-            updatesCount: "?",
+            purgableTracksCount: undefined,
+            updatesCount: undefined,
             libraries: []
         }
     }
@@ -54,14 +53,13 @@ class NavigatorComponent extends Component<props, state> {
     }
 
     listLibraries = () => {
-        api.get(this.props.buildServerUrl('/library'))
-            .then((response: AxiosResponse<Library[]>) => {
-                const activeLibrary = response.data[0];
-                this.setState({
-                    libraries: response.data,
-                    activeItem: new MenuItem(activeLibrary.name, activeLibrary) // todo after implementing library sorting on backend this should be smarter
-                }, () => this.props.setActiveLibrary(activeLibrary, this.props.listSongs));
-            });
+        LibraryApi.listUsingGET().then(libraries => {
+            const activeLibrary = libraries[0];
+            this.setState({
+                libraries: libraries,
+                activeItem: new MenuItem(activeLibrary.name, activeLibrary) // todo after implementing library sorting on backend this should be smarter
+            }, () => this.props.setActiveLibrary(activeLibrary, this.props.listSongs));
+        })
     };
 
     performSync = (url: string) => {
@@ -87,23 +85,19 @@ class NavigatorComponent extends Component<props, state> {
     };
 
     countPurgableTracks = () => {
-        api.get(this.props.buildServerUrl("/admin/purge/count/"))
-            .then(
-                (result: { data: any; }) => {
-                    this.setState({
-                        purgableTracksCount: result.data
-                    });
-                });
+        AdminApi.countPurgableTracksUsingGET().then(result => {
+            this.setState({
+                purgableTracksCount: result
+            });
+        })
     };
 
     countUpdates = () => {
-        api.get(this.props.buildServerUrl("/admin/update/count/"))
-            .then(
-                (result: { data: any; }) => {
-                    this.setState({
-                        updatesCount: result.data
-                    });
-                });
+        AdminApi.countUpdatesUsingGET().then(result => {
+            this.setState({
+                updatesCount: result
+            });
+        })
     };
 
     applyUpdates = () => {
@@ -111,13 +105,11 @@ class NavigatorComponent extends Component<props, state> {
             autoClose: false,
             hideProgressBar: true
         });
-        api.post(this.props.buildServerUrl("/admin/update"))
-            .then(
-                () => {
-                    toast.dismiss(purgingMessage);
-                    toast.success("Successfully applied updates to disk.");
-                    this._refreshSongListWithActiveLibrary();
-                });
+        AdminApi.applyUpdatesToSongsUsingPOST().then(() => {
+            toast.dismiss(purgingMessage);
+            toast.success("Successfully applied updates to disk.");
+            this._refreshSongListWithActiveLibrary();
+        })
     };
 
     _isActive = (name: string) => this.state.activeItem!.name === name;
@@ -194,8 +186,9 @@ class NavigatorComponent extends Component<props, state> {
                         title={"Playlists"}
                         valuesUrl={"/playlist"}
                         tracksUrl={"/track?playlist="}
-                        valueGetter={(value: Playlist) => value.id}
-                        textGetter={(value: Playlist) => value.name}
+                        // @ts-ignore
+                        valueGetter={(value: PlaylistRes) => value.id}
+                        textGetter={(value: PlaylistRes) => value.name}
                         activeMenuItem={this.state.activeItem!}
                         setActiveMenuItem={this._setActiveMenuItem}
                         setActiveSongList={this.props.setActiveSongList}
@@ -215,9 +208,10 @@ class NavigatorComponent extends Component<props, state> {
                             setActiveSongList={this.props.setActiveSongList}
                             valuesUrl={"/playlist"}
                             setActiveMenuItem={this._setActiveMenuItem}
-                            dropdownOnClickCallback={(value: Playlist) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
-                            valueGetter={(value: Playlist) => value.id}
-                            textGetter={(value: Playlist) => value.name}
+                            dropdownOnClickCallback={(value: PlaylistRes) => this.props.showEditPlaylist(PlaylistTypeEnum.default, value)}
+                            // @ts-ignore
+                            valueGetter={(value: PlaylistRes) => value.id}
+                            textGetter={(value: PlaylistRes) => value.name}
                             buildServerUrl={this.props.buildServerUrl}
                             shouldListTracksOnClick={true}
                         />
@@ -247,18 +241,22 @@ class NavigatorComponent extends Component<props, state> {
                                     Sync client active library
                                 </Menu.Item>
                             }
-                            <Menu.Item
-                                name={"Purge deleted tracks"}
-                                onClick={() => this.props.showPurgableTracksModalCallback()}
-                            >
-                                Purge deleted tracks ({this.state.purgableTracksCount})
-                            </Menu.Item>
-                            <Menu.Item
-                                name={"Apply updates to disk"}
-                                onClick={() => this.applyUpdates()}
-                            >
-                                Apply updates to disk ({this.state.updatesCount})
-                            </Menu.Item>
+                            {
+                                !lodash.isUndefined(this.state.purgableTracksCount) && <Menu.Item
+                                    name={"Purge deleted tracks"}
+                                    onClick={() => this.props.showPurgableTracksModalCallback()}
+                                >
+                                    Purge deleted tracks ({this.state.purgableTracksCount})
+                                </Menu.Item>
+                            }
+                            {
+                                !lodash.isUndefined(this.state.updatesCount) && <Menu.Item
+                                    name={"Apply updates to disk"}
+                                    onClick={() => this.applyUpdates()}
+                                >
+                                    Apply updates to disk ({this.state.updatesCount})
+                                </Menu.Item>
+                            }
                             <Menu.Item
                                 name={"Upload songs"}
                                 onClick={() => this.props.showUploadSongs()}

@@ -5,8 +5,7 @@ import {toTime} from "../../Utils";
 import moment from 'moment';
 import {Item, Menu, Submenu, Separator, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
-import {Track} from "../../types/Track";
-import { Playlist } from '../../types/Playlist';
+import {PlaylistRes, Track} from "../../server-api";
 
 type props = {
     activeSongList: Track[],
@@ -22,8 +21,8 @@ type props = {
     showEditAlbumArt: (song: Track) => void,
     showEditMetadata: (song: Track) => void,
     setRating: (id: number, rating: number) => void,
-    playlists: Playlist[],
-    addToPlaylist: (playlist: Playlist, track: Track) => void,
+    playlists: PlaylistRes[],
+    addToPlaylist: (playlist: PlaylistRes, track: Track) => void,
     listingSongs: boolean,
     downloadSong: (song: Track) => void,
 }
