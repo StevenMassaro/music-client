@@ -64,3 +64,16 @@
 .ReactTable .rt-noData {
   z-index: unset !important;
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#menuWrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+#menuWrapper {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow-y: scroll;
+    height: 100%;
+}
