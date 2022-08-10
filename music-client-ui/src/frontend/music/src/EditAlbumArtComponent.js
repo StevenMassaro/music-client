@@ -62,6 +62,9 @@ class EditMetadataComponent extends Component {
                 />
             </div>
             <div>
+                <a href={this.getAlbumArtUrl()} target={"_blank"} rel="noreferrer">Open Album Art Exchange in new tab</a>
+            </div>
+            <div>
                 <iframe
                     title={"Album Art Exchange search page"}
                     src={this.getAlbumArtUrl()}

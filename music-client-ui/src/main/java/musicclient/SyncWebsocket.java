@@ -25,4 +25,10 @@ public class SyncWebsocket {
         log.trace("Sending {}", syncUpdate);
         simpMessagingTemplate.convertAndSend(SYNC_UPDATE_DESTINATION, syncUpdate);
     }
+
+    public void sendSyncStepCompleteMessage(int max, SyncStep syncStep) {
+        SyncUpdate syncUpdate = new SyncUpdate(max, max, syncStep);
+        log.trace("Sending {}", syncUpdate);
+        simpMessagingTemplate.convertAndSend(SYNC_UPDATE_DESTINATION, syncUpdate);
+    }
 }
