@@ -12,12 +12,12 @@ import {Track} from "./server-api";
 type props = {
     currentSong: () => Track | undefined,
     currentSongSrc: () => string,
-    onSongEnd: (skipped: boolean) => void,
     setAudioElement: (element: HTMLAudioElement | null) => void,
     markListenedIfExceedsThreshold: () => void,
     buildServerUrl: (relativePath: string) => string,
     settings: Settings,
     setRating: (id: number, rating: number) => void,
+    navigateActiveSongInUpNext: (skipped: boolean, direction: number) => void,
 }
 
 type state = {
@@ -64,8 +64,9 @@ class PlayerComponent extends Component<props, state> {
                         </span>}
                         src={this.props.currentSongSrc()}
                         autoPlay
-                        onEnded={() => this.props.onSongEnd(false)}
-                        onClickNext={() => this.props.onSongEnd(true)}
+                        onEnded={() => this.props.navigateActiveSongInUpNext(false, 1)}
+                        onClickNext={() => this.props.navigateActiveSongInUpNext(true, 1)}
+                        onClickPrevious={() => this.props.navigateActiveSongInUpNext(true, -1)}
                         showSkipControls={true}
                         ref={this.audioRef}
                         onPlaying={this.onPlaying.bind(this)}
@@ -84,7 +85,7 @@ class PlayerComponent extends Component<props, state> {
                                         autoClose: false
                                     })
                                 } else {
-                                    return this.props.onSongEnd(false);
+                                    return this.props.navigateActiveSongInUpNext(false, 1);
                                 }
                             });
                         }}

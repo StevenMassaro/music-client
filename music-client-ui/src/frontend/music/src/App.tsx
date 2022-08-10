@@ -52,6 +52,7 @@ type props = {}
 
 type state = {
     upNext: Track[],
+    currentMusicIndex: number,
     loadedSettings: boolean,
     currentSongMarkedListened: boolean,
     modalContent: any,
@@ -72,6 +73,7 @@ class App extends Component<props, state> {
         super(props);
         this.state = {
             upNext: [],
+            currentMusicIndex: 0,
             loadedSettings: false,
             currentSongMarkedListened: false,
             modalContent: undefined,
@@ -116,14 +118,13 @@ class App extends Component<props, state> {
 
     /**
      * Set the upNext list in the state to the newUpNext, and automatically change the background album art as needed.
-     * @param newUpNext
      */
-    setUpNext = (newUpNext: Track[]) => {
-        if (!lodash.isEmpty(newUpNext)) {
-            this._setBackgroundImage(newUpNext[0].id!);
-        }
+    setUpNext = (newUpNext: Track[], resetCurrentMusicIndexToZero: Boolean = false) => {
         this.setState({
-            upNext: newUpNext
+            upNext: newUpNext,
+            currentMusicIndex: resetCurrentMusicIndexToZero ? 0 : this.state.currentMusicIndex
+        }, () => {
+            this._setBackgroundImage(this.state.upNext[this.state.currentMusicIndex].id);
         });
     };
 
@@ -152,18 +153,19 @@ class App extends Component<props, state> {
      * @private
      */
     _getCurrentSong = () => {
-        if (this.state.upNext && this.state.upNext[0]) {
-            return this.state.upNext[0];
+        if (this.state.upNext && this.state.upNext[this.state.currentMusicIndex]) {
+            return this.state.upNext[this.state.currentMusicIndex];
         } else {
             return undefined;
         }
     };
 
     /**
-     * Perform end of song actions, like loading the next song in the queue.
+     * Jump to playing another song in the up next queue. Perform end of song actions, like loading the next song in the queue.
      * @param skipped if true, mark the song as skipped in the database and record the number of seconds played before skipping
+     * @param direction positive one to skip to next song, negative one to skip to previous song
      */
-    onCurrentSongEnd = (skipped = false) => {
+    navigateActiveSongInUpNext = (skipped = true, direction: number) => {
         if (skipped) {
             const durationBeforeSkipped = this.state.audioEl!.currentTime;
             console.log(`song played ${durationBeforeSkipped} seconds before being skipped`);
@@ -177,16 +179,19 @@ class App extends Component<props, state> {
                 this.markListenedIfExceedsThreshold();
             }
         }
-        let upNext: Track[] = Object.assign([], this.state.upNext);
-        upNext.shift(); // remove current song
-        if (!lodash.isEmpty(upNext)) {
-            this._setBackgroundImage(upNext[0].id!);
-        }
         this.setState({
-            upNext: upNext,
+            currentMusicIndex: this.state.currentMusicIndex + direction,
             currentSongMarkedListened: false
-        }, () => !lodash.isEmpty(upNext) && !lodash.isUndefined(this.state.audioEl) && this.state.audioEl!.play());
-    };
+        }, () => {
+            if (!lodash.isUndefined(this.state.upNext[this.state.currentMusicIndex])) {
+                if (!lodash.isUndefined(this.state.audioEl)) {
+                    this.state.audioEl!.play();
+                }
+                this._setBackgroundImage(this.state.upNext[this.state.currentMusicIndex].id);
+            }
+        });
+    }
+
 
     _setBackgroundImage = (id: number) => {
         document.body.style.backgroundImage = "url(" + this._generateAlbumArtUrl(id) + ")";
@@ -280,7 +285,7 @@ class App extends Component<props, state> {
             a[i] = a[j];
             a[j] = x;
         }
-        this.setUpNext(a.map(selector));
+        this.setUpNext(a.map(selector), true);
     };
 
     setAudioElement = (element: HTMLAudioElement | null) => {
@@ -291,14 +296,12 @@ class App extends Component<props, state> {
         }
     };
 
-    modifyUpNext = (newUpNext: Track[]) => {
+    clearUpNext = () => {
         // if clearing the up next list
-        if (newUpNext === []) {
-            this.setState({
-                currentSongMarkedListened: false
-            });
-        }
-        this.setUpNext(newUpNext);
+        this.setState({
+            currentSongMarkedListened: false
+        });
+        this.setUpNext([]);
     };
 
     removeFromUpNext = (index: number) => {
@@ -329,7 +332,7 @@ class App extends Component<props, state> {
      */
     playNext = (song: Track) => {
         let upNext = Object.assign([], this.state.upNext);
-        upNext.splice(1, 0, song);
+        upNext.splice(this.state.currentMusicIndex + 1, 0, song);
         this.setUpNext(upNext);
     };
 
@@ -524,11 +527,11 @@ class App extends Component<props, state> {
                         }
                     ]}
                     onPlay={() => this.state.audioEl!.play()}
-                    onNextTrack={() => this.onCurrentSongEnd(true)}
+                    onNextTrack={() => this.navigateActiveSongInUpNext(true, 1)}
+                    onPreviousTrack={() => this.navigateActiveSongInUpNext(true, -1)}
                 />
                 }
-                <Modal dimmer='blurring'
-                       open={this.state.modalContent !== undefined}
+                <Modal open={this.state.modalContent !== undefined}
                        contentLabel="Song info">
                     <Modal.Content>
                         {this.state.modalContent}
@@ -544,11 +547,11 @@ class App extends Component<props, state> {
                         currentSong={this._getCurrentSong}
                         settings={this.state.settings!}
                         currentSongSrc={this.getCurrentSongSrc}
-                        onSongEnd={this.onCurrentSongEnd}
                         markListenedIfExceedsThreshold={this.markListenedIfExceedsThreshold}
                         setAudioElement={this.setAudioElement}
                         buildServerUrl={this.buildServerUrl}
                         setRating={this._setRating}
+                        navigateActiveSongInUpNext={this.navigateActiveSongInUpNext}
                     />
                     <div>
                         <SplitPane split="vertical" defaultSize="15%">
@@ -591,7 +594,8 @@ class App extends Component<props, state> {
                                 <div>
                                     <UpNextComponent
                                         upNext={this.state.upNext}
-                                        modifyUpNext={this.modifyUpNext}
+                                        currentMusicIndex={this.state.currentMusicIndex}
+                                        clearUpNext={this.clearUpNext}
                                         removeFromUpNext={this.removeFromUpNext}
                                         moveInUpNext={this.moveInUpNext}
                                     />
