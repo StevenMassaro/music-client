@@ -517,7 +517,8 @@ class App extends Component<props, state> {
                 />
                 }
                 <Modal open={this.state.modalContent !== undefined}
-                       contentLabel="Song info">
+                       contentLabel="Song info"
+                       size={"large"}>
                     <Modal.Content>
                         {this.state.modalContent}
                     </Modal.Content>
