@@ -28,7 +28,7 @@ export class WebsocketListener extends Component {
     }
 
     handleAlbumArtUpdateToast = (msg, toastMessageCallback, toastIdCallback) => {
-        if (msg.position === 0) {
+        if (msg.position === 0 && msg.max > 0) {
             toast.info(toastMessageCallback(msg), {
                 toastId: toastIdCallback(msg),
                 autoClose: false,
