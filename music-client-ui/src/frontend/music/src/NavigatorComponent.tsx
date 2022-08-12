@@ -129,6 +129,12 @@ class NavigatorComponent extends Component<props, state> {
         this.setState({activeItem: new MenuItem(name, library)});
     };
 
+    _confirmationCallback = (callback: () => void, action: string = "sync") => {
+        if (window.confirm(`Are you sure you want to ${action}?`)) {
+            callback();
+        }
+    }
+
     render() {
         return (
             <div id={"menuWrapper"}>
@@ -229,20 +235,20 @@ class NavigatorComponent extends Component<props, state> {
                     <Menu.Menu>
                         <Menu.Item
                             name={"Sync server active library"}
-                            onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=false&libraryId=${this.state.activeItem!.library!.id}`))}
+                            onClick={() => this._confirmationCallback(() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=false&libraryId=${this.state.activeItem!.library!.id}`)), "sync server")}
                         >
                             Sync server active library
                         </Menu.Item>
                         <Menu.Item
                             name={"Sync server active library, forcing updates"}
-                            onClick={() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=true&libraryId=${this.state.activeItem!.library!.id}`))}
+                            onClick={() => this._confirmationCallback(() => this.performSync(this.props.buildServerUrl(`/admin/dbSync?forceUpdates=true&libraryId=${this.state.activeItem!.library!.id}`)), "sync server, forcing updates")}
                         >
                             Sync server active library, forcing updates
                         </Menu.Item>
                         {this.props.musicFileSource === MUSIC_FILE_SOURCE_TYPES.local &&
                         <Menu.Item
                             name={"Sync client active library"}
-                                    onClick={() => this.performSync("./sync")}
+                                    onClick={() => this._confirmationCallback(() => this.performSync("./sync"), "sync client")}
                                 >
                                     Sync client active library
                                 </Menu.Item>
