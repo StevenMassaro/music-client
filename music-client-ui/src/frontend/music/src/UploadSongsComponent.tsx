@@ -9,6 +9,7 @@ import {Library} from "./types/Library";
 import {api} from "./App";
 import {AxiosResponse} from "axios";
 import {Track} from "./types/Track";
+import {toast} from "react-toastify";
 
 type props = {
     existingId: number | undefined,
@@ -107,6 +108,12 @@ class UploadSongsComponent extends Component<props, state> {
                     } else if (status === 'preparing') {
                         this.setState({
                             isLibraryDropdownDisabled: true
+                        })
+                    } else if (status === 'error_upload') {
+                        let statusCode = xhr?.status;
+                        let message = statusCode === 409 ? meta.name + " already exists." : "Failed to upload song.";
+                        toast.error(message, {
+                            autoClose: false
                         })
                     }
                 }}
