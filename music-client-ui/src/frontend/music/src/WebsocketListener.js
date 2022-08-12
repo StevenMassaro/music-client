@@ -24,7 +24,7 @@ export class WebsocketListener extends Component {
     handleSyncUpdateMessage = (msg) => {
         this.handleAlbumArtUpdateToast(msg,
             (msg) => buildSyncUpdateToastMessage(msg),
-            () => "sync_updates_toast")
+            () => "sync_updates_toast" + msg.syncStep)
     }
 
     handleAlbumArtUpdateToast = (msg, toastMessageCallback, toastIdCallback) => {
