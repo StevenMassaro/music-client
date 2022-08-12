@@ -214,7 +214,7 @@ public class SyncService extends AbstractService {
             try {
                 return Integer.parseInt(val) * 1000;
             } catch (Exception e) {
-                System.out.println(e.toString());
+                log.trace("Failed to parse integer value from {}", val, e);
                 return defaultValue * 1000;
             }
         }
