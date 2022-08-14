@@ -243,8 +243,17 @@ class App extends Component<props, state> {
     }
 
     _addToPlaylist = (playlist: Playlist, track: Track) => {
+        const prettyTrackName = `${track.title} - ${track.artist}`
         api.patch(this.buildServerUrl(`/playlist/${playlist.id}?trackId=${track.id}`))
-            .then(() => toast.success(`Added track ${track.title} - ${track.artist} to playlist ${playlist.name}`))
+            .then(() => toast.success(`Added track ${prettyTrackName} to playlist ${playlist.name}`))
+            .catch((reason: any) => {
+                const statusCode = lodash.get(reason, "response.status", null);
+                if (statusCode === 409) {
+                    toast.warning(`Track ${prettyTrackName} is already in playlist ${playlist.name}`)
+                } else {
+                    toast.error(`Failed to add track ${prettyTrackName} to playlist ${playlist.name}`)
+                }
+            })
     }
 
     getDeviceId = () => {
