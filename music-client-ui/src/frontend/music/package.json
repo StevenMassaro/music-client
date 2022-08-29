@@ -17,7 +17,7 @@
     "moment": "2.29.4",
     "prop-types": "15.8.1",
     "react": "^16.14.0",
-    "react-h5-audio-player": "3.8.4",
+    "react-h5-audio-player": "3.8.5",
     "react-contexify": "5.0.0",
     "react-dom": "^16.14.0",
     "react-dropzone-uploader": "2.11.0",
