@@ -114,7 +114,7 @@ class EditMetadataComponent extends Component {
                 this.state.maximizedImageUrl && <span>
                     <button onClick={this.applyItunesAlbumArt}>Apply album art</button>
                     <button onClick={() => this.setState({maximizedImageUrl: null})}>Back</button>
-                    <img src={this.state.maximizedImageUrl} alt={"full resolution image"} className={"albumArtLarge modal"}/>
+                    <img src={this.state.maximizedImageUrl} alt={"full resolution"} className={"albumArtLarge modal"}/>
                 </span>
             }
         </div>;
