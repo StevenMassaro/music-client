@@ -420,6 +420,7 @@ class App extends Component<props, state> {
         this.setState({
             modalContent: <EditAlbumArtComponent song={song}
                                                  buildServerUrl={this.buildServerUrl}
+                                                 closeModal={this.closeModal}
             />
         });
     };
@@ -499,6 +500,10 @@ class App extends Component<props, state> {
             + (relativePath.startsWith("/") ? relativePath : "/" + relativePath);
     };
 
+    closeModal = () => {
+        this.setState({modalContent: undefined}, this.state.modalOnCloseCallback)
+    }
+
     render() {
         const currentSong = this._getCurrentSong();
         const albumArtUrl = currentSong && this._generateAlbumArtUrl(currentSong.id);
@@ -532,7 +537,7 @@ class App extends Component<props, state> {
                         {this.state.modalContent}
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button onClick={() => this.setState({modalContent: undefined}, this.state.modalOnCloseCallback)}>
+                        <Button onClick={this.closeModal}>
                             Close
                         </Button>
                     </Modal.Actions>

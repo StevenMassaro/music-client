@@ -11,7 +11,8 @@ class EditMetadataComponent extends Component {
         let songCopy = Object.assign({}, props.song);
         this.state = {
             updateAll: true,
-            song: songCopy
+            song: songCopy,
+            maximizedImageUrl: null
         }
     }
 
@@ -39,11 +40,48 @@ class EditMetadataComponent extends Component {
                             .catch(() => {
                                 toast.error("Failed to update album art.");
                             })
+                        this.props.closeModal()
                     }.bind(this);
                     reader.readAsDataURL(blob);
                 }
             }
         }.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadITunesAlbumArt()
+    }
+
+    loadITunesAlbumArt = () => {
+        // from https://github.com/bendodson/itunes-artwork-finder
+        let url = 'https://itunes.apple.com/search?term=' + encodeURI(this.state.song.album) + '&country=us&entity=album'; //hardcoded country to USA
+        api.get(url)
+            .then((result) => {
+                this.setState({
+                    results: result.data.results
+                });
+            })
+    }
+
+    maximizeImage = artworkUrl100 => {
+        this.setState({
+            maximizedImageUrl: artworkUrl100.replace("100x100bb", "9999x9999")
+        })
+    };
+
+    applyItunesAlbumArt = () => {
+        toast.info("Updating album art...");
+        api({
+            url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll + "&url=" + this.state.maximizedImageUrl),
+            method: 'post'
+        })
+            .then(() => {
+                toast.success(this.state.song.album + ": successfully updated album art.")
+            })
+            .catch(() => {
+                toast.error("Failed to update album art.");
+            })
+        this.props.closeModal();
     }
 
     toggleUpdateAll = () => this.setState({updateAll: !this.state.updateAll});
@@ -64,14 +102,21 @@ class EditMetadataComponent extends Component {
             <div>
                 <a href={this.getAlbumArtUrl()} target={"_blank"} rel="noreferrer">Open Album Art Exchange in new tab</a>
             </div>
-            <div>
-                <iframe
-                    title={"Album Art Exchange search page"}
-                    src={this.getAlbumArtUrl()}
-                        style={{'height': '70vh'}}
-                        width={'100%'}
-                />
-            </div>
+            {!this.state.maximizedImageUrl && this.state.results && <span>
+                <div>
+                    Results from iTunes are listed below. Clicking an image will expand it to full resolution.
+                </div>
+                {this.state.results.map(result =>
+                    <img src={result.artworkUrl100} alt={result.artistName + " - " + result.collectionName} onClick={() => this.maximizeImage(result.artworkUrl100)}/>
+                )}
+            </span>}
+            {
+                this.state.maximizedImageUrl && <span>
+                    <button onClick={this.applyItunesAlbumArt}>Apply album art</button>
+                    <button onClick={() => this.setState({maximizedImageUrl: null})}>Back</button>
+                    <img src={this.state.maximizedImageUrl} alt={"full resolution image"} className={"albumArtLarge modal"}/>
+                </span>
+            }
         </div>;
     }
 }
