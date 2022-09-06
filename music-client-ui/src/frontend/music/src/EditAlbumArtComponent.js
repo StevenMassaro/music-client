@@ -3,6 +3,7 @@ import './App.css';
 import {Checkbox} from "semantic-ui-react";
 import {toast} from "react-toastify";
 import {api} from "./App";
+import reactImageSize from 'react-image-size';
 
 class EditMetadataComponent extends Component {
 
@@ -12,7 +13,8 @@ class EditMetadataComponent extends Component {
         this.state = {
             updateAll: true,
             song: songCopy,
-            maximizedImageUrl: null
+            maximizedImageUrl: null,
+            imageDimensions: null
         }
     }
 
@@ -63,11 +65,24 @@ class EditMetadataComponent extends Component {
             })
     }
 
+    getFullResImageFileSize = (thumbnailUrl) => {
+        const url = this.generateLargeImageUrl(thumbnailUrl);
+
+        reactImageSize(url)
+            .then(({ width, height }) => {
+                this.setState({
+                    imageDimensions: width + "x" + height
+                })
+            })
+    }
+
     maximizeImage = artworkUrl100 => {
         this.setState({
-            maximizedImageUrl: artworkUrl100.replace("100x100bb", "9999x9999")
-        })
+            maximizedImageUrl: this.generateLargeImageUrl(artworkUrl100)
+        }, () => this.getFullResImageFileSize(artworkUrl100))
     };
+
+    generateLargeImageUrl = thumbnailUrl => thumbnailUrl.replace("100x100bb", "9999x9999")
 
     applyItunesAlbumArt = () => {
         toast.info("Updating album art...");
@@ -114,6 +129,7 @@ class EditMetadataComponent extends Component {
                 this.state.maximizedImageUrl && <span>
                     <button onClick={this.applyItunesAlbumArt}>Apply album art</button>
                     <button onClick={() => this.setState({maximizedImageUrl: null})}>Back</button>
+                    <span>{this.state.imageDimensions}</span>
                     <img src={this.state.maximizedImageUrl} alt={"full resolution"} className={"albumArtLarge modal"}/>
                 </span>
             }

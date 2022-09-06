@@ -21,6 +21,7 @@
     "react-contexify": "5.0.0",
     "react-dom": "^16.14.0",
     "react-dropzone-uploader": "2.11.0",
+    "react-image-size": "1.0.5",
     "react-json-view": "1.21.3",
     "react-scripts": "5.0.1",
     "react-split-pane": "0.1.92",
