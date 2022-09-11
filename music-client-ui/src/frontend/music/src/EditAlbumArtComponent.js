@@ -4,6 +4,9 @@ import {Checkbox} from "semantic-ui-react";
 import {toast} from "react-toastify";
 import {api} from "./App";
 import reactImageSize from 'react-image-size';
+import prettyBytes from 'pretty-bytes';
+
+const ufs = require("url-file-size");
 
 class EditMetadataComponent extends Component {
 
@@ -14,7 +17,8 @@ class EditMetadataComponent extends Component {
             updateAll: true,
             song: songCopy,
             maximizedImageUrl: null,
-            imageDimensions: null
+            imageDimensions: null,
+            imageSize: null
         }
     }
 
@@ -74,6 +78,14 @@ class EditMetadataComponent extends Component {
                     imageDimensions: width + "x" + height
                 })
             })
+
+        ufs(url)
+            .then((value => {
+                this.setState({
+                    imageSize: prettyBytes(value)
+                })
+            }))
+            .catch(console.error);
     }
 
     maximizeImage = artworkUrl100 => {
@@ -128,8 +140,12 @@ class EditMetadataComponent extends Component {
             {
                 this.state.maximizedImageUrl && <span>
                     <button onClick={this.applyItunesAlbumArt}>Apply album art</button>
-                    <button onClick={() => this.setState({maximizedImageUrl: null})}>Back</button>
-                    <span>{this.state.imageDimensions}</span>
+                    <button onClick={() => this.setState({
+                        maximizedImageUrl: null,
+                        imageDimensions: null,
+                        imageSize: null
+                    })}>Back</button>
+                    <span>{[this.state.imageDimensions, this.state.imageSize].join(" - ")}</span>
                     <img src={this.state.maximizedImageUrl} alt={"full resolution"} className={"albumArtLarge modal"}/>
                 </span>
             }
