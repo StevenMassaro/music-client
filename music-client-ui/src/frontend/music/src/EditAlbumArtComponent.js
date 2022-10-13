@@ -5,6 +5,7 @@ import {toast} from "react-toastify";
 import {api} from "./App";
 import reactImageSize from 'react-image-size';
 import prettyBytes from 'pretty-bytes';
+import ReactImageZoom from 'react-image-zoom';
 
 const ufs = require("url-file-size");
 
@@ -145,8 +146,14 @@ class EditMetadataComponent extends Component {
                         imageDimensions: null,
                         imageSize: null
                     })}>Back</button>
-                    <span>{[this.state.imageDimensions, this.state.imageSize].join(" - ")}</span>
-                    <img src={this.state.maximizedImageUrl} alt={"full resolution"} className={"albumArtLarge modal"}/>
+                    <span>{[this.state.imageDimensions, this.state.imageSize].join(" - ")} <a href={this.state.maximizedImageUrl}>Direct image URL</a></span>
+                    <ReactImageZoom
+                        width={600}
+                        height={600}
+                        zoomWidth={300}
+                        img={this.state.maximizedImageUrl}
+                        zoomPosition={"original"}
+                    />
                 </span>
             }
         </div>;
