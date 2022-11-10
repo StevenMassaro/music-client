@@ -18,7 +18,7 @@ type props = {
     playNext: (song: Track) => void,
     showInfo: (song: Track) => void,
     deleteSong: (id: number) => void,
-    showUploadSongs: (id: number | undefined) => void,
+    showUploadSongs: (song: Track | undefined) => void,
     showEditAlbumArt: (song: Track) => void,
     showEditMetadata: (song: Track) => void,
     setRating: (id: number, rating: number) => void,
@@ -205,7 +205,7 @@ export class GenericSongListComponent extends Component<props, state> {
                             {this._generatePlaylistList()}
                         </Submenu>
                     }
-                    <Item onClick={() => this.props.showUploadSongs(this.state.clickedData!.id)}>
+                    <Item onClick={() => this.props.showUploadSongs(this.state.clickedData!)}>
                         <div className="green">Replace track...</div>
                     </Item>
                     <Item onClick={() => this.props.deleteSong(this.state.clickedData!.id)}>

@@ -449,15 +449,15 @@ class App extends Component<props, state> {
 
     /**
      * Show the modal to upload songs.
-     * @param existingId if not null or undefined, this should be the ID of the song that is being replaced. If null or
+     * @param existingTrack if not null or undefined, this should be the ID of the song that is being replaced. If null or
      * undefined, it is assumed that new tracks are being uploaded and no tracks are being replaced.
      */
-    showUploadSongs = (existingId: number | undefined = undefined) => {
+    showUploadSongs = (existingTrack: Track | undefined = undefined) => {
         this.setState({
             modalContent: <UploadSongsComponent
                 activeSongList={this.state.activeSongList}
                 setActiveSongList={this.setActiveSongList}
-                existingId={existingId}
+                existingTrack={existingTrack}
                 buildServerUrl={this.buildServerUrl}
             />,
             modalOnCloseCallback: this.listSongs

@@ -12,7 +12,7 @@ import {Track} from "./types/Track";
 import {toast} from "react-toastify";
 
 type props = {
-    existingId: number | undefined,
+    existingTrack: Track | undefined,
     setActiveSongList: (songs: Track[]) => void,
     activeSongList: object[],
     buildServerUrl: (relativePath: string) => string,
@@ -51,7 +51,7 @@ class UploadSongsComponent extends Component<props, state> {
     _getUrl = () => {
         // this call (when not replacing a track) causes an error due to missing library parameter
         let base = "/track/upload";
-        const {existingId} = this.props;
+        const existingId = this.props.existingTrack?.id;
         if (existingId && isNumber(existingId)) {
             base += "?existingId=" + existingId;
         } else {
@@ -69,7 +69,7 @@ class UploadSongsComponent extends Component<props, state> {
     }
 
     render() {
-        const {existingId} = this.props;
+        const existingId = this.props.existingTrack?.id;
 
         let options = [
             {
@@ -84,7 +84,7 @@ class UploadSongsComponent extends Component<props, state> {
         }));
 
         return <span>
-            {!this.props.existingId && !isEmpty(this.state.libraries) &&
+            {!existingId && !isEmpty(this.state.libraries) &&
             <Dropdown
                 options={options}
                 onChange={this._onLibraryDropdownChange}
@@ -93,7 +93,7 @@ class UploadSongsComponent extends Component<props, state> {
                 disabled={this.state.isLibraryDropdownDisabled}
             />}
             <Dropzone
-                disabled={!this.props.existingId && this.state.selectedLibraryId === -1}
+                disabled={!existingId && this.state.selectedLibraryId === -1}
                 onChangeStatus={({meta, file, xhr, remove}, status) => {
                     if (status === 'done') {
                         this.setState({
@@ -119,7 +119,7 @@ class UploadSongsComponent extends Component<props, state> {
                 }}
                 getUploadParams={() => ({url: this.props.buildServerUrl(this._getUrl())})}
                 accept="audio/*"
-                inputContent={existingId ? `Drag (or click to browse) an audio file to replace the selected track: ${existingId}` : "Drag (or click to browse) audio files to upload"}
+                inputContent={existingId ? `Drag (or click to browse) an audio file to replace '${this.props.existingTrack!.title}'` : "Drag (or click to browse) audio files to upload"}
                 maxFiles={existingId ? 1 : 1000}
             />
         </span>
