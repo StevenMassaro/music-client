@@ -19,7 +19,8 @@ class EditMetadataComponent extends Component {
             song: songCopy,
             maximizedImageUrl: null,
             imageDimensions: null,
-            imageSize: null
+            imageSize: null,
+            searchType: "album"
         }
     }
 
@@ -61,7 +62,7 @@ class EditMetadataComponent extends Component {
 
     loadITunesAlbumArt = () => {
         // from https://github.com/bendodson/itunes-artwork-finder
-        let url = 'https://itunes.apple.com/search?term=' + encodeURI(this.state.song.album) + '&country=us&entity=album'; //hardcoded country to USA
+        let url = 'https://itunes.apple.com/search?term=' + (this.state.searchType === "album" ? encodeURI(this.state.song.album) : encodeURI(this.state.song.artist)) + '&country=us&entity=album'; //hardcoded country to USA
         api.get(url)
             .then((result) => {
                 this.setState({
@@ -116,6 +117,8 @@ class EditMetadataComponent extends Component {
 
     getAlbumArtUrl = () => `https://albumartexchange.com/covers?q=${this.state.song.artist.replaceAll(' ', '+')}+${this.state.song.album.replaceAll(' ', '+')}&fltr=ALL&sort=RATING&status=&size=any&apply-filter=`
 
+    onSearchTypeChange = (event) => this.setState({searchType: event.target.value}, this.loadITunesAlbumArt);
+
     render() {
         return <div>
             <div>Paste an image to set the artwork for '{this.state.song.title}' by '{this.state.song.artist}' on album '{this.state.song.album}'. This change will be persisted to disk immediately.
@@ -133,6 +136,9 @@ class EditMetadataComponent extends Component {
             {!this.state.maximizedImageUrl && this.state.results && <span>
                 <div>
                     Results from iTunes are listed below. Clicking an image will expand it to full resolution.
+                </div>
+                <div>
+                    Search by: <span onChange={this.onSearchTypeChange}><input type="radio" id="album" value="album" checked={this.state.searchType === "album"} name="searchType"/>album <input type="radio" id="artist" value="artist" checked={this.state.searchType === "artist"} name="searchType"/>artist</span>
                 </div>
                 {this.state.results.map(result =>
                     <img src={result.artworkUrl100} alt={result.artistName + " - " + result.collectionName} onClick={() => this.maximizeImage(result.artworkUrl100)}/>
