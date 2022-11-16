@@ -146,7 +146,7 @@ class EditMetadataComponent extends Component {
                         imageDimensions: null,
                         imageSize: null
                     })}>Back</button>
-                    <span>{[this.state.imageDimensions, this.state.imageSize].join(" - ")} <a href={this.state.maximizedImageUrl}>Direct image URL</a></span>
+                    <span>{[this.state.imageDimensions, this.state.imageSize].join(" - ")} <a href={this.state.maximizedImageUrl} target={"_blank"} rel="noreferrer">Direct image URL</a></span>
                     <ReactImageZoom
                         width={600}
                         height={600}
