@@ -32,6 +32,17 @@ docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e 
 ## Other useful tools
 - https://github.com/evilpro/Taskplay - puts playback controls on the Windows taskbar
 - https://github.com/randyrants/sharpkeys - allows remapping of keyboard keys (used to remap something useless, like scroll lock, to the "skip track" key) 
+  - If this won't work for you, you can use a simple [AutoHotKey](https://www.autohotkey.com/) script to remap the F9 key to the "skip track" keyboard press (note that I am no AHK expert, so this might not be the best way to do this, but it does work for me on Windows 10):
+  ```
+    #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+    ; #Warn  ; Enable warnings to assist with detecting common errors.
+    SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+    SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+    f9::
+                    Send {Media_Next}
+    Return
+  ```
 
 ## Architecture
 In previous versions, the unique design of allowing both remote and local usage of the client demanded a complicated architecture, involving an API Gateway (provided via Spring Cloud Gateway).
