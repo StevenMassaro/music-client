@@ -18,11 +18,11 @@ jobs:
               with:
                   repository: stevenmassaro/music
                   path: api
-            - name: Set up JDK 11
+            - name: Set up JDK
               uses: actions/setup-java@v3
               with:
-                  java-version: '11'
-                  distribution: 'adopt'
+                  java-version: '17'
+                  distribution: 'temurin'
                   cache: maven
             - name: Build API with Maven
               working-directory: api
