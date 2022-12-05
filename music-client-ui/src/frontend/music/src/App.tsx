@@ -215,7 +215,7 @@ class App extends Component<props, state> {
     };
 
     getSettings = () => {
-        api.get("./settings/")
+        api.get("./settings")
             .then(
                 (result: AxiosResponse<Settings>) => {
                     let {data} = result;
