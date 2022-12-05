@@ -87,7 +87,7 @@ class NavigatorComponent extends Component<props, state> {
     };
 
     countPurgableTracks = () => {
-        api.get(this.props.buildServerUrl("/admin/purge/count/"))
+        api.get(this.props.buildServerUrl("/admin/purge/count"))
             .then(
                 (result: { data: any; }) => {
                     this.setState({
@@ -97,7 +97,7 @@ class NavigatorComponent extends Component<props, state> {
     };
 
     countUpdates = () => {
-        api.get(this.props.buildServerUrl("/admin/update/count/"))
+        api.get(this.props.buildServerUrl("/admin/update/count"))
             .then(
                 (result: { data: any; }) => {
                     this.setState({
