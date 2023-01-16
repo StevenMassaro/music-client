@@ -8,7 +8,8 @@ import {Modal} from "semantic-ui-react";
 type props = {
     settings: Settings,
     id: number, // current song ID
-    buildServerUrl: (relativePath: string) => string
+    buildServerUrl: (relativePath: string) => string,
+    artSize: string
 }
 
 type state = {
@@ -42,7 +43,7 @@ class AlbumArtComponent extends Component<props,state> {
       </Modal>
       <img src={generateUrl(this.props.settings, "/track/" + this.props.id + "/art", this.props.buildServerUrl)}
            alt={""}
-           className={"albumArtSmall"}
+           className={"albumArt" + this.props.artSize}
            onClick={this.showModal}
       />
     </span>);

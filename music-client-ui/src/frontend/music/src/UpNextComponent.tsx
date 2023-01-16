@@ -6,13 +6,17 @@ import {Item, Menu, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "./types/Track";
 import {defaultFilterMethod} from "./Utils";
+import UpNextEntryComponent from "./UpNextEntryComponent";
+import {Settings} from "./types/Settings";
 
 type props = {
     upNext: Track[],
     moveInUpNext: (indexA: number, offset: number) => void,
     clearUpNext: (newUpNext: Track[]) => void,
     removeFromUpNext: (index: number) => void,
-    currentMusicIndex: number
+    currentMusicIndex: number,
+    buildServerUrl: (relativePath: string) => string,
+    settings: Settings,
 }
 
 type state = {
@@ -20,6 +24,7 @@ type state = {
 }
 
 const backwardsLookCount = 3;
+const maxUpNextEntriesToRender = 10;
 
 class UpNextComponent extends Component<props, state> {
     constructor(props: props | Readonly<props>) {
@@ -65,64 +70,13 @@ class UpNextComponent extends Component<props, state> {
 
     render() {
         return (
-            <span>
-                <ReactTable
-                    resizable={false}
-                    data={this._getData()}
-                    getTdProps={(state: any, rowInfo: any) => {
-                        return {
-                            onContextMenu: (e: any) => {
-                                e.preventDefault();
-                                this._handleContextMenu(e);
-                                this.setState({clickedData: rowInfo});
-                            }
-                        };
-                    }}
-                    columns={[
-                        {
-                            Header: "Title",
-                            accessor: "title",
-                            maxWidth: 175
-                        },
-                        {
-                            Header: "Artist",
-                            accessor: "artist",
-                            maxWidth: 175
-                        },
-                        {
-                            Header: "Album",
-                            accessor: "album",
-                            maxWidth: 175
-                        },
-                    ]}
-                    defaultPageSize={50}
-                    minRows={0}
-                    noDataText={"No songs in up next."}
-                    filterable={true}
-                    sortable={false}
-                    className="-striped -highlight"
-                    defaultFilterMethod={defaultFilterMethod}
-                    getTrProps={this.getTrProps}
+            this._getData().slice(0, maxUpNextEntriesToRender).map(upNextEntry => {
+                return <UpNextEntryComponent
+                    upNextEntry={upNextEntry}
+                    buildServerUrl={this.props.buildServerUrl}
+                    settings={this.props.settings}
                 />
-                <Menu id='upNextMenu'>
-                    {this._getIndex() > 0 &&
-                    <Item onClick={() => this.props.moveInUpNext(this._getIndex(), 1)}>
-                        <div className="green">Move '{this._getTitle()}' up</div>
-                    </Item>
-                    }
-                    {this._shouldRenderMoveDown() &&
-                    <Item onClick={() => this.props.moveInUpNext(this._getIndex(), -1)}>
-                        <div className="green">Move '{this._getTitle()}' down</div>
-                    </Item>
-                    }
-                    <Item onClick={() => this.props.removeFromUpNext(this._getIndex())}>
-                        <div className="green">Remove '{this._getTitle()}'</div>
-                    </Item>
-                    <Item onClick={() => this.props.clearUpNext([])}>
-                        <div className="green">Clear up next</div>
-                    </Item>
-                </Menu>
-            </span>
+            })
         )
     }
 
