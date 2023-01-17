@@ -55,26 +55,27 @@ class UpNextComponent extends Component<props, state> {
         return this.props.upNext.slice(start)
     }
 
-    getTrProps = (finalState: any, rowInfo?: RowInfo, column?: undefined, instance?: any) => {
-        const playingIndex = Math.min(this.props.currentMusicIndex, backwardsLookCount);
-        if (rowInfo && rowInfo.index === playingIndex) {
-            return {
-                style: {
-                    // todo - change this to a light green once the track is marked played?
-                    background: 'silver'
-                }
-            }
-        }
-        return {};
+    isPlaying = (index: number) => {
+        return index === this.currentPlayingIndex();
+    }
+
+    isFuture = (index: number) => {
+        return index > this.currentPlayingIndex();
+    }
+
+    currentPlayingIndex = () => {
+        return Math.min(this.props.currentMusicIndex, backwardsLookCount);
     }
 
     render() {
         return (
-            this._getData().slice(0, maxUpNextEntriesToRender).map(upNextEntry => {
+            this._getData().slice(0, maxUpNextEntriesToRender).map((upNextEntry, index) => {
                 return <UpNextEntryComponent
                     upNextEntry={upNextEntry}
                     buildServerUrl={this.props.buildServerUrl}
                     settings={this.props.settings}
+                    isPlaying={this.isPlaying(index)}
+                    isFutureSong={this.isFuture(index)}
                 />
             })
         )

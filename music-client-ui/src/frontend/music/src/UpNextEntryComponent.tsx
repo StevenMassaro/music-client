@@ -11,6 +11,8 @@ type props = {
     upNextEntry: Track,
     buildServerUrl: (relativePath: string) => string,
     settings: Settings,
+    isPlaying: boolean,
+    isFutureSong: boolean,
 }
 
 type state = {
@@ -25,7 +27,7 @@ class UpNextEntryComponent extends Component<props, state> {
     }
 
     render() {
-        return (<span><Grid columns={2}>
+        return (<span style={{opacity: (this.props.isPlaying || this.props.isFutureSong) ? "100%" : "40%"}}><Grid columns={2}>
                 <Grid.Column width={4}>
                     <AlbumArtComponent
                         artSize={"Fill"}
