@@ -1,11 +1,8 @@
 import React, {Component} from 'react';
 import './App.css';
-import ReactTable, {RowInfo} from "react-table";
 import "react-table/react-table.css";
-import {Item, Menu, useContextMenu, TriggerEvent} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "./types/Track";
-import {defaultFilterMethod} from "./Utils";
 import UpNextEntryComponent from "./UpNextEntryComponent";
 import {Settings} from "./types/Settings";
 
@@ -20,62 +17,53 @@ type props = {
 }
 
 type state = {
-    clickedData: any
 }
 
-const backwardsLookCount = 3;
+const backwardsLookCount = 1;
 const maxUpNextEntriesToRender = 10;
 
 class UpNextComponent extends Component<props, state> {
     constructor(props: props | Readonly<props>) {
         super(props);
         this.state = {
-            clickedData: undefined
         };
     }
 
-    _getOrig = () => this.state.clickedData ? this.state.clickedData.original : null;
-
-    _getTitle = () => this._getOrig() ? this._getOrig().title : null;
-
-    _getIndex = () => this.state.clickedData ? this.state.clickedData.index : null;
-
-    _shouldRenderMoveDown = () => this.props.upNext && this._getIndex() < this.props.upNext.length - 1;
-
-    _handleContextMenu = (event: TriggerEvent)  => {
-        const {show} = useContextMenu({
-            id: 'upNextMenu',
-        });
-        show(event)
-    }
-
-    _getData = () => {
-        const subtractor = this.props.currentMusicIndex < backwardsLookCount ? this.props.currentMusicIndex : backwardsLookCount;
-        const start = this.props.currentMusicIndex > 0 ? this.props.currentMusicIndex - subtractor : 0;
-        return this.props.upNext.slice(start)
-    }
+    isLast = (index: number) => this.props.upNext && index < this.props.upNext.length - 1;
 
     isPlaying = (index: number) => {
-        return index === this.currentPlayingIndex();
+        return index === this.props.currentMusicIndex;
     }
 
     isFuture = (index: number) => {
-        return index > this.currentPlayingIndex();
+        return index > this.props.currentMusicIndex;
     }
 
-    currentPlayingIndex = () => {
-        return Math.min(this.props.currentMusicIndex, backwardsLookCount);
+    isFirst = (index: number) => {
+        return index === 0;
+    }
+
+    shouldRender = (index: number) => {
+        const subtractor = Math.min(this.props.currentMusicIndex, backwardsLookCount);
+        return (index >= this.props.currentMusicIndex - subtractor) && (index < this.props.currentMusicIndex + maxUpNextEntriesToRender);
     }
 
     render() {
         return (
-            this._getData().slice(0, maxUpNextEntriesToRender).map((upNextEntry, index) => {
+            this.props.upNext.map((upNextEntry, index) => {
                 return <UpNextEntryComponent
                     upNextEntry={upNextEntry}
                     buildServerUrl={this.props.buildServerUrl}
                     settings={this.props.settings}
                     isPlaying={this.isPlaying(index)}
                     isFutureSong={this.isFuture(index)}
+                    isFirst={this.isFirst(index)}
+                    isLast={this.isLast(index)}
+                    currentMusicIndex={this.props.currentMusicIndex}
+                    shouldRender={this.shouldRender(index)}
+                    moveInUpNext={this.props.moveInUpNext}
+                    removeFromUpNext={this.props.removeFromUpNext}
+                    index={index}
                 />
             })
         )
