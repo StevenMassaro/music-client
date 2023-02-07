@@ -21,7 +21,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <revision>1.18.3</revision>
+        <revision>1.18.4</revision>
+        <dependencyVersion>1.18.3</dependencyVersion>
     </properties>
 
     <dependencyManagement>
@@ -29,17 +30,17 @@
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-model</artifactId>
-                <version>${revision}</version>
+                <version>${dependencyVersion}</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-utils</artifactId>
-                <version>${revision}</version>
+                <version>${dependencyVersion}</version>
             </dependency>
             <dependency>
                 <groupId>com.massaro</groupId>
                 <artifactId>music-service</artifactId>
-                <version>${revision}</version>
+                <version>${dependencyVersion}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
