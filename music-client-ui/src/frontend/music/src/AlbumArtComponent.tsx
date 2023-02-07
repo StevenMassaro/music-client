@@ -9,7 +9,7 @@ type props = {
     settings: Settings,
     id: number, // current song ID
     buildServerUrl: (relativePath: string) => string,
-    artSize: string
+    artSize: string // Small or Fill
 }
 
 type state = {
