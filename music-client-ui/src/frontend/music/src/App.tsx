@@ -598,6 +598,8 @@ class App extends Component<props, state> {
                                         clearUpNext={this.clearUpNext}
                                         removeFromUpNext={this.removeFromUpNext}
                                         moveInUpNext={this.moveInUpNext}
+                                        buildServerUrl={this.buildServerUrl}
+                                        settings={this.state.settings!}
                                     />
                                 </div>
                             </SplitPane>

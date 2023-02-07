@@ -52,6 +52,7 @@ class PlayerComponent extends Component<props, state> {
                             <AlbumArtComponent id={this.props.currentSong()!.id}
                                                settings={this.props.settings}
                                                buildServerUrl={this.props.buildServerUrl}
+                                               artSize={"Small"}
                             /> {this.props.currentSong()!.title} - {this.props.currentSong()!.artist}
                             <span style={{'float': 'right'}}>
                                 <StarRatingComponent

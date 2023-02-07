@@ -10,6 +10,12 @@
     position: relative;
 }
 
+.albumArtFill {
+    max-height: 100%;
+    max-width: 100%;
+    position: relative;
+}
+
 .modal {
     display: block;
     margin-left: auto;
