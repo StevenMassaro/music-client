@@ -3,10 +3,9 @@ import * as lodash from "lodash";
 import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
 import moment from 'moment';
-import {Item, Menu, Submenu, Separator, useContextMenu, TriggerEvent} from "react-contexify";
-import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
 import { Playlist } from '../../types/Playlist';
+import {Dropdown, Menu, Popup } from 'semantic-ui-react';
 
 type props = {
     activeSongList: Track[],
@@ -31,45 +30,63 @@ type props = {
 type state = {
     clickedData?: Track,
     tableRef: any,
+    contextOpen: boolean,
 }
 
 export class GenericSongListComponent extends Component<props, state> {
+    private contextRef: React.RefObject<any>;
 
     constructor(props: props | Readonly<props>) {
         super(props);
+        this.contextRef = React.createRef()
         this.state = {
             clickedData: undefined,
             tableRef: null,
+            contextOpen: false,
         }
     }
 
     _generateRatingList = () => {
         let ratingList = [];
         for (let i = 0; i < 11; i++) {
-            ratingList.push(<Item
-                key={`rating-${i}`}
-                onClick={() => this.props.setRating(this.state.clickedData!.id, i)}>{i}</Item>);
+            ratingList.push(
+                <Dropdown.Item
+                    text={i}
+                    onClick={() => this.props.setRating(this.state.clickedData!.id, i)}
+                />)
         }
         return ratingList;
     };
 
-    _generatePlaylistList = () => {
-        return this.props.playlists.map(playlist => {
-            return <Item
-                key={`playlist-${playlist.id}`}
-                onClick={() => this.props.addToPlaylist(playlist, this.state.clickedData!)}>{playlist.name}</Item>
-        })
-    };
+    // _generatePlaylistList = () => {
+    //     return this.props.playlists.map(playlist => {
+    //         return <Item
+    //             key={`playlist-${playlist.id}`}
+    //             onClick={() => this.props.addToPlaylist(playlist, this.state.clickedData!)}>{playlist.name}</Item>
+    //     })
+    // };
 
     _getFilteredSongList = () => this.state.tableRef!.getResolvedState().sortedData;
 
     _filteredSongListSelector = (s: any) => s._original;
 
-    _handleContextMenu = (event: TriggerEvent) => {
-        const {show} = useContextMenu({
-            id: 'menu_id',
-        });
-        show(event)
+    createContextFromEvent = (e: any) => {
+        const left = e.clientX
+        const top = e.clientY
+        const right = left + 1
+        const bottom = top + 1
+
+        return {
+            getBoundingClientRect: () => ({
+                left,
+                top,
+                right,
+                bottom,
+
+                height: 0,
+                width: 0,
+            }),
+        }
     }
 
     render() {
@@ -97,8 +114,12 @@ export class GenericSongListComponent extends Component<props, state> {
                             },
                             onContextMenu: (e: any) => {
                                 e.preventDefault();
-                                this._handleContextMenu(e);
-                                this.setState({clickedData: rowInfo!.original});
+                                // @ts-ignore
+                                this.contextRef.current = this.createContextFromEvent(e)
+                                this.setState({
+                                    clickedData: rowInfo!.original,
+                                    contextOpen: true,
+                                });
                             }
                         };
                     }}
@@ -175,43 +196,56 @@ export class GenericSongListComponent extends Component<props, state> {
                     defaultFilterMethod={this.props.defaultFilterMethod}
 
                 />
-                <Menu id='menu_id'>
-                    <Item
-                        onClick={() => this.props.shuffleSongs(this._getFilteredSongList(), this._filteredSongListSelector)}>
-                        <div className="green">Shuffle visible</div>
-                    </Item>
-                    <Separator/>
-                    <div><b>{this.state.clickedData ? this.state.clickedData.title : null}</b></div>
-                    <Item onClick={() => this.props.playNext(this.state.clickedData!)}>
-                        <div className="green">Play next</div>
-                    </Item>
-                    <Item onClick={() => this.props.showInfo(this.state.clickedData!)}>
-                        <div className="green">Show info...</div>
-                    </Item>
-                    <Item onClick={() => this.props.downloadSong(this.state.clickedData!)}>
-                        <div className="green">Download</div>
-                    </Item>
-                    <Item onClick={() => this.props.showEditMetadata(this.state.clickedData!)}>
-                        <div className="green">Edit...</div>
-                    </Item>
-                    <Item onClick={() => this.props.showEditAlbumArt(this.state.clickedData!)}>
-                        <div className="green">Edit album art...</div>
-                    </Item>
-                    <Submenu label="Rate">
-                        {this._generateRatingList()}
-                    </Submenu>
-                    {!lodash.isEmpty(this.props.playlists) &&
-                        <Submenu label="Add to playlist">
-                            {this._generatePlaylistList()}
-                        </Submenu>
-                    }
-                    <Item onClick={() => this.props.showUploadSongs(this.state.clickedData!)}>
-                        <div className="green">Replace track...</div>
-                    </Item>
-                    <Item onClick={() => this.props.deleteSong(this.state.clickedData!.id)}>
-                        <div className="green">Delete</div>
-                    </Item>
-                </Menu>
+                <Popup
+                    basic
+                    context={this.contextRef}
+                    onClose={() => this.setState({contextOpen: false})}
+                    open={this.state.contextOpen}
+                >
+                    <Menu
+                        secondary
+                        vertical
+                        compact
+                    >
+                        <Menu.Item
+                            onClick={() => this.props.shuffleSongs(this._getFilteredSongList(), this._filteredSongListSelector)}>
+                            <div className="green">Shuffle visible</div>
+                        </Menu.Item>
+                        <div className="ui divider"></div>
+                        <div><b>{this.state.clickedData ? this.state.clickedData.title : null}</b></div>
+                        <Menu.Item onClick={() => this.props.playNext(this.state.clickedData!)}>
+                            <div className="green">Play next</div>
+                        </Menu.Item>
+                        <Menu.Item onClick={() => this.props.showInfo(this.state.clickedData!)}>
+                            <div className="green">Show info...</div>
+                        </Menu.Item>
+                        <Menu.Item onClick={() => this.props.downloadSong(this.state.clickedData!)}>
+                            <div className="green">Download</div>
+                        </Menu.Item>
+                        <Menu.Item onClick={() => this.props.showEditMetadata(this.state.clickedData!)}>
+                            <div className="green">Edit...</div>
+                        </Menu.Item>
+                        <Menu.Item onClick={() => this.props.showEditAlbumArt(this.state.clickedData!)}>
+                            <div className="green">Edit album art...</div>
+                        </Menu.Item>
+                        <Dropdown item text='Rate'>
+                            <Dropdown.Menu>
+                                {this._generateRatingList()}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                        {/*{!lodash.isEmpty(this.props.playlists) &&*/}
+                        {/*    <Submenu label="Add to playlist">*/}
+                        {/*        {this._generatePlaylistList()}*/}
+                        {/*    </Submenu>*/}
+                        {/*}*/}
+                        <Menu.Item onClick={() => this.props.showUploadSongs(this.state.clickedData!)}>
+                            <div className="green">Replace track...</div>
+                        </Menu.Item>
+                        <Menu.Item onClick={() => this.props.deleteSong(this.state.clickedData!.id)}>
+                            <div className="green">Delete</div>
+                        </Menu.Item>
+                    </Menu>
+                </Popup>
             </div>
         );
     }
