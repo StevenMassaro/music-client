@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as lodash from "lodash";
-import ReactTable, {RowInfo} from "react-table";
+import ReactTable, {ReactTableDefaults, RowInfo} from "react-table";
 import {toTime} from "../../Utils";
 import moment from 'moment';
 import {Item, Menu, Separator, Submenu, TriggerEvent, useContextMenu} from "react-contexify";
@@ -73,30 +73,24 @@ export class GenericSongListComponent extends Component<props, state> {
     }
 
     /**
-     * Primitively calculate how many rows should be displayed in the table based on the size of the window
-     * when the page is loaded. This is primitive because the calculation has a lot of hard coded values. This is
-     * because this calculation occurs before the elements themselves are rendered
+     * Calculate how many rows should be displayed in the table based on the size of the table.
      */
-    _calculateRowCount = () => {
-        // Get the height of the window
-        const height = window.innerHeight || document.documentElement.clientHeight ||
-            document.body.clientHeight;
-        // Get the height of the other parts of the UI that we know about
-        const knownOtherHeights =
-            112 // player
-            + 29 // column headers
-            + 40 // filter boxes
-            + 17 // horizontal scroll bar
-            + 43 // pagination footer
-            + 5 // buffer
-        const singleRowHeight = 24;
-        return Math.floor((height - knownOtherHeights) / singleRowHeight);
+    _calculatePageSize = () => {
+        const songListPanes = document.getElementsByClassName('rt-tbody')
+        if (songListPanes.length > 0) {
+            const songListPane = songListPanes[0]
+            const individualRowHeight = 25;
+            // @ts-ignore
+            return Math.floor(songListPane.offsetHeight / individualRowHeight)
+        } else {
+            return 100;
+        }
     }
 
     render() {
         const {activeSongList} = this.props;
         const headerHeight = "20px";
-        const rowCount = this._calculateRowCount();
+        const pageSize = this._calculatePageSize();
 
         return (
             <div>
@@ -194,7 +188,8 @@ export class GenericSongListComponent extends Component<props, state> {
                             Cell: row => row.value && moment(row.value).format("YYYY-MM-DD HH:mm")
                         }
                     ]}
-                    pageSize={rowCount}
+                    pageSize={pageSize}
+                    showPageSizeOptions={false}
                     minRows={0}
                     noDataText={this.props.listingSongs ? "Loading songs..." : "No matching songs."}
                     filterable={true}
