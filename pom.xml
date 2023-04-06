@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <revision>1.18.4</revision>
-        <dependencyVersion>1.18.3</dependencyVersion>
+        <dependencyVersion>1.18.4</dependencyVersion>
     </properties>
 
     <dependencyManagement>
