@@ -3,10 +3,10 @@ import * as lodash from "lodash";
 import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
 import moment from 'moment';
-import {Item, Menu, Submenu, Separator, useContextMenu, TriggerEvent} from "react-contexify";
+import {Item, Menu, Separator, Submenu, TriggerEvent, useContextMenu} from "react-contexify";
 import 'react-contexify/dist/ReactContexify.css';
 import {Track} from "../../types/Track";
-import { Playlist } from '../../types/Playlist';
+import {Playlist} from '../../types/Playlist';
 
 type props = {
     activeSongList: Track[],
@@ -72,12 +72,39 @@ export class GenericSongListComponent extends Component<props, state> {
         show(event)
     }
 
+    /**
+     * Primitively calculate how many rows should be displayed in the table based on the size of the window
+     * when the page is loaded. This is primitive because the calculation has a lot of hard coded values. This is
+     * because this calculation occurs before the elements themselves are rendered
+     */
+    _calculateRowCount = () => {
+        // Get the height of the window
+        const height = window.innerHeight || document.documentElement.clientHeight ||
+            document.body.clientHeight;
+        // Get the height of the other parts of the UI that we know about
+        const knownOtherHeights =
+            112 // player
+            + 29 // column headers
+            + 40 // filter boxes
+            + 17 // horizontal scroll bar
+            + 43 // pagination footer
+            + 5 // buffer
+        const singleRowHeight = 24;
+        return Math.floor((height - knownOtherHeights) / singleRowHeight);
+    }
+
     render() {
         const {activeSongList} = this.props;
         const headerHeight = "20px";
+        const rowCount = this._calculateRowCount();
+
         return (
             <div>
-                {!lodash.isUndefined(this.props.activeSongListName) && <div style={{"textAlign": "center", "height": headerHeight, "fontWeight": "bold"}}>{this.props.activeSongListName}</div>}
+                {!lodash.isUndefined(this.props.activeSongListName) && <div style={{
+                    "textAlign": "center",
+                    "height": headerHeight,
+                    "fontWeight": "bold"
+                }}>{this.props.activeSongListName}</div>}
                 <ReactTable
                     style={{"height": lodash.isUndefined(this.props.activeSongListName) ? "100%" : `calc(100% - ${headerHeight})`}}
                     data={activeSongList}
@@ -167,7 +194,7 @@ export class GenericSongListComponent extends Component<props, state> {
                             Cell: row => row.value && moment(row.value).format("YYYY-MM-DD HH:mm")
                         }
                     ]}
-                    defaultPageSize={100}
+                    pageSize={rowCount}
                     minRows={0}
                     noDataText={this.props.listingSongs ? "Loading songs..." : "No matching songs."}
                     filterable={true}
