@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as lodash from "lodash";
-import ReactTable, {ReactTableDefaults, RowInfo} from "react-table";
+import ReactTable, {RowInfo} from "react-table";
 import {toTime} from "../../Utils";
 import moment from 'moment';
 import {Item, Menu, Separator, Submenu, TriggerEvent, useContextMenu} from "react-contexify";
