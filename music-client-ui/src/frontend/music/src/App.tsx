@@ -156,16 +156,17 @@ class App extends Component<props, state> {
      * @param direction positive one to skip to next song, negative one to skip to previous song
      */
     navigateActiveSongInUpNext = (skipped = true, direction: number) => {
+        const skipForwards = direction > 0;
         if (skipped) {
             const durationBeforeSkipped = this.state.audioEl!.currentTime;
             console.log(`song played ${durationBeforeSkipped} seconds before being skipped`);
             const curThresh = this._determineCurrentListenedThreshold();
-            if (curThresh < LISTENED_THRESHOLD) {
+            if (skipForwards && curThresh < LISTENED_THRESHOLD) {
                 console.log(`song is not considered listened to (listen threshold of ${curThresh}), marked as skipped`);
                 this._markSkipped(this._getCurrentSong()!.id, durationBeforeSkipped);
             }
             else {
-                console.log(`song is considered listened to, not marking as skipped`);
+                console.log(`song is considered listened to or skipped backwards, not marking as skipped`);
                 this.markListenedIfExceedsThreshold();
             }
         }
