@@ -154,7 +154,8 @@ class NavigatorComponent extends Component<props, state> {
                 })}
                 <DropdownListComponent
                     title={"Historical plays"}
-                    valuesUrl={"/track/historical/"}
+                    valuesUrl={"/track/historical"}
+                    tracksUrl={"/track/historical/"}
                     activeMenuItem={this.state.activeItem!}
                     setActiveMenuItem={this._setActiveMenuItem}
                     setActiveSongList={this.props.setActiveSongList}
