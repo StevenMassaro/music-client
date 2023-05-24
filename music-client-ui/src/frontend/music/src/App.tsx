@@ -84,9 +84,13 @@ class App extends Component<props, state> {
         }, (error: any) => {
             console.log(error.toJSON());
             console.log(error.response);
-            toast.error(`API call to ${error.config.url} failed: ${error.message}`, {
+            const { config } = error;
+
+            toast.error(<div>
+                API call to {error.config.url} failed: {error.message}. <a href={"#"} onClick={() => api(config)}>Retry?</a>
+            </div>, {
                 autoClose: false
-            });
+            })
             return Promise.reject(error);
         });
     }
