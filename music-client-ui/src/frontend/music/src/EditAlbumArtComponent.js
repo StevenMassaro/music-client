@@ -36,17 +36,21 @@ class EditMetadataComponent extends Component {
                         var formData = new FormData();
                         formData.append('file', blob, "image_file");
 
-                        toast.info("Updating album art...");
+                        const toastId = toast.info(`Updating album art for ${this.state.song.title}`, {
+                            autoClose: false
+                        });
                         api({
                             url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll),
                             method: 'post',
                             data: formData
                         })
                             .then(() => {
+                                toast.dismiss(toastId)
                                 toast.success(this.state.song.album + ": successfully updated album art.")
                             })
                             .catch(() => {
-                                toast.error("Failed to update album art.");
+                                toast.dismiss(toastId)
+                                toast.error(`Failed to update album art for ${this.state.song.title}`);
                             })
                         this.props.closeModal()
                     }.bind(this);
@@ -99,15 +103,19 @@ class EditMetadataComponent extends Component {
     generateLargeImageUrl = thumbnailUrl => thumbnailUrl.replace("100x100bb", "9999x9999")
 
     applyItunesAlbumArt = () => {
-        toast.info("Updating album art...");
+        const toastId = toast.info(`Updating album art for ${this.state.song.title}`, {
+            autoClose: false
+        });
         api({
             url: this.props.buildServerUrl("/track/" + this.state.song.id + "/art?updateForEntireAlbum=" + this.state.updateAll + "&url=" + this.state.maximizedImageUrl),
             method: 'post'
         })
             .then(() => {
+                toast.dismiss(toastId)
                 toast.success(this.state.song.album + ": successfully updated album art.")
             })
             .catch(() => {
+                toast.dismiss(toastId)
                 toast.error("Failed to update album art.");
             })
         this.props.closeModal();
