@@ -87,7 +87,7 @@ class App extends Component<props, state> {
             const { config } = error;
 
             toast.error(<div>
-                API call to {error.config.url} failed: {error.message}. <a href={"#"} onClick={() => api(config)}>Retry?</a>
+                API call to {error.config.url} failed: {error.message}. <button onClick={() => api(config)}>Retry?</button>
             </div>, {
                 autoClose: false
             })
