@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.184",
-    "@types/react-star-rating-component": "^1.4.1",
+    "@types/react-star-rating-component": "^1.4.2",
     "http-proxy-middleware": "2.0.6",
     "crypto-browserify": "3.12.0",
     "stream-browserify": "3.0.0",
