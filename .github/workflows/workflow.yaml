@@ -24,6 +24,8 @@ jobs:
                   cache: maven
             - name: Build with Maven
               run: mvn --batch-mode --update-snapshots clean install --activate-profiles ui
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - run: mkdir staging && cp music-client-ui/target/*.jar staging
             - uses: actions/upload-artifact@v3
               with:
