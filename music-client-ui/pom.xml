@@ -35,15 +35,15 @@
             <version>3.13.0</version>
         </dependency>
         <dependency>
-            <groupId>com.massaro</groupId>
+            <groupId>com.stevenmassaro</groupId>
             <artifactId>music-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.massaro</groupId>
+            <groupId>com.stevenmassaro</groupId>
             <artifactId>music-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.massaro</groupId>
+            <groupId>com.stevenmassaro</groupId>
             <artifactId>music-service</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
