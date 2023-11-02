@@ -21,29 +21,44 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
-        <revision>1.18.4</revision>
-        <dependencyVersion>1.18.4</dependencyVersion>
+        <revision>1.20</revision>
+        <dependencyVersion>1.20</dependencyVersion>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.massaro</groupId>
+                <groupId>com.stevenmassaro</groupId>
                 <artifactId>music-model</artifactId>
                 <version>${dependencyVersion}</version>
             </dependency>
             <dependency>
-                <groupId>com.massaro</groupId>
+                <groupId>com.stevenmassaro</groupId>
                 <artifactId>music-utils</artifactId>
                 <version>${dependencyVersion}</version>
             </dependency>
             <dependency>
-                <groupId>com.massaro</groupId>
+                <groupId>com.stevenmassaro</groupId>
                 <artifactId>music-service</artifactId>
                 <version>${dependencyVersion}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/StevenMassaro/music</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+        </repository>
+    </repositories>
 
     <build>
         <resources>
