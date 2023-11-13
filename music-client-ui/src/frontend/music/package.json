@@ -9,7 +9,7 @@
     "@types/react": "^16.9.55",
     "@types/react-dom": "^18.0.6",
     "@types/react-table": "6.8.7",
-    "@types/downloadjs": "1.4.4",
+    "@types/downloadjs": "1.4.6",
     "axios": "0.27.2",
     "downloadjs": "1.4.7",
     "lodash": "4.17.21",
