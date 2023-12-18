@@ -27,7 +27,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - run: mkdir staging && cp music-client-ui/target/*.jar staging
-            - uses: actions/upload-artifact@v3
+            - uses: actions/upload-artifact@v4
               with:
                   name: Package
                   path: staging
