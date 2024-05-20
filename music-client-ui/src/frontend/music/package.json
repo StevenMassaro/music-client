@@ -36,7 +36,7 @@
     "url-file-size": "1.0.4"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.0",
+    "@types/lodash": "^4.17.4",
     "@types/react-star-rating-component": "^1.4.4",
     "http-proxy-middleware": "2.0.6",
     "crypto-browserify": "3.12.0",
