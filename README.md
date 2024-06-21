@@ -31,6 +31,7 @@ docker run --name="music-client" -e "zuul.routes.music-api.url"="SERVER_URL" -e 
 
 ## Other useful tools
 - https://github.com/evilpro/Taskplay - puts playback controls on the Windows taskbar
+- https://github.com/sakithb/media-controls - puts playback controls on the Ubuntu GNOME toolbar
 - https://github.com/randyrants/sharpkeys - allows remapping of keyboard keys (used to remap something useless, like scroll lock, to the "skip track" key) 
   - If this won't work for you, you can use a simple [AutoHotKey](https://www.autohotkey.com/) script to remap the F9 key to the "skip track" keyboard press (note that I am no AHK expert, so this might not be the best way to do this, but it does work for me on Windows 10):
   ```
