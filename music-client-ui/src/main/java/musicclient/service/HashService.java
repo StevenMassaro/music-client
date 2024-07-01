@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class HashService extends AbstractService {
         try{
             String hashDump = FileUtils.readFileToString(getHashDumpFile(), StandardCharsets.UTF_8);
             return (Map<String, String>) objectMapper.readValue(hashDump, Map.class);
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException | NoSuchFileException e){
             log.error("No existing hash dump found", e);
             return new HashMap<>();
         }
