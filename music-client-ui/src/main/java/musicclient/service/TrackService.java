@@ -79,7 +79,7 @@ public class TrackService extends AbstractService {
      * List the files found in the music file location that match the supplied ID with any extension.
      * @return list of files found that match the supplied ID, or an empty collection if no files are found
      */
-    private Collection<File> listFiles(long id){
+    public Collection<File> listFiles(long id){
         log.debug("Begin listing filtered files (ID: {})", id);
         IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
         Collection<File> files = FileUtils.listFiles(new File(localMusicFileLocation), fileFilter, null);

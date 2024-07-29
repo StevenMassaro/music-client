@@ -51,6 +51,19 @@ public class SyncService extends AbstractService {
                 for (Track track : tracksToSync) {
                     if (!existingFilesHash.containsKey(track.getHash())) {
                         actualTracksToSync.add(track);
+                    } else if (existingFilesHash.containsKey(track.getHash()) && trackService.listFiles(track.getId()).isEmpty()) {
+                        // Rare situation where file is on disk, but has the wrong ID associated with it.
+                        // Delete the file
+                        boolean delete = existingFilesHash.get(track.getHash()).delete();
+                        if (!delete) {
+                            log.warn("Failed to delete existing file which matches a hash that is expected but is associated with the wrong ID: {}", existingFilesHash.get(track.getHash()));
+                        } else {
+                            // Remove it from the file hashes, because we want to consider it obsolete.
+                            existingFilesHash.remove(track.getHash());
+                            // Add it to the sync list.
+                            actualTracksToSync.add(track);
+                            log.debug("Existing file {} deleted and will be redownloaded because it has the wrong ID.", existingFilesHash.get(track.getHash()));
+                        }
                     }
                 }
                 log.info("{} tracks to sync", actualTracksToSync);
