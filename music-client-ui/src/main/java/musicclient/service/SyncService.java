@@ -11,6 +11,7 @@ import musicclient.model.impl.SyncResult;
 import musicclient.model.impl.SyncStep;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +46,14 @@ public class SyncService extends AbstractService {
 			if (tracksToSync != null) {
 				Map<String, File> existingFilesHash = determineExistingFilesHashes();
                 Map<String, String> newFilesHashes = new ConcurrentHashMap<>();
+                Collection<File> existingFilesOnDisk = trackService.listFiles();
 
                 // for each file to be synced, see if it already exists on disk and hashes match
                 List<Track> actualTracksToSync = new ArrayList<>();
                 for (Track track : tracksToSync) {
                     if (!existingFilesHash.containsKey(track.getHash())) {
                         actualTracksToSync.add(track);
-                    } else if (existingFilesHash.containsKey(track.getHash()) && trackService.listFiles(track.getId()).isEmpty()) {
+                    } else if (existingFilesHash.containsKey(track.getHash()) && !doesFileExist(existingFilesOnDisk, track.getId())) {
                         // Rare situation where file is on disk, but has the wrong ID associated with it.
                         // Delete the file
                         boolean delete = existingFilesHash.get(track.getHash()).delete();
@@ -106,6 +108,22 @@ public class SyncService extends AbstractService {
 			currentlySyncing.set(false);
 			throw e;
 		}
+    }
+
+    /**
+     * Checks if a file with the specified ID exists in the given collection of files.
+     * @param files a collection of {@code File} objects to search through
+     * @param id the ID to match against the files
+     * @return {@code true} if a file with the specified ID exists in the collection, {@code false} otherwise
+     */
+    private boolean doesFileExist(Collection<File> files, long id) {
+        IOFileFilter fileFilter = TrackService.getFileFilter(id);
+        for (File file : files) {
+            if (fileFilter.accept(file)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void performSync(List<Track> tracksToSync, Map<String, File> existingFilesHash, Map<String, String> newFilesHashes, SyncResult syncResult) {

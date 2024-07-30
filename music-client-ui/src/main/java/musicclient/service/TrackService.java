@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,10 +82,19 @@ public class TrackService extends AbstractService {
      */
     public Collection<File> listFiles(long id){
         log.debug("Begin listing filtered files (ID: {})", id);
-        IOFileFilter fileFilter = new WildcardFileFilter(id + ".*");
+        IOFileFilter fileFilter = getFileFilter(id);
         Collection<File> files = FileUtils.listFiles(new File(localMusicFileLocation), fileFilter, null);
         log.debug("Finish listing filtered files (ID: {})", id);
         return files;
+    }
+
+    /**
+     * Creates and returns an {@code IOFileFilter} that matches files based on the specified ID.
+     * @param id the ID to be used as the prefix in the wildcard filter
+     * @return an {@code IOFileFilter} that matches files with names starting with the specified ID
+     */
+    public static @NotNull IOFileFilter getFileFilter(long id) {
+        return new WildcardFileFilter(id + ".*");
     }
 
     /**
